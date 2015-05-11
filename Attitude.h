@@ -1,6 +1,12 @@
 #ifndef ATTITUDE_H
 #define ATTITUDE_H
 
+#include "Calibration.h"
+#include "Types.h"
+#include "Definitions.h"
+#include "Math.h"
+#include "Sensors.h"
+
 #define KP_ACC 1.0
 #define KI_ACC 0.0
 #define KP_MAG 1.0

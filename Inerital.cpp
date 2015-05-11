@@ -12,6 +12,8 @@ float gpsX,gpsY,baroZ,baroVel;
 float gpsVelX,gpsVelY;
 float accelBiasX,accelBiasY,accelBiasZ;
 float distToCraft,headingToCraft;
+float prevBaro;
+
 
 //-------------------
 float inertialZGrav;
@@ -105,8 +107,7 @@ void GetGPSXY(){
 
 void GetBaroZ(){
   static uint32_t baroTimer = 0;
-  static float prevBaro = 0;
-
+  
   float baroDT;
   float baroAlt,baroRate;
 

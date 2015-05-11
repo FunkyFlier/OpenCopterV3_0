@@ -274,22 +274,11 @@
 #define RC_SSLow() PORTH &= ~(1<<7)
 
 #define CAL_FLAGS 0
+#define CEILING 6
+#define FLOOR 2
+#define TAKE_OFF_ALT 3
 
 
-enum CalibrationFlags {
-  RC_FLAG,
-  ACC_FLAG,
-  MAG_FLAG,
-  GAINS_FLAG
-};
-
-enum ISR_States {
-  STAND,PPM};
-
-enum RC_Types {
-  DSM10, DSM11, SBUS, RC};
-enum RC_Chan {
-  THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 
 #define RC_DATA_START 332
 #define RC_DATA_END 427
@@ -301,6 +290,36 @@ enum RC_Chan {
 #define SCALE_INDEX 342
 #define REV_INDEX 343
 
+#define PWM_FLAG 434
+#define PWM_HIGH_MAX 2000
+#define PWM_LOW_MIN 1000
+
+#define PWM_HIGH_MIN 1900
+#define PWM_LOW_MAX 1200
+
+#define ESC_CALIBRATION_DELAY 4000
+
+#define VER_NUM_1 0x01
+#define VER_NUM_2 0x01
+
+#define PWM_LIM_HIGH_START 430
+#define PWM_LIM_HIGH_END 431
+
+#define PWM_LIM_LOW_START 432
+#define PWM_LIM_LOW_END 433
+
+#define ESC_CAL_FLAG 7
+
+#define FREQ 100
+#define PRESCALE 8
+#define PERIOD ((F_CPU/PRESCALE/FREQ) - 1)
+
+#define HS_FLAG 1
+
+#define ESC_CAL_FLAG 7
+
+#define GAINS_START 88
+#define GAINS_END 327
 
 #endif//#ifndef Definitions.h
 

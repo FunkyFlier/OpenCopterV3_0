@@ -1,6 +1,9 @@
 #include "RCSignals.h"
 #include <Streaming.h>
 #include <EEPROM.h>
+
+
+
 RC_t rcData[8];
 int16_t RCValue[8];
 boolean rcDetected = false;
@@ -8,6 +11,7 @@ volatile uint8_t rcType;
 uint8_t ISRState = STAND;
 volatile boolean RCFailSafe = false;
 volatile boolean newRC = false;
+int16_t cmdElev,cmdAile,cmdRudd,throCommand;
 
 uint8_t readState,byteCount,channelNumber;
 uint32_t frameTime;

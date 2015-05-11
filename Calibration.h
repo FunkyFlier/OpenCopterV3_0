@@ -1,5 +1,11 @@
 #ifndef CALIBRATION_H
 #define CALIBRATION_H
+
+#include "Definitions.h"
+#include "Types.h"
+#include "Sensors.h"
+#include "Math.h"
+
 #include <Arduino.h>
 
 

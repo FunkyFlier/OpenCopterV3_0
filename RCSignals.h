@@ -4,6 +4,9 @@
 #include "Types.h"
 #include "Definitions.h"
 #include "Comm.h"
+#include "Enums.h"
+#include <Arduino.h>
+
 
 typedef struct {
   int16_t max;
@@ -29,6 +32,7 @@ extern volatile uint8_t rcType;
 extern uint8_t ISRState;
 extern volatile boolean RCFailSafe;
 extern volatile boolean newRC;
+extern int16_t cmdElev,cmdAile,cmdRudd,throCommand;
 
 
 #endif

@@ -1,9 +1,5 @@
 #include "Attitude.h"
-#include "Calibration.h"
-#include "Types.h"
-#include "Definitions.h"
-#include "Math.h"
-#include "Sensors.h"
+
 #include <EEPROM.h>
 #include <Streaming.h>
 

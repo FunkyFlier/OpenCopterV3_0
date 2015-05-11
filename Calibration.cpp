@@ -1,8 +1,4 @@
 #include "Calibration.h"
-#include "Definitions.h"
-#include "Types.h"
-#include "Sensors.h"
-#include "Math.h"
 
 
 void LoadACC();

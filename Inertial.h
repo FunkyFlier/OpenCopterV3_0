@@ -27,5 +27,6 @@ extern float velX,velY,velZ,velZUp,XEst,YEst,ZEst,ZEstUp;
 extern float accelBiasX,accelBiasY,accelBiasZ;
 extern float distToCraft,headingToCraft;
 extern float gpsX,gpsY,baroZ,baroVel;
+extern float prevBaro;
 
 #endif

@@ -67,6 +67,8 @@ void GetGro() {
 #endif
 
 }
+
+
 //end gyro------------------------------
 
 //baro---------------------------------
@@ -133,7 +135,7 @@ uint32_u D_rcvd;
 float D1, D2;
 float pres, temperature, dT, TEMP, OFF, SENS, P;
 uint8_t baroState;
-uint32_t baroRateTimer, baroDelayTimer;
+uint32_t baroPollTimer, baroDelayTimer;
 
 
 #endif//#ifdef V2
@@ -143,7 +145,7 @@ uint32_t baroRateTimer, baroDelayTimer;
 
 #ifdef V2
 void PollPressure() {
-  if (millis() - baroRateTimer >= BARO_CONV_TIME) {
+  if (millis() - baroPollTimer >= BARO_CONV_TIME) {
     switch (baroState) {
     case 0://start temp conv
       BaroSSLow();
@@ -181,7 +183,7 @@ void PollPressure() {
         D1 = (float)D_rcvd.val;
         BaroSSHigh();
         baroState = 0;
-        baroRateTimer = millis();
+        baroPollTimer = millis();
         GetBaro();
         newBaro = true;
       }
@@ -277,7 +279,7 @@ void BaroInit() {
   CheckCRC();
 
 
-  baroRateTimer = millis();
+  baroPollTimer = millis();
   while (newBaro == false) {
     PollPressure();
   }
@@ -646,7 +648,7 @@ void AccInit() {
 int16_u magX,magY,magZ;
 uint8_t i2cTimeOutStatus,i2cTimeOutCount;
 boolean magDetected = true;
-void VerifyMag();
+
 
 void VerifyMag() {
   I2CRead((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_ID_A, (uint8_t)3);

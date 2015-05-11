@@ -8,18 +8,7 @@
 #include <SPI.h>
 #include <I2c.h>
 
-extern int16_u gyroX, gyroY, gyroZ;
-extern int16_u  accX, accY, accZ;
-extern int16_u magX,magY,magZ;
-extern float initialPressure, pressure, alti;
-extern boolean newBaro,magDetected;
-
-#ifdef V1
-extern short temperature;
-#endif
-#ifdef V2
-extern float temperature;
-#endif
+void VerifyMag();
 
 void GetGro();
 void GyroInit();
@@ -33,6 +22,22 @@ void MagInit();
 void BaroInit();
 void PollPressure();
 boolean GetAltitude(float*, float*, float*);
+
+extern int16_u gyroX, gyroY, gyroZ;
+extern int16_u  accX, accY, accZ;
+extern int16_u magX,magY,magZ;
+extern float initialPressure, pressure, alti;
+extern boolean newBaro,magDetected;
+extern uint32_t baroPollTimer;
+
+#ifdef V1
+extern short temperature;
+#endif
+#ifdef V2
+extern float temperature;
+#endif
+
+
 
 
 #endif
