@@ -13,6 +13,7 @@
 #include "Inertial.h"
 #include "LED.h"
 #include "RCSignals.h"
+#include "PID.h"
 
 uint32_t printTimer;
 uint32_t loopTime;
