@@ -273,67 +273,67 @@ void ROMFlagsCheck() {
   float_u outFloat;
   int16_u outInt16;
   uint8_t LEDControlByte,calibrationFlags;
-  if (EEPROM.read(VER_FLAG_1) != VER_NUM_1 || EEPROM.read(VER_FLAG_2) != VER_NUM_2) {
+  if (EEPROMRead(VER_FLAG_1) != VER_NUM_1 || EEPROMRead(VER_FLAG_2) != VER_NUM_2) {
     for (uint16_t i = 0; i < 600; i++) {
-      EEPROM.write(i, 0xFF);
+      EEPROMWrite(i, 0xFF);
     }
-    EEPROM.write(VER_FLAG_1, VER_NUM_1);
-    EEPROM.write(VER_FLAG_2, VER_NUM_2);
+    EEPROMWrite(VER_FLAG_1, VER_NUM_1);
+    EEPROMWrite(VER_FLAG_2, VER_NUM_2);
   }
 
-  if (EEPROM.read(TX_FS_FLAG) != 0xAA) {
-    EEPROM.write(TX_FS, 0);
-    EEPROM.write(TX_FS_FLAG, 0xAA);
+  if (EEPROMRead(TX_FS_FLAG) != 0xAA) {
+    EEPROMWrite(TX_FS, 0);
+    EEPROMWrite(TX_FS_FLAG, 0xAA);
   }
-  if (EEPROM.read(PR_FLAG) != 0xAA) {
+  if (EEPROMRead(PR_FLAG) != 0xAA) {
     pitchOffset = 0;
     rollOffset = 0;
     j = 0;
     outFloat.val = 0;
     for (uint16_t i = PITCH_OFFSET_START; i <= PITCH_OFFSET_END; i++) {
-      EEPROM.write(i, outFloat.buffer[j++]);
+      EEPROMWrite(i, outFloat.buffer[j++]);
     }
     j = 0;
     for (uint16_t i = ROLL_OFFSET_START; i <= ROLL_OFFSET_END; i++) {
-      EEPROM.write(i, outFloat.buffer[j++]);
+      EEPROMWrite(i, outFloat.buffer[j++]);
     }
-    EEPROM.write(PR_FLAG, 0xAA);
+    EEPROMWrite(PR_FLAG, 0xAA);
   }
-  if (EEPROM.read(PWM_FLAG) != 0xAA) {
+  if (EEPROMRead(PWM_FLAG) != 0xAA) {
     pwmHigh = 2000;
     pwmLow = 1000;
     outInt16.val = pwmHigh;
-    EEPROM.write(PWM_LIM_HIGH_START, outInt16.buffer[0]);
-    EEPROM.write(PWM_LIM_HIGH_END, outInt16.buffer[1]);
+    EEPROMWrite(PWM_LIM_HIGH_START, outInt16.buffer[0]);
+    EEPROMWrite(PWM_LIM_HIGH_END, outInt16.buffer[1]);
     outInt16.val = pwmLow;
-    EEPROM.write(PWM_LIM_LOW_START, outInt16.buffer[0]);
-    EEPROM.write(PWM_LIM_LOW_END, outInt16.buffer[1]);
-    EEPROM.write(PWM_FLAG, 0xAA);
+    EEPROMWrite(PWM_LIM_LOW_START, outInt16.buffer[0]);
+    EEPROMWrite(PWM_LIM_LOW_END, outInt16.buffer[1]);
+    EEPROMWrite(PWM_FLAG, 0xAA);
   }
-  if (EEPROM.read(PROP_IDLE_FLAG) != 0xAA) {
-    EEPROM.write(PROP_IDLE_FLAG, 0xAA);
-    EEPROM.write(PROP_IDLE, 12);
+  if (EEPROMRead(PROP_IDLE_FLAG) != 0xAA) {
+    EEPROMWrite(PROP_IDLE_FLAG, 0xAA);
+    EEPROMWrite(PROP_IDLE, 12);
   }
-  if (EEPROM.read(HOVER_THRO_FLAG) != 0xAA) {
-    EEPROM.write(HOVER_THRO_FLAG, 0xAA);
-    EEPROM.write(HOVER_THRO, 55);
+  if (EEPROMRead(HOVER_THRO_FLAG) != 0xAA) {
+    EEPROMWrite(HOVER_THRO_FLAG, 0xAA);
+    EEPROMWrite(HOVER_THRO, 55);
 
   }
 
-  if (EEPROM.read(MODE_FLAG) != 0xAA){
-    EEPROM.write(MODE_FLAG,0xAA);
+  if (EEPROMRead(MODE_FLAG) != 0xAA){
+    EEPROMWrite(MODE_FLAG,0xAA);
     j = MODE_START;
-    EEPROM.write(j++,L0);
-    EEPROM.write(j++,L1);
-    EEPROM.write(j++,L2);
-    EEPROM.write(j++,ATT);
-    EEPROM.write(j++,ATT);
-    EEPROM.write(j++,ATT_TRIM);
-    EEPROM.write(j++,RATE);
-    EEPROM.write(j++,RATE);
-    EEPROM.write(j++,RATE_TRIM);
+    EEPROMWrite(j++,L0);
+    EEPROMWrite(j++,L1);
+    EEPROMWrite(j++,L2);
+    EEPROMWrite(j++,ATT);
+    EEPROMWrite(j++,ATT);
+    EEPROMWrite(j++,ATT_TRIM);
+    EEPROMWrite(j++,RATE);
+    EEPROMWrite(j++,RATE);
+    EEPROMWrite(j++,RATE_TRIM);
   }
-  calibrationFlags = EEPROM.read(CAL_FLAGS);
+  calibrationFlags = EEPROMRead(CAL_FLAGS);
   VerifyMag();
   RadioSerialBegin();
   if ( ((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 || ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 || ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 && magDetected ) ) {
@@ -459,24 +459,24 @@ void SetDefaultGains() {
   j = GAINS_START;
   for (uint16_t i = KP_PITCH_RATE_; i <= FC_CT_; i++) {
     outFloat.val = *floatPointerArray[i];
-    EEPROM.write(j++, outFloat.buffer[0]);
-    EEPROM.write(j++, outFloat.buffer[1]);
-    EEPROM.write(j++, outFloat.buffer[2]);
-    EEPROM.write(j++, outFloat.buffer[3]);
+    EEPROMWrite(j++, outFloat.buffer[0]);
+    EEPROMWrite(j++, outFloat.buffer[1]);
+    EEPROMWrite(j++, outFloat.buffer[2]);
+    EEPROMWrite(j++, outFloat.buffer[3]);
   }
   j = DEC_START;
   outFloat.val = *floatPointerArray[MAG_DEC_];
-  EEPROM.write(j++, outFloat.buffer[0]);
-  EEPROM.write(j++, outFloat.buffer[1]);
-  EEPROM.write(j++, outFloat.buffer[2]);
-  EEPROM.write(j++, outFloat.buffer[3]);
+  EEPROMWrite(j++, outFloat.buffer[0]);
+  EEPROMWrite(j++, outFloat.buffer[1]);
+  EEPROMWrite(j++, outFloat.buffer[2]);
+  EEPROMWrite(j++, outFloat.buffer[3]);
 
 
 }
 void LoadPWMLimits() {
   int16_u outInt16;
-  outInt16.buffer[0] = EEPROM.read(PWM_LIM_HIGH_START);
-  outInt16.buffer[1] = EEPROM.read(PWM_LIM_HIGH_END);
+  outInt16.buffer[0] = EEPROMRead(PWM_LIM_HIGH_START);
+  outInt16.buffer[1] = EEPROMRead(PWM_LIM_HIGH_END);
   pwmHigh = outInt16.val;
   if (pwmHigh > 2000) {
     pwmHigh = 2000;
@@ -484,8 +484,8 @@ void LoadPWMLimits() {
   if (pwmHigh < 1800) {
     pwmHigh = 1800;
   }
-  outInt16.buffer[0] = EEPROM.read(PWM_LIM_LOW_START);
-  outInt16.buffer[1] = EEPROM.read(PWM_LIM_LOW_END);
+  outInt16.buffer[0] = EEPROMRead(PWM_LIM_LOW_START);
+  outInt16.buffer[1] = EEPROMRead(PWM_LIM_LOW_END);
   pwmLow = outInt16.val;
   if (pwmLow < 1000) {
     pwmLow = 1000;
@@ -493,14 +493,14 @@ void LoadPWMLimits() {
   if (pwmLow > 1200) {
     pwmLow = 1200;
   }
-  propIdlePercent = EEPROM.read(PROP_IDLE);
+  propIdlePercent = EEPROMRead(PROP_IDLE);
   if (propIdlePercent > 20) {
     propIdleCommand = pwmLow * (1 + (20.0 / 100.0));
   }
   else {
     propIdleCommand = pwmLow * (1 + ((float)propIdlePercent / 100.0));
   }
-  hoverPercent = EEPROM.read(HOVER_THRO);
+  hoverPercent = EEPROMRead(HOVER_THRO);
   if (hoverPercent > 75) {
     hoverCommand = 1000 * (1 + (75 / 100.0));
   }
@@ -524,10 +524,10 @@ void LoadRC() {
   for (uint16_t i = RC_DATA_START; i <= RC_DATA_END; i++) { //index for each rom location
     switchControl = i - k;
     if (switchControl < CHAN_INDEX) { //first 16 bit ints
-      outInt16.buffer[j++] = EEPROM.read(i);
+      outInt16.buffer[j++] = EEPROMRead(i);
     }
     if (switchControl > CHAN_INDEX && i - k < REV_INDEX) { //scale factor
-      outFloat.buffer[j++] = EEPROM.read(i);
+      outFloat.buffer[j++] = EEPROMRead(i);
     }
 
     switch (switchControl) {
@@ -544,20 +544,20 @@ void LoadRC() {
       j = 0;
       break;
     case CHAN_INDEX://chan
-      rcData[l].chan = EEPROM.read(i);
+      rcData[l].chan = EEPROMRead(i);
       break;
     case SCALE_INDEX://scale
       rcData[l].scale = outFloat.val;
       j = 0;
       break;
     case REV_INDEX://reverse
-      rcData[l].reverse = EEPROM.read(i);
+      rcData[l].reverse = EEPROMRead(i);
       k += 12;
       l += 1;
       break;
     }
   }
-  txLossRTB = EEPROM.read(TX_FS);
+  txLossRTB = EEPROMRead(TX_FS);
   if (txLossRTB > 1) {
     txLossRTB = 0;
   }
@@ -567,7 +567,7 @@ void LoadACC() {
   uint8_t outFloatIndex = 0;
   float_u outFloat;
   for (uint16_t i = ACC_CALIB_START; i <= ACC_CALIB_END; i++) { //load acc values
-    outFloat.buffer[outFloatIndex] = EEPROM.read(i);
+    outFloat.buffer[outFloatIndex] = EEPROMRead(i);
     outFloatIndex++;
     switch (i) {
     case ACC_S_X_INDEX:
@@ -606,7 +606,7 @@ void LoadMAG() {
   uint8_t outFloatIndex = 0;
   for (uint16_t i = MAG_CALIB_START; i <= MAG_CALIB_END; i++) { //load the compass values
 
-    outFloat.buffer[outFloatIndex] = EEPROM.read(i);
+    outFloat.buffer[outFloatIndex] = EEPROMRead(i);
     outFloatIndex++;
     switch (i) {
     case MAG_OFF_X_INDEX:
@@ -667,10 +667,10 @@ void LoadGains() {
   float_u outFloat;
   uint16_t j = GAINS_START;
   for (uint16_t i = KP_PITCH_RATE_; i <= FC_CT_; i++) { //gains
-    outFloat.buffer[0] = EEPROM.read(j++);
-    outFloat.buffer[1] = EEPROM.read(j++);
-    outFloat.buffer[2] = EEPROM.read(j++);
-    outFloat.buffer[3] = EEPROM.read(j++);
+    outFloat.buffer[0] = EEPROMRead(j++);
+    outFloat.buffer[1] = EEPROMRead(j++);
+    outFloat.buffer[2] = EEPROMRead(j++);
+    outFloat.buffer[3] = EEPROMRead(j++);
     *floatPointerArray[i] = outFloat.val;
   }
 }
@@ -679,10 +679,10 @@ void LoadPROff() {
   float_u outFloat;
   uint16_t j = PITCH_OFFSET_START;
   for (uint16_t i = PITCH_OFFSET; i <= ROLL_OFFSET; i++) { //pitch and roll offsets
-    outFloat.buffer[0] = EEPROM.read(j++);
-    outFloat.buffer[1] = EEPROM.read(j++);
-    outFloat.buffer[2] = EEPROM.read(j++);
-    outFloat.buffer[3] = EEPROM.read(j++);
+    outFloat.buffer[0] = EEPROMRead(j++);
+    outFloat.buffer[1] = EEPROMRead(j++);
+    outFloat.buffer[2] = EEPROMRead(j++);
+    outFloat.buffer[3] = EEPROMRead(j++);
     *floatPointerArray[i] = outFloat.val;
   }
 }
@@ -690,10 +690,10 @@ void LoadPROff() {
 void LoadDEC() {
   uint16_t j = DEC_START;
   float_u outFloat;
-  outFloat.buffer[0] = EEPROM.read(j++);
-  outFloat.buffer[1] = EEPROM.read(j++);
-  outFloat.buffer[2] = EEPROM.read(j++);
-  outFloat.buffer[3] = EEPROM.read(j++);
+  outFloat.buffer[0] = EEPROMRead(j++);
+  outFloat.buffer[1] = EEPROMRead(j++);
+  outFloat.buffer[2] = EEPROMRead(j++);
+  outFloat.buffer[3] = EEPROMRead(j++);
   *floatPointerArray[MAG_DEC_] = outFloat.val;
 
   cosDec = cos(declination);
@@ -703,7 +703,7 @@ void LoadDEC() {
 void LoadModes(){
   uint8_t j = 0;
   for(uint16_t i = MODE_START; i <= MODE_END; i++){
-    modeArray[j++] = EEPROM.read(i);
+    modeArray[j++] = EEPROMRead(i);
   }
 }
 void LoadROM() {
