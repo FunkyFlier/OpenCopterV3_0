@@ -25,6 +25,7 @@ void CorrectZ();
 extern float inertialX,inertialY,inertialZ;
 extern float velX,velY,velZ,velZUp,XEst,YEst,ZEst,ZEstUp;
 extern float accelBiasX,accelBiasY,accelBiasZ;
+extern float inertialXBiased,inertialYBiased,inertialZBiased;
 extern float distToCraft,headingToCraft;
 extern float gpsX,gpsY,baroZ,baroVel;
 extern float prevBaro;

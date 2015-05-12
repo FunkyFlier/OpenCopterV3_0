@@ -16,6 +16,8 @@ float declination;
 float cosDec,sinDec;
 
 float q0=1,q1=0,q2=0,q3=0;
+float rawPitch,rawRoll,pitchOffset,rollOffset;
+
 float q0q0,q1q1,q2q2,q3q3,q0q1,q0q2,q0q3,q1q2,q1q3,q2q3;
 float acc_x,acc_y,acc_z,mag_x,mag_y,mag_z,gro_x,gro_y,gro_z;
 float initialAccMagnitude;
@@ -263,12 +265,14 @@ void GetEuler(){
 }
 void GetPitch(){
   pitchInRadians = asin(2.0 * (q0 * q2 - q3 * q1));
-  pitchInDegrees =  ToDeg(pitchInRadians);
+  rawPitch =  ToDeg(pitchInRadians);
+  pitchInDegrees = rawPitch - pitchOffset;
 }
 
 void GetRoll(){
   rollInRadians = FastAtan2(2 * (q0 * q1 + q2 * q3),1 - 2.0 * (q1 * q1 + q2 * q2));
-  rollInDegrees = ToDeg(rollInRadians);
+  rawRoll = ToDeg(rollInRadians);
+  rollInDegrees = rawRoll - rollOffset;
 }
 
 void GetYaw(){

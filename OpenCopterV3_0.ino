@@ -17,7 +17,7 @@
 #include "Motors.h"
 #include "FlightControl.h"
 
-uint32_t printTimer,watchDogFailSafeCounter;
+uint32_t printTimer;
 uint32_t loopTime;
 
 

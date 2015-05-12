@@ -12,6 +12,9 @@ uint8_t ISRState = STAND;
 volatile boolean RCFailSafe = false;
 volatile boolean newRC = false;
 int16_t cmdElev,cmdAile,cmdRudd,throCommand;
+uint8_t switchPositions;
+
+float pitchSetPointTX,rollSetPointTX;
 
 uint8_t readState,byteCount,channelNumber;
 uint32_t frameTime;
@@ -291,7 +294,7 @@ void DSMDetectRes(){
     while(DSMParser() == false){
     }
     //check for second byte flag
-    if (~(DSMSerialBuffer[0] & 1 << 0x80)){
+    if (~(DSMSerialBuffer[0] & 1 << 8)){
       channel1 = DSMSerialBuffer[0] >> 2 & 0x0F;
       channel2 = DSMSerialBuffer[2] >> 2 & 0x0F;
       if (channel1 == 1 && channel2 == 5){
@@ -304,13 +307,13 @@ void DSMDetectRes(){
       }
     }
   }
-  if (lowRes == true & fullRes == false){
+  if (lowRes == true && fullRes == false){
     rcType = DSM10;
     rcDetected = true;
     return;
   }
 
-  if (lowRes == false & fullRes == true){
+  if (lowRes == false && fullRes == true){
     rcType = DSM11;
     rcDetected = true;
     return;

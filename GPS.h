@@ -10,6 +10,11 @@
 #define SACC_MAX 5
 #define HACC_MAX 40
 
+void GPSInit();
+void DistBearing(int32_t*, int32_t*, int32_t*, int32_t*, float*, float*, float*, float*);
+void GPSMonitor();
+void GPSStart();
+
 typedef union{
   struct{
     uint32_t iTWO;//0
@@ -35,15 +40,15 @@ typedef union{
 GPS_Union_t;
 
 extern boolean newGPSData,GPSDetected;
+extern boolean gpsFailSafe;
 extern GPS_Union_t GPSData;
 extern float gpsAlt,floatLat, floatLon,velN, velE, velD;
 extern int32_t homeLat,homeLon;
+extern float homeLatFloat,homeLonFloat;
+extern float hAcc,sAcc;
+extern uint32_t GPSFailSafeCounter;
 
 
-void GPSInit();
-void DistBearing(int32_t*, int32_t*, int32_t*, int32_t*, float*, float*, float*, float*);
-void GPSMonitor();
-void GPSStart();
 
 #endif
 

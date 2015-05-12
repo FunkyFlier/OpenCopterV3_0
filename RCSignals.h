@@ -9,9 +9,9 @@
 
 
 typedef struct {
-  int16_t max;
-  int16_t min;
-  int16_t mid;
+  uint16_t max;
+  uint16_t min;
+  uint16_t mid;
   volatile int16_t rcvd;
   uint8_t chan;
   float scale;
@@ -33,6 +33,8 @@ extern uint8_t ISRState;
 extern volatile boolean RCFailSafe;
 extern volatile boolean newRC;
 extern int16_t cmdElev,cmdAile,cmdRudd,throCommand;
+extern uint8_t switchPositions;
+extern float pitchSetPointTX,rollSetPointTX;
 
 
 #endif

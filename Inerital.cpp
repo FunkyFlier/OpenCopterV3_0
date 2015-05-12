@@ -13,6 +13,7 @@ float gpsVelX,gpsVelY;
 float accelBiasX,accelBiasY,accelBiasZ;
 float distToCraft,headingToCraft;
 float prevBaro;
+float inertialXBiased,inertialYBiased,inertialZBiased;
 
 
 //-------------------
@@ -50,14 +51,18 @@ void InertialInit(){
   XEst = 0;
   YEst = 0;
   ZEst = 0;
+  
+  accelBiasX = 0;
+  accelBiasY = 0;
+  accelBiasZ = 0;
 
 }
 
 void Predict(float dt){
 
   float biasedX,biasedY,biasedZ;
-  float accelBiasX,accelBiasY,accelBiasZ;
-  float inertialXBiased,inertialYBiased,inertialZBiased;
+  //float accelBiasX,accelBiasY,accelBiasZ;
+  //float inertialXBiased,inertialYBiased,inertialZBiased;
 
   biasedX = (scaledAccX - accelBiasX);
   biasedY = (scaledAccY - accelBiasY);

@@ -1,0 +1,723 @@
+#include "ROM.h"
+
+#include "Attitude.h"
+#include "Calibration.h"
+#include "Comm.h"
+#include "Definitions.h"
+#include "Enums.h"
+#include "FlightControl.h"
+#include "GPS.h"
+#include "Inertial.h"
+#include "LED.h"
+#include "Motors.h"
+#include "Sensors.h"
+#include "Radio.h"
+#include "RCSignals.h"
+#include "Types.h"
+
+#include <EEPROM.h>
+
+void LoadModes();
+void LoadDEC();
+void LoadPROff();
+void LoadGains();
+//void LoadMAG();
+//void LoadACC();
+void LoadRC();
+void LoadPWMLimits();
+void SetDefaultGains();
+
+float* floatPointerArray[148];
+
+int16_t* int16PointerArray[12];
+
+uint8_t* bytePointerArray[14];
+
+uint8_t propIdlePercent,hoverPercent;
+
+void AssignPointerArray() {
+  floatPointerArray[GYRO_X_DEG] = &degreeGyroX;//calibartion 
+  floatPointerArray[GYRO_Y_DEG] = &degreeGyroY;
+  floatPointerArray[GYRO_Z_DEG] = &degreeGyroZ;
+
+  floatPointerArray[ACC_X_FILT] = &filtAccX;//calibartion
+  floatPointerArray[ACC_Y_FILT] = &filtAccY;
+  floatPointerArray[ACC_Z_FILT] = &filtAccZ;
+
+  floatPointerArray[ACC_X_SC] = &scaledAccX;//calibration
+  floatPointerArray[ACC_Y_SC] = &scaledAccY;
+  floatPointerArray[ACC_Z_SC] = &scaledAccZ;
+
+  floatPointerArray[MAG_X_SC] = &scaledMagX;//cailbration
+  floatPointerArray[MAG_Y_SC] = &scaledMagX;
+  floatPointerArray[MAG_Z_SC] = &scaledMagX;
+
+  floatPointerArray[DIST_TO_CRAFT] = &distToCraft;//inertial
+  floatPointerArray[HEAD_TO_CRAFT] = &headingToCraft;
+
+  floatPointerArray[RAW_X] = &gpsX;//inertial
+  floatPointerArray[RAW_Y] = &gpsY;
+  floatPointerArray[RAW_Z] = &baroZ;
+
+  floatPointerArray[VEL_N] = &velN;//gps
+  floatPointerArray[VEL_E] = &velE;
+  floatPointerArray[VEL_D] = &velD;
+
+  floatPointerArray[VEL_BARO] = &baroVel;
+
+  floatPointerArray[PITCH_] = &pitchInDegrees;//attitude
+  floatPointerArray[ROLL_] = &rollInDegrees;
+  floatPointerArray[YAW_] = &yawInDegrees;
+
+  floatPointerArray[QUAT_0] = &q0;//attitude
+  floatPointerArray[QUAT_1] = &q1;
+  floatPointerArray[QUAT_2] = &q2;
+  floatPointerArray[QUAT_3] = &q3;
+
+  floatPointerArray[X_EST] = &XEst;//inertial
+  floatPointerArray[Y_EST] = &YEst;
+  floatPointerArray[Z_EST] = &ZEstUp;
+
+  floatPointerArray[VEL_X] = &velX;//inertial
+  floatPointerArray[VEL_Y] = &velY;
+  floatPointerArray[VEL_Z] = &velZUp;
+
+  floatPointerArray[ACC_BIAS_X] = &accelBiasX;//inerital
+  floatPointerArray[ACC_BIAS_Y] = &accelBiasY;
+  floatPointerArray[ACC_BIAS_Z] = &accelBiasZ;
+
+  floatPointerArray[INERTIAL_X] = &inertialX;//inerital
+  floatPointerArray[INERTIAL_Y] = &inertialY;
+  floatPointerArray[INERTIAL_Z] = &inertialZ;
+
+  floatPointerArray[INERTIAL_X_BIASED] = &inertialXBiased;//inerital
+  floatPointerArray[INERTIAL_Y_BIASED] = &inertialYBiased;
+  floatPointerArray[INERTIAL_Z_BIASED] = &inertialZBiased;
+
+  floatPointerArray[RAW_PITCH] = &rawPitch;//attitude
+  floatPointerArray[RAW_ROLL] = &rawRoll;
+  floatPointerArray[PITCH_OFFSET] = &pitchOffset;
+  floatPointerArray[ROLL_OFFSET] = &rollOffset;
+
+
+  floatPointerArray[KP_PITCH_RATE_] = &kp_pitch_rate;//flight control
+  floatPointerArray[KI_PITCH_RATE_] = &ki_pitch_rate;
+  floatPointerArray[KD_PITCH_RATE_] = &kd_pitch_rate;
+  floatPointerArray[FC_PITCH_RATE_] = &fc_pitch_rate;
+
+  floatPointerArray[KP_ROLL_RATE_] = &kp_roll_rate;
+  floatPointerArray[KI_ROLL_RATE_] = &ki_roll_rate;
+  floatPointerArray[KD_ROLL_RATE_] = &kd_roll_rate;
+  floatPointerArray[FC_ROLL_RATE_] = &fc_roll_rate;
+
+  floatPointerArray[KP_YAW_RATE_] = &kp_yaw_rate;
+  floatPointerArray[KI_YAW_RATE_] = &ki_yaw_rate;
+  floatPointerArray[KD_YAW_RATE_] = &kd_yaw_rate;
+  floatPointerArray[FC_YAW_RATE_] = &fc_yaw_rate;
+
+  floatPointerArray[KP_PITCH_ATT_] = &kp_pitch_attitude;
+  floatPointerArray[KI_PITCH_ATT_] = &ki_pitch_attitude;
+  floatPointerArray[KD_PITCH_ATT_] = &kd_pitch_attitude;
+  floatPointerArray[FC_PITCH_ATT_] = &fc_pitch_attitude;
+
+  floatPointerArray[KP_ROLL_ATT_] = &kp_roll_attitude;
+  floatPointerArray[KI_ROLL_ATT_] = &ki_roll_attitude;
+  floatPointerArray[KD_ROLL_ATT_] = &kd_roll_attitude;
+  floatPointerArray[FC_ROLL_ATT_] = &fc_roll_attitude;
+
+  floatPointerArray[KP_YAW_ATT_] = &kp_yaw_attitude;
+  floatPointerArray[KI_YAW_ATT_] = &ki_yaw_attitude;
+  floatPointerArray[KD_YAW_ATT_] = &kd_yaw_attitude;
+  floatPointerArray[FC_YAW_ATT_] = &fc_yaw_attitude;
+
+
+  floatPointerArray[KP_ALT_POS_] = &kp_altitude_position;
+  floatPointerArray[KI_ALT_POS_] = &ki_altitude_position;
+  floatPointerArray[KD_ATL_POS_] = &kd_altitude_position;
+  floatPointerArray[FC_ALT_POS_] = &fc_altitude_position;
+
+  floatPointerArray[KP_ALT_VEL_] = &kp_altitude_velocity;
+  floatPointerArray[KI_ALT_VEL_] = &ki_altitude_velocity;
+  floatPointerArray[KD_ALT_VEL_] = &kd_altitude_velocity;
+  floatPointerArray[FC_ALT_VEL_] = &fc_altitude_velocity;
+
+  floatPointerArray[KP_LOIT_X_POS_] = &kp_loiter_pos_x;
+  floatPointerArray[KI_LOIT_X_POS_] = &ki_loiter_pos_x;
+  floatPointerArray[KD_LOIT_X_POS_] = &kd_loiter_pos_x;
+  floatPointerArray[FC_LOIT_X_POS_] = &fc_loiter_pos_x;
+
+  floatPointerArray[KP_LOIT_X_VEL_] = &kp_loiter_velocity_x;
+  floatPointerArray[KI_LOIT_X_VEL_] = &ki_loiter_velocity_x;
+  floatPointerArray[KD_LOIT_X_VEL_] = &kd_loiter_velocity_x;
+  floatPointerArray[FC_LOIT_X_VEL_] = &fc_loiter_velocity_x;
+
+  floatPointerArray[KP_LOIT_Y_POS_] = &kp_loiter_pos_y;
+  floatPointerArray[KI_LOIT_Y_POS_] = &ki_loiter_pos_y;
+  floatPointerArray[KD_LOIT_Y_POS_] = &kd_loiter_pos_y;
+  floatPointerArray[FC_LOIT_Y_POS_] = &fc_loiter_pos_y;
+
+  floatPointerArray[KP_LOIT_Y_VEL_] = &kp_loiter_velocity_y;
+  floatPointerArray[KI_LOIT_Y_VEL_] = &ki_loiter_velocity_y;
+  floatPointerArray[KD_LOIT_Y_VEL_] = &kd_loiter_velocity_y;
+  floatPointerArray[FC_LOIT_Y_VEL_] = &fc_loiter_velocity_y;
+
+  floatPointerArray[KP_WP_POS_] = &kp_waypoint_position;
+  floatPointerArray[KI_WP_POS_] = &ki_waypoint_position;
+  floatPointerArray[KD_WP_POS_] = &kd_waypoint_position;
+  floatPointerArray[FC_WP_POS_] = &fc_waypoint_position;
+
+  floatPointerArray[KP_WP_VEL_] = &kp_waypoint_velocity;
+  floatPointerArray[KI_WP_VEL_] = &ki_waypoint_velocity;
+  floatPointerArray[KD_WP_VEL_] = &kd_waypoint_velocity;
+  floatPointerArray[FC_WP_VEL_] = &fc_waypoint_velocity;
+
+  floatPointerArray[KP_CT_] = &kp_cross_track;
+  floatPointerArray[KI_CT_] = &ki_cross_track;
+  floatPointerArray[KD_CT_] = &kd_cross_track;
+  floatPointerArray[FC_CT_] = &fc_cross_track;
+
+  floatPointerArray[MAG_DEC_] = &declination;//attitude
+
+  floatPointerArray[RATE_SP_X] = &rateSetPointX;//flight control
+  floatPointerArray[RATE_SP_Y] = &rateSetPointY;
+  floatPointerArray[RATE_SP_Z] = &rateSetPointZ;
+
+  floatPointerArray[ADJ_X] = &adjustmentX;//flight control
+  floatPointerArray[ADJ_Y] = &adjustmentY;
+  floatPointerArray[ADJ_Z] = &adjustmentZ;
+
+  floatPointerArray[PITCH_SP] = &pitchSetPoint;//flight control
+  floatPointerArray[ROLL_SP] = &rollSetPoint;
+  floatPointerArray[YAW_SP] = &yawSetPoint;
+
+  floatPointerArray[X_TARG] = &xTarget;//flight control
+  floatPointerArray[Y_TARG] = &yTarget;
+  floatPointerArray[Z_TARG] = &zTarget;
+
+  floatPointerArray[VEL_SP_X] = &velSetPointX;//flight control
+  floatPointerArray[VEL_SP_Y] = &velSetPointY;
+  floatPointerArray[VEL_SP_Z] = &velSetPointZ;
+
+  floatPointerArray[TILT_X] = &tiltAngleX;//flight control
+  floatPointerArray[TILT_Y] = &tiltAngleY;
+  floatPointerArray[THRO_ADJ] = &throttleAdjustment;
+
+  floatPointerArray[PITCH_SP_TX] = &pitchSetPointTX;
+  floatPointerArray[ROLL_SP_TX] = &rollSetPointTX;
+
+  floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
+  floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
+
+
+  floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
+  floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
+  floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
+  floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
+  floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
+  floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
+  floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
+  floatPointerArray[MOTOR_CMD_8] = &motorCommand8;
+
+  floatPointerArray[PRESSURE_] = &pressure;//sensors
+  floatPointerArray[CTRL_BEARING] = &controlBearing;//flight control
+  floatPointerArray[YAW_INITIAL] = &initialYaw;//flight control
+  floatPointerArray[GPS_ALT] = &gpsAlt;//gps
+
+
+  floatPointerArray[LAT_] = &floatLat;//gps
+  floatPointerArray[LON_] = &floatLon;
+  floatPointerArray[HB_LAT] = &homeLatFloat;
+  floatPointerArray[HB_LON] = &homeLonFloat;
+  floatPointerArray[H_ACC] = &hAcc;
+  floatPointerArray[S_ACC] = &sAcc;
+
+
+
+  int16PointerArray[GYRO_X] = &gyroX.val;//sensors
+  int16PointerArray[GYRO_Y] = &gyroY.val;
+  int16PointerArray[GYRO_Z] = &gyroZ.val;
+  int16PointerArray[ACC_X] = &accX.val;
+  int16PointerArray[ACC_Y] = &accY.val;
+  int16PointerArray[ACC_Z] = &accZ.val;
+  int16PointerArray[MAG_X] = &magX.val;
+  int16PointerArray[MAG_Y] = &magY.val;
+  int16PointerArray[MAG_Z] = &magZ.val;
+
+  int16PointerArray[THRO_CMD] = &throttleCommand;//motors
+
+  int16PointerArray[PWM_HIGH] = &pwmHigh;//mtors
+  int16PointerArray[PWM_LOW] = &pwmLow;
+
+
+  bytePointerArray[F_MODE_] = &flightMode;//flight control
+  bytePointerArray[GPS_FIX] = &GPSData.vars.gpsFix;//GPS
+  bytePointerArray[XY_LOIT_STATE] = &XYLoiterState;//flight control
+  bytePointerArray[Z_LOIT_STATE] = &ZLoiterState;//flight control
+
+  bytePointerArray[RTB_STATE] = &RTBState;//flight control
+  bytePointerArray[MOTOR_STATE] = &motorState;//motors
+  bytePointerArray[TELEM_FS] = &telemFailSafe;//flight control
+  bytePointerArray[GPS_FS] = &gpsFailSafe;//gps
+  bytePointerArray[SWITCH_POS] = &switchPositions;//RC
+
+
+  bytePointerArray[IDLE_PERCENT] = &propIdlePercent;//rom
+  bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
+  bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
+  bytePointerArray[MAG_DET] = &magDetected;//sensors
+  bytePointerArray[TX_FS_STATUS] = &txFailSafe;//flight control
+}
+
+void ROMFlagsCheck() {
+  uint16_t j;
+  float_u outFloat;
+  int16_u outInt16;
+  uint8_t LEDControlByte,calibrationFlags;
+  if (EEPROM.read(VER_FLAG_1) != VER_NUM_1 || EEPROM.read(VER_FLAG_2) != VER_NUM_2) {
+    for (uint16_t i = 0; i < 600; i++) {
+      EEPROM.write(i, 0xFF);
+    }
+    EEPROM.write(VER_FLAG_1, VER_NUM_1);
+    EEPROM.write(VER_FLAG_2, VER_NUM_2);
+  }
+
+  if (EEPROM.read(TX_FS_FLAG) != 0xAA) {
+    EEPROM.write(TX_FS, 0);
+    EEPROM.write(TX_FS_FLAG, 0xAA);
+  }
+  if (EEPROM.read(PR_FLAG) != 0xAA) {
+    pitchOffset = 0;
+    rollOffset = 0;
+    j = 0;
+    outFloat.val = 0;
+    for (uint16_t i = PITCH_OFFSET_START; i <= PITCH_OFFSET_END; i++) {
+      EEPROM.write(i, outFloat.buffer[j++]);
+    }
+    j = 0;
+    for (uint16_t i = ROLL_OFFSET_START; i <= ROLL_OFFSET_END; i++) {
+      EEPROM.write(i, outFloat.buffer[j++]);
+    }
+    EEPROM.write(PR_FLAG, 0xAA);
+  }
+  if (EEPROM.read(PWM_FLAG) != 0xAA) {
+    pwmHigh = 2000;
+    pwmLow = 1000;
+    outInt16.val = pwmHigh;
+    EEPROM.write(PWM_LIM_HIGH_START, outInt16.buffer[0]);
+    EEPROM.write(PWM_LIM_HIGH_END, outInt16.buffer[1]);
+    outInt16.val = pwmLow;
+    EEPROM.write(PWM_LIM_LOW_START, outInt16.buffer[0]);
+    EEPROM.write(PWM_LIM_LOW_END, outInt16.buffer[1]);
+    EEPROM.write(PWM_FLAG, 0xAA);
+  }
+  if (EEPROM.read(PROP_IDLE_FLAG) != 0xAA) {
+    EEPROM.write(PROP_IDLE_FLAG, 0xAA);
+    EEPROM.write(PROP_IDLE, 12);
+  }
+  if (EEPROM.read(HOVER_THRO_FLAG) != 0xAA) {
+    EEPROM.write(HOVER_THRO_FLAG, 0xAA);
+    EEPROM.write(HOVER_THRO, 55);
+
+  }
+
+  if (EEPROM.read(MODE_FLAG) != 0xAA){
+    EEPROM.write(MODE_FLAG,0xAA);
+    j = MODE_START;
+    EEPROM.write(j++,L0);
+    EEPROM.write(j++,L1);
+    EEPROM.write(j++,L2);
+    EEPROM.write(j++,ATT);
+    EEPROM.write(j++,ATT);
+    EEPROM.write(j++,ATT_TRIM);
+    EEPROM.write(j++,RATE);
+    EEPROM.write(j++,RATE);
+    EEPROM.write(j++,RATE_TRIM);
+  }
+  calibrationFlags = EEPROM.read(CAL_FLAGS);
+  VerifyMag();
+  RadioSerialBegin();
+  if ( ((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 || ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 || ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 && magDetected ) ) {
+    radioStream = &Port2;
+    radioPrint = &Port2;
+    HandShake();
+
+    if (handShake == false) {
+      USBFlag = true;
+      radioStream = &Port0;
+      radioPrint = &Port0;
+      HandShake();
+    }
+    if (calibrationMode == true) {
+      ControlLED(0x07);
+      return;
+    }
+    LEDControlByte = 0x00;
+    ControlLED(LEDControlByte);
+    while (1) {
+      if ( ((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 ) {
+        LEDControlByte ^= 1<<0;
+      }
+      if ( ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 ) {
+        LEDControlByte ^= 1<<1;
+      }
+      if ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 ) {
+        LEDControlByte ^= 1<<2;
+      }
+      ControlLED(LEDControlByte);
+      delay(300);
+    }
+  }
+
+  if ( ((calibrationFlags & (1 << GAINS_FLAG)) >> GAINS_FLAG) == 0x01 ) {
+    SetDefaultGains();
+  }
+  LoadROM();
+
+
+}
+void SetDefaultGains() {
+
+  uint16_t j;
+  float_u outFloat;
+
+  kp_pitch_rate = 0.891;
+  ki_pitch_rate = 8.25;
+  kd_pitch_rate = 0.064;
+  fc_pitch_rate = 50.0;
+
+  kp_roll_rate = 0.891;
+  ki_roll_rate = 8.25;
+  kd_roll_rate = 0.064;
+  fc_roll_rate = 50.0;
+
+  kp_yaw_rate = 6.0;
+  ki_yaw_rate = 1.0;
+  kd_yaw_rate = 0.01;
+  fc_yaw_rate = 50.0;
+
+  kp_pitch_attitude = 4.0;
+  ki_pitch_attitude = 0;
+  kd_pitch_attitude = 0.01;
+  fc_pitch_attitude = 50.0;
+
+  kp_roll_attitude = 4.0;
+  ki_roll_attitude = 0;
+  kd_roll_attitude = 0.01;
+  fc_roll_attitude = 50;
+
+  kp_yaw_attitude = 3.0;
+  ki_yaw_attitude = 0;
+  kd_yaw_attitude = 0.0;
+  fc_yaw_attitude = 50.0;
+
+  kp_altitude_position = 0.5;
+  ki_altitude_position = 0;
+  kd_altitude_position = -0.002;
+  fc_altitude_position = 30;
+
+  kp_altitude_velocity = 45;
+  ki_altitude_velocity = 30;
+  kd_altitude_velocity = 0;
+  fc_altitude_velocity = 50;
+
+  kp_loiter_pos_x = 0.1;
+  ki_loiter_pos_x = 0;
+  kd_loiter_pos_x = 0;
+  fc_loiter_pos_x = 50;
+
+  kp_loiter_velocity_x = 7.0;
+  ki_loiter_velocity_x = 1.5;
+  kd_loiter_velocity_x = 0.075;
+  fc_loiter_velocity_x = 50;
+
+  kp_loiter_pos_y = 0.1;
+  ki_loiter_pos_y = 0.0;
+  kd_loiter_pos_y = 0.0;
+  fc_loiter_pos_y = 50;
+
+  kp_loiter_velocity_y = 7.0;
+  ki_loiter_velocity_y = 1.5;
+  kd_loiter_velocity_y = 0.075;
+  fc_loiter_velocity_y = 50;
+
+  kp_waypoint_position = 2.5;
+  ki_waypoint_position = 0;
+  kd_waypoint_position = 2.5;
+  fc_waypoint_position = 0;
+
+  kp_waypoint_velocity = 0.1;
+  ki_waypoint_velocity = 0.1;
+  kd_waypoint_velocity = 0.2;
+  fc_waypoint_velocity = 0.03;
+
+  kp_cross_track = 0.07;
+  ki_cross_track = 0.1;
+  kd_cross_track = 0.01;
+  fc_cross_track = 3.3;
+
+  declination = ToRad(3.3);
+  j = GAINS_START;
+  for (uint16_t i = KP_PITCH_RATE_; i <= FC_CT_; i++) {
+    outFloat.val = *floatPointerArray[i];
+    EEPROM.write(j++, outFloat.buffer[0]);
+    EEPROM.write(j++, outFloat.buffer[1]);
+    EEPROM.write(j++, outFloat.buffer[2]);
+    EEPROM.write(j++, outFloat.buffer[3]);
+  }
+  j = DEC_START;
+  outFloat.val = *floatPointerArray[MAG_DEC_];
+  EEPROM.write(j++, outFloat.buffer[0]);
+  EEPROM.write(j++, outFloat.buffer[1]);
+  EEPROM.write(j++, outFloat.buffer[2]);
+  EEPROM.write(j++, outFloat.buffer[3]);
+
+
+}
+void LoadPWMLimits() {
+  int16_u outInt16;
+  outInt16.buffer[0] = EEPROM.read(PWM_LIM_HIGH_START);
+  outInt16.buffer[1] = EEPROM.read(PWM_LIM_HIGH_END);
+  pwmHigh = outInt16.val;
+  if (pwmHigh > 2000) {
+    pwmHigh = 2000;
+  }
+  if (pwmHigh < 1800) {
+    pwmHigh = 1800;
+  }
+  outInt16.buffer[0] = EEPROM.read(PWM_LIM_LOW_START);
+  outInt16.buffer[1] = EEPROM.read(PWM_LIM_LOW_END);
+  pwmLow = outInt16.val;
+  if (pwmLow < 1000) {
+    pwmLow = 1000;
+  }
+  if (pwmLow > 1200) {
+    pwmLow = 1200;
+  }
+  propIdlePercent = EEPROM.read(PROP_IDLE);
+  if (propIdlePercent > 20) {
+    propIdleCommand = pwmLow * (1 + (20.0 / 100.0));
+  }
+  else {
+    propIdleCommand = pwmLow * (1 + ((float)propIdlePercent / 100.0));
+  }
+  hoverPercent = EEPROM.read(HOVER_THRO);
+  if (hoverPercent > 75) {
+    hoverCommand = 1000 * (1 + (75 / 100.0));
+  }
+  else {
+    if (hoverPercent < 25) {
+      hoverCommand = 1000 * (1 + (25 / 100.0));
+    }
+    else {
+      hoverCommand = 1000 * (1 + ((float)hoverPercent / 100.0));
+    }
+  }
+}
+void LoadRC() {
+  uint16_t j = 0; //index for input buffers
+  uint16_t k = 0; //index for start of each channel's data in rom
+  uint16_t l = 0; //index for each channel
+  uint16_t switchControl;
+  int16_u outInt16;
+  float_u outFloat;
+
+  for (uint16_t i = RC_DATA_START; i <= RC_DATA_END; i++) { //index for each rom location
+    switchControl = i - k;
+    if (switchControl < CHAN_INDEX) { //first 16 bit ints
+      outInt16.buffer[j++] = EEPROM.read(i);
+    }
+    if (switchControl > CHAN_INDEX && i - k < REV_INDEX) { //scale factor
+      outFloat.buffer[j++] = EEPROM.read(i);
+    }
+
+    switch (switchControl) {
+    case MAX_INDEX://max
+      rcData[l].max = outInt16.val;
+      j = 0;
+      break;
+    case MIN_INDEX://min
+      rcData[l].min = outInt16.val;
+      j = 0;
+      break;
+    case MID_INDEX://mid
+      rcData[l].mid = outInt16.val;
+      j = 0;
+      break;
+    case CHAN_INDEX://chan
+      rcData[l].chan = EEPROM.read(i);
+      break;
+    case SCALE_INDEX://scale
+      rcData[l].scale = outFloat.val;
+      j = 0;
+      break;
+    case REV_INDEX://reverse
+      rcData[l].reverse = EEPROM.read(i);
+      k += 12;
+      l += 1;
+      break;
+    }
+  }
+  txLossRTB = EEPROM.read(TX_FS);
+  if (txLossRTB > 1) {
+    txLossRTB = 0;
+  }
+
+}
+void LoadACC() {
+  uint8_t outFloatIndex = 0;
+  float_u outFloat;
+  for (uint16_t i = ACC_CALIB_START; i <= ACC_CALIB_END; i++) { //load acc values
+    outFloat.buffer[outFloatIndex] = EEPROM.read(i);
+    outFloatIndex++;
+    switch (i) {
+    case ACC_S_X_INDEX:
+      accXScale = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case ACC_S_Y_INDEX:
+      accYScale = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case ACC_S_Z_INDEX:
+      accZScale = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case ACC_O_X_INDEX:
+      accXOffset = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case ACC_O_Y_INDEX:
+      accYOffset = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case ACC_O_Z_INDEX:
+      accZOffset = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+void LoadMAG() {
+
+  float_u outFloat;
+  uint8_t outFloatIndex = 0;
+  for (uint16_t i = MAG_CALIB_START; i <= MAG_CALIB_END; i++) { //load the compass values
+
+    outFloat.buffer[outFloatIndex] = EEPROM.read(i);
+    outFloatIndex++;
+    switch (i) {
+    case MAG_OFF_X_INDEX:
+      magOffSetX = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case MAG_OFF_Y_INDEX:
+      magOffSetY = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case MAG_OFF_Z_INDEX:
+      magOffSetZ = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case W_00_INDEX:
+      magWInv00 = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case W_01_INDEX:
+      magWInv01 = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case W_02_INDEX:
+      magWInv02 = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case W_10_INDEX:
+      magWInv10 = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case W_11_INDEX:
+      magWInv11 = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case W_12_INDEX:
+      magWInv12 = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case W_20_INDEX:
+      magWInv20 = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case W_21_INDEX:
+      magWInv21 = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    case W_22_INDEX:
+      magWInv22 = outFloat.val;
+      outFloatIndex = 0;
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+void LoadGains() {
+  float_u outFloat;
+  uint16_t j = GAINS_START;
+  for (uint16_t i = KP_PITCH_RATE_; i <= FC_CT_; i++) { //gains
+    outFloat.buffer[0] = EEPROM.read(j++);
+    outFloat.buffer[1] = EEPROM.read(j++);
+    outFloat.buffer[2] = EEPROM.read(j++);
+    outFloat.buffer[3] = EEPROM.read(j++);
+    *floatPointerArray[i] = outFloat.val;
+  }
+}
+
+void LoadPROff() {
+  float_u outFloat;
+  uint16_t j = PITCH_OFFSET_START;
+  for (uint16_t i = PITCH_OFFSET; i <= ROLL_OFFSET; i++) { //pitch and roll offsets
+    outFloat.buffer[0] = EEPROM.read(j++);
+    outFloat.buffer[1] = EEPROM.read(j++);
+    outFloat.buffer[2] = EEPROM.read(j++);
+    outFloat.buffer[3] = EEPROM.read(j++);
+    *floatPointerArray[i] = outFloat.val;
+  }
+}
+
+void LoadDEC() {
+  uint16_t j = DEC_START;
+  float_u outFloat;
+  outFloat.buffer[0] = EEPROM.read(j++);
+  outFloat.buffer[1] = EEPROM.read(j++);
+  outFloat.buffer[2] = EEPROM.read(j++);
+  outFloat.buffer[3] = EEPROM.read(j++);
+  *floatPointerArray[MAG_DEC_] = outFloat.val;
+
+  cosDec = cos(declination);
+  sinDec = sin(declination);
+}
+
+void LoadModes(){
+  uint8_t j = 0;
+  for(uint16_t i = MODE_START; i <= MODE_END; i++){
+    modeArray[j++] = EEPROM.read(i);
+  }
+}
+void LoadROM() {
+  LoadRC();
+  LoadACC();
+  LoadMAG();
+  LoadGains();
+  LoadPROff();
+  LoadPWMLimits();
+  LoadModes();
+}
+
+
+
+
+
+

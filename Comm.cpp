@@ -24,6 +24,11 @@ uint8_t RCSerialAvailable(){
   return RC_SERIAL_PORT.available();
 }
 
+void RadioSerialBegin(){
+  Port0.begin(115200);
+  Port2.begin(115200);
+}
+
 void SPIInit(uint8_t endian,uint8_t clockDiv,uint8_t mode){
   SPI.begin();
   SPI.setBitOrder(endian);

@@ -1,8 +1,9 @@
 #include "Calibration.h"
+#include "Rom.h"
 
 
-void LoadACC();
-void LoadMAG();
+//void LoadACC();
+//void LoadMAG();
 //void LPF(float*, float*, float*, float);
 
 //rename?
@@ -83,7 +84,7 @@ void SetGyroOffsets(){
   gyroOffsetY = gyroSumY / NUMBER_GYRO_SAMPLES_FOR_AVG;
   gyroOffsetZ = gyroSumZ / NUMBER_GYRO_SAMPLES_FOR_AVG;  
 }
-
+/*
 void LoadACC() {
   float_u outFloat;
   uint8_t outFloatIndex = 0;
@@ -119,8 +120,8 @@ void LoadACC() {
       break;
     }
   }
-}
-
+}*/
+/*
 void LoadMAG() {
   float_u outFloat;
   uint8_t outFloatIndex = 0;
@@ -180,7 +181,7 @@ void LoadMAG() {
       break;
     }
   }
-}
+}*/
 //rename can't think of anything better right now
 void ACCScale(){
   static uint32_t previousTime;

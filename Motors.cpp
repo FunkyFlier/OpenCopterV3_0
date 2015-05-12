@@ -11,13 +11,15 @@
 #include "Sensors.h"
 #include "Inertial.h"
 #include "Calibration.h"
+#include "Rom.h"
+#include <EEPROM.h>
 
 void SaveGains();
 
 float motorCommand1, motorCommand2, motorCommand3, motorCommand4,motorCommand5, motorCommand6, motorCommand7, motorCommand8;
 int16_t pwmHigh, pwmLow;
 int16_t throttleCommand;
-float landingThroAdjustment,adjustmentX,adjustmentY,adjustmentZ;
+//float landingThroAdjustment,adjustmentX,adjustmentY,adjustmentZ;
 uint8_t motorState;
 
 //todo move
@@ -30,7 +32,7 @@ boolean throttleCheckFlag = false;
 void CheckESCFlag(){
   int16_u outInt16;
   uint32_t LEDTimer;
-  uint8_t LEDControlNumber;
+  uint8_t LEDControlNumber = 0;
   if (EEPROMRead(PWM_FLAG) != 0xAA){
     pwmHigh = PWM_HIGH_MAX;
     pwmLow = PWM_LOW_MIN;
@@ -132,7 +134,7 @@ void CheckESCFlag(){
 
 void CalibrateESC(){
   uint32_t LEDTimer;
-  uint8_t LEDControlNumber;
+  uint8_t LEDControlNumber = 0;
   delay(100);//wait for new frame
   newRC = false;
   while(newRC == false){
@@ -189,15 +191,25 @@ void MotorInit(){
 
 void SaveGains(){
   uint8_t calibrationFlags;
-  uint16_t j_ = GAINS_START;
-  for(uint16_t i = KP_PITCH_RATE_; i <= MAG_DEC_; i++){
-    /*EEPROMWrite(j_++,(*floatPointerArray[i]).buffer[0]); 
-     EEPROMWrite(j_++,(*floatPointerArray[i]).buffer[1]); 
-     EEPROMWrite(j_++,(*floatPointerArray[i]).buffer[2]); 
-     EEPROMWrite(j_++,(*floatPointerArray[i]).buffer[3]); */
-    //watchDogFailSafeCounter = 0;
+  uint16_t j = GAINS_START;
+  float_u outFloat;
 
+  j = GAINS_START;
+  for (uint16_t i = KP_PITCH_RATE_; i <= FC_CT_; i++) {
+    outFloat.val = *floatPointerArray[i];
+    EEPROM.write(j++, outFloat.buffer[0]);
+    EEPROM.write(j++, outFloat.buffer[1]);
+    EEPROM.write(j++, outFloat.buffer[2]);
+    EEPROM.write(j++, outFloat.buffer[3]);
+    watchDogFailSafeCounter = 0;
   }
+  j = DEC_START;
+  outFloat.val = *floatPointerArray[MAG_DEC_];
+  EEPROM.write(j++, outFloat.buffer[0]);
+  EEPROM.write(j++, outFloat.buffer[1]);
+  EEPROM.write(j++, outFloat.buffer[2]);
+  EEPROM.write(j++, outFloat.buffer[3]);
+  watchDogFailSafeCounter = 0;
   cosDec = cos(declination);
   sinDec = sin(declination);
 
@@ -509,5 +521,6 @@ void MotorHandler(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
 
 

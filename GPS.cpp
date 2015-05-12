@@ -6,9 +6,11 @@ boolean newGPSData,GPSDetected;
 int32_t homeLat,homeLon;
 
 boolean LLHFlag,VELFlag;
+boolean gpsFailSafe;
 uint8_t GPSState;
 float deltaLon;
 float deltaLat;
+uint32_t GPSFailSafeCounter;
 
 GPS_Union_t GPSData;
 
@@ -18,7 +20,9 @@ uint8_t index,msgLengthLSB,msgLengthMSB,msgType,inBuffer[50],localSumA,localSumB
 float gpsAlt;
 
 float floatLat, floatLon;
+float homeLatFloat,homeLonFloat;
 float velN, velE, velD;
+float hAcc,sAcc;
 
 void GPSInit(){
   gpsPort.begin(38400);
@@ -41,13 +45,13 @@ void DistBearing(int32_t *lat1, int32_t *lon1, int32_t *lat2, int32_t *lon2,floa
 void GPSStart() {
   uint32_t generalPurposeTimer;
   uint8_t LEDPattern[4] = {
-    0x00,0x00,0x00,0x00      };
+    0x00,0x00,0x00,0x00        };
   uint8_t LEDIndex = 0;
-  
+
   GPSInit();
-  
+
   generalPurposeTimer = millis();
-  
+
   while ((millis() - generalPurposeTimer < 1000) && (newGPSData== false)) {
     GPSMonitor();
     if (newGPSData == true) {
@@ -57,8 +61,10 @@ void GPSStart() {
   //to do add feed back with leds
   if (GPSDetected == true) {
     //gpsFailSafe = false;
-   memcpy(LEDPattern, (uint8_t[]){0x00, 0x0F, 0x00,0x0F}, 4);
-   
+    memcpy(LEDPattern, (uint8_t[]){
+      0x00, 0x0F, 0x00,0x0F    }
+    , 4);
+
     while (GPSData.vars.gpsFix != 0x3) {
 
       GPSMonitor();
@@ -72,7 +78,9 @@ void GPSStart() {
 
     }
     LEDIndex = 0;
-    memcpy(LEDPattern, (uint8_t[]){0x01, 0x02, 0x04,0x08}, 4);
+    memcpy(LEDPattern, (uint8_t[]){
+      0x01, 0x02, 0x04,0x08    }
+    , 4);
     while (GPSData.vars.hAcc * 0.001 > (HACC_MAX - 0.5) ) {
       GPSMonitor();
       if (millis() - generalPurposeTimer > 500) {
@@ -84,7 +92,9 @@ void GPSStart() {
       }
     }
     LEDIndex = 0;
-    memcpy(LEDPattern, (uint8_t[]){0x08, 0x04, 0x02,0x01}, 4);
+    memcpy(LEDPattern, (uint8_t[]){
+      0x08, 0x04, 0x02,0x01    }
+    , 4);
     while (GPSData.vars.sAcc * 0.001 > (SACC_MAX - 0.25) ) {
       GPSMonitor();
       if (millis() - generalPurposeTimer > 500) {
@@ -102,6 +112,8 @@ void GPSStart() {
     }
     homeLat = GPSData.vars.lat;
     homeLon = GPSData.vars.lon;
+    homeLatFloat = homeLat * 0.0000001;
+    homeLonFloat = homeLon * 0.0000001;
 
   }
 
@@ -227,8 +239,15 @@ void GPSMonitor(){
     velN = GPSData.vars.velN * 0.01;
     velE = GPSData.vars.velE * 0.01;
     velD = GPSData.vars.velD * 0.01;
+    hAcc = GPSData.vars.hAcc * 0.001;
+    sAcc = GPSData.vars.sAcc * 0.001;
+    if (GPSData.vars.gpsFix != 3 || hAcc > HACC_MAX || sAcc > SACC_MAX) {//5
+      gpsFailSafe = true;
+    }//5
+    GPSFailSafeCounter = 0;
   }
 }
+
 
 
 

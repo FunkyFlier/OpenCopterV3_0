@@ -47,6 +47,19 @@
 #endif//#ifdef QUAD_CAMP
 
 //common defines
+#define MODE_FLAG 443
+#define MODE_START 444
+#define MODE_END 452
+
+
+#define PROP_IDLE 435
+#define PROP_IDLE_FLAG 436
+
+#define HOVER_THRO 437
+#define HOVER_THRO_FLAG 438
+
+#define TX_FS_FLAG 439
+#define TX_FS 440
 
 //#define ROT_45
 //LED defines GREEN, YELLOW, BLUE, RED
@@ -278,6 +291,7 @@
 #define FLOOR 2
 #define TAKE_OFF_ALT 3
 
+#define PR_FLAG 6
 
 
 #define RC_DATA_START 332
@@ -299,8 +313,12 @@
 
 #define ESC_CALIBRATION_DELAY 4000
 
+#define VER_FLAG_1 428
+#define VER_FLAG_2 429
+
 #define VER_NUM_1 0x01
 #define VER_NUM_2 0x01
+
 
 #define PWM_LIM_HIGH_START 430
 #define PWM_LIM_HIGH_END 431
@@ -318,8 +336,13 @@
 
 #define ESC_CAL_FLAG 7
 
+#define PITCH_OFFSET_START 80
+#define PITCH_OFFSET_END 83
+
+#define ROLL_OFFSET_START 84
+#define ROLL_OFFSET_END 87
+
 #define GAINS_START 88
 #define GAINS_END 327
-
 #endif//#ifndef Definitions.h
 

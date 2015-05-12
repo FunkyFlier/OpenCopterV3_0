@@ -27,10 +27,12 @@ void GetYaw();
 
 extern float declination;
 extern float cosDec,sinDec;
+extern float rawPitch,rawRoll,pitchOffset,rollOffset;
 extern float yawInDegrees,pitchInDegrees,rollInDegrees;
 extern float yawInRadians,pitchInRadians,rollInRadians;
 extern float R11,R12,R13,R21,R22,R23,R31,R32,R33;
 extern float initialAccMagnitude;
+extern float q0,q1,q2,q3;
 
 
 #endif 

@@ -9,6 +9,7 @@ uint8_t RCSerialAvailable();
 void RCSerialBegin(uint32_t);
 void RCSerialBegin(uint32_t,uint8_t);
 
+void RadioSerialBegin();
 
 uint8_t SPITransfer(uint8_t);
 void    SPIInit(uint8_t, uint8_t, uint8_t);
