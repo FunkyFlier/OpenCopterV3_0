@@ -6,7 +6,7 @@ void PollMag();
 void PollGro();
 
 uint32_t _100HzTimer,_400HzTimer;
-volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter;
+volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount;
 float initialYaw;
 boolean integrate;
 uint8_t HHState;

@@ -4,6 +4,34 @@
 #include <Arduino.h>
 #include "Definitions.h"
 
+Print* radioPrint;
+Stream* radioStream;
+
+void AssignRadioUSB(){
+  radioStream = &Port0;
+  radioPrint = &Port0;
+}
+
+void AssignRadioUART(){
+  radioStream = &Port2;
+  radioPrint = &Port2;
+
+}
+
+
+uint8_t RadioAvailable(){
+  return radioStream->available();
+}
+
+uint8_t RadioRead(){
+  return radioStream->read();
+}
+
+void RadioWrite(uint8_t outByte){
+  radioPrint->write(outByte);
+}
+
+
 void RCSerialBegin(uint32_t baudRate, uint8_t config){
   RC_SERIAL_PORT.begin(baudRate,config);
 }
@@ -71,3 +99,6 @@ void EEPROMWrite(uint16_t address,uint16_t data){
 uint8_t EEPROMRead(uint16_t address){
   return EEPROM.read(address);
 }
+
+
+

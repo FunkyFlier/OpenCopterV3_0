@@ -16,6 +16,7 @@
 
 void SaveGains();
 
+uint32_t romWriteDelayTimer;
 float motorCommand1, motorCommand2, motorCommand3, motorCommand4,motorCommand5, motorCommand6, motorCommand7, motorCommand8;
 int16_t pwmHigh, pwmLow;
 int16_t throttleCommand;
@@ -222,7 +223,7 @@ void MotorHandler(){
   switch(motorState){
   case HOLD:
 
-    if (saveGainsFlag == true){// && (millis() - romWriteDelayTimer) > 2000){
+    if (saveGainsFlag == true && (millis() - romWriteDelayTimer) > 2000){
       SaveGains();
 
       saveGainsFlag = false;

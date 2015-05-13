@@ -168,6 +168,15 @@
 
 //end common defines
 
+#define RADIO_BUF_SIZE 256
+#define NUM_WAY_POINTS 0x14
+
+#define PKT_LOCAL_ORD_L 2
+#define PKT_LOCAL_ORD_M 3
+
+#define PKT_LOCAL_UN_L 4
+#define PKT_LOCAL_UN_M 5
+
 //V1 defines
 #ifdef V1
 //acc defines - Analog Devices ADXL345

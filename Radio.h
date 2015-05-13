@@ -4,9 +4,11 @@
 #include <Arduino.h>
 
 void HandShake();
+void Radio();
+void HandleGSRCData();
+void TuningTransmitter();
 
-extern boolean USBFlag,handShake,calibrationMode;
-extern Print* radioPrint;
-extern Stream* radioStream;
+extern boolean USBFlag,handShake,calibrationMode,newGSRC,gsCTRL;
+extern uint16_t GSRCValue[8];
 
 #endif

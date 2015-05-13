@@ -8,6 +8,7 @@ void CalibrateESC();
 void MotorInit();
 void MotorHandler();
 
+extern uint32_t romWriteDelayTimer;
 extern float motorCommand1, motorCommand2, motorCommand3, motorCommand4,motorCommand5, motorCommand6, motorCommand7, motorCommand8;
 extern int16_t pwmHigh, pwmLow;
 extern int16_t throttleCommand;

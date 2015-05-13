@@ -2,6 +2,11 @@
 #define COMM_H
 
 
+void AssignRadioUSB();
+void AssignRadioUART();
+uint8_t RadioAvailable();
+uint8_t RadioRead();
+void RadioWrite(uint8_t);
 
 void RCSerialWrite(uint8_t);
 uint8_t RCSerialRead();

@@ -14,7 +14,7 @@ void _400HzTask();
 void _100HzTask(uint32_t);
 
 extern uint32_t _100HzTimer,_400HzTimer;
-extern volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter;
+extern volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount;
 extern float initialYaw;
 extern boolean integrate;
 extern uint8_t HHState;
