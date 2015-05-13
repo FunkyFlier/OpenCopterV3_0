@@ -198,18 +198,18 @@ void SaveGains(){
   j = GAINS_START;
   for (uint16_t i = KP_PITCH_RATE_; i <= FC_CT_; i++) {
     outFloat.val = *floatPointerArray[i];
-    EEPROM.write(j++, outFloat.buffer[0]);
-    EEPROM.write(j++, outFloat.buffer[1]);
-    EEPROM.write(j++, outFloat.buffer[2]);
-    EEPROM.write(j++, outFloat.buffer[3]);
+    EEPROMWrite(j++, outFloat.buffer[0]);
+    EEPROMWrite(j++, outFloat.buffer[1]);
+    EEPROMWrite(j++, outFloat.buffer[2]);
+    EEPROMWrite(j++, outFloat.buffer[3]);
     watchDogFailSafeCounter = 0;
   }
   j = DEC_START;
   outFloat.val = *floatPointerArray[MAG_DEC_];
-  EEPROM.write(j++, outFloat.buffer[0]);
-  EEPROM.write(j++, outFloat.buffer[1]);
-  EEPROM.write(j++, outFloat.buffer[2]);
-  EEPROM.write(j++, outFloat.buffer[3]);
+  EEPROMWrite(j++, outFloat.buffer[0]);
+  EEPROMWrite(j++, outFloat.buffer[1]);
+  EEPROMWrite(j++, outFloat.buffer[2]);
+  EEPROMWrite(j++, outFloat.buffer[3]);
   watchDogFailSafeCounter = 0;
   cosDec = cos(declination);
   sinDec = sin(declination);
@@ -269,26 +269,26 @@ void MotorHandler(){
       if (abs(cmdRudd - 1500) < 50){
         rudderFlag = false;
         motorState = TO;
-        /*
+
         PitchAngle.reset();
-         RollAngle.reset();
-         YawAngle.reset();
-         
-         PitchRate.reset();
-         RollRate.reset();
-         YawRate.reset();
-         
-         AltHoldPosition.reset();
-         AltHoldVelocity.reset();
-         
-         WayPointPosition.reset();
-         WayPointRate.reset();
-         
-         LoiterXPosition.reset();
-         LoiterXVelocity.reset();
-         
-         LoiterYPosition.reset();
-         LoiterYVelocity.reset();*/
+        RollAngle.reset();
+        YawAngle.reset();
+
+        PitchRate.reset();
+        RollRate.reset();
+        YawRate.reset();
+
+        AltHoldPosition.reset();
+        AltHoldVelocity.reset();
+
+        //WayPointPosition.reset();
+        //WayPointRate.reset();
+
+        LoiterXPosition.reset();
+        LoiterXVelocity.reset();
+
+        LoiterYPosition.reset();
+        LoiterYVelocity.reset();
         homeBaseXOffset = XEst;
         homeBaseYOffset = YEst;
         if (magDetected == true){
@@ -348,12 +348,12 @@ void MotorHandler(){
         throttleAdjustment = 0;
         xTarget = XEst;
         yTarget = YEst;
-        /*LoiterXPosition.reset();
-         LoiterXVelocity.reset();
-         LoiterYPosition.reset();
-         LoiterYVelocity.reset();
-         AltHoldPosition.reset();
-         AltHoldVelocity.reset();*/
+        LoiterXPosition.reset();
+        LoiterXVelocity.reset();
+        LoiterYPosition.reset();
+        LoiterYVelocity.reset();
+        AltHoldPosition.reset();
+        AltHoldVelocity.reset();
         integrate = true;
       }
     }
@@ -522,6 +522,7 @@ void MotorHandler(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
 
 
 

@@ -31,7 +31,18 @@ void LoadCalibValuesFromRom(){
   ACCScale();
   GROScale();
 }
-
+void PollAcc(){
+  GetAcc();
+  ACCScale();
+}
+void PollMag(){
+  GetMag();
+  MAGScale();
+}
+void PollGro(){
+  GetGro();
+  GROScale();
+}
 boolean StationaryGyro(){
   static int16_t gyroPrevX=0,gyroPrevY=0,gyroPrevZ=0;
   boolean stationary;
@@ -85,7 +96,7 @@ void ACCScale(){
   
   dt = (micros() - previousTime) * 0.000001;
   previousTime = micros();
-  if (dt > 0.1){
+  if (dt > 0.1 || dt <= 0){
     filtAccX = scaledAccX ;
     filtAccY = scaledAccY;
     filtAccZ = scaledAccZ;

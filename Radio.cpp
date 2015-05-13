@@ -8,9 +8,9 @@
 #include "Rom.h"
 #include "Definitions.h"
 #include "Motors.h"
+#include "Enums.h"
 
-
-boolean USBFlag,handShake,calibrationMode,gsCTRL;
+boolean USBFlag=false,handShake=false,calibrationMode=false,gsCTRL=false;
 
 uint16_t GSRCValue[8];
 boolean newGSRC;
@@ -33,7 +33,16 @@ uint8_t typeNum,cmdNum,itemBuffer[255],calibrationNumber,hsRequestNumber,lsReque
 uint16_t localPacketNumberOrdered, localPacketNumberUn, remotePacketNumberOrdered, remotePacketNumberUn, packetTemp[2];
 boolean hsTX,lsTX,sendCalibrationData;
 uint32_t hsMillis,lsMillis;
+void TryHandShake(){
+  AssignRadioUART();
+  HandShake();
 
+  if (handShake == false) {
+    USBFlag = true;
+    AssignRadioUSB();
+    HandShake();
+  }
+}
 void Radio() {
   uint8_t radioByte,rxSum=0,rxDoubleSum=0,packetLength=0,numRXbytes=0,radioState = 0,itemIndex=0;
   float_u outFloat;
@@ -540,8 +549,8 @@ void TuningTransmitter() { //
   int16_u outInt16;
   uint8_t packetLength,txSum,txDoubleSum,hsListIndex,lsListIndex,tuningItemIndex,liveDataBuffer[200];
   static uint32_t hsTXTimer=0,lsTXTimer=0;
-  
-  
+
+
   now.val = millis();
 
 
@@ -774,7 +783,7 @@ void WriteCalibrationDataToRom() {
   uint8_t temp,calibrationFlags;
   //int16_u temp16;
   uint8_t itemIndex = 0;
-  
+
   switch (cmdNum) {
   case 0://mag calibration data
     if (magDetected == true) {
@@ -909,7 +918,7 @@ void OrderedSet() {
 void SendOrdAck() {
 
   uint8_t txSum = 0,txDoubleSum = 0,temp;
-  
+
   RadioWrite(0xAA);
   RadioWrite(3);
   RadioWrite(0xFC);
@@ -931,7 +940,7 @@ void SendOrdAck() {
 
 void SendOrdMis() {
   uint8_t txSum = 0,txDoubleSum = 0,temp;
-  
+
   RadioWrite(0xAA);
   RadioWrite(3);
   RadioWrite(0xFB);
@@ -1003,7 +1012,7 @@ void SendUnAck() {
     RadioWrite(cmdNum);
     txSum += cmdNum;
     txDoubleSum += txSum;
-    
+
     outFloat.val = *floatPointerArray[cmdNum];
     RadioWrite(outFloat.buffer[0]);
     txSum += outFloat.buffer[0];
@@ -1016,7 +1025,7 @@ void SendUnAck() {
     txDoubleSum += txSum;
     RadioWrite(outFloat.buffer[3]);
     txSum += outFloat.buffer[3];
-    
+
     txDoubleSum += txSum;
     RadioWrite(txSum);
     RadioWrite(txDoubleSum);
@@ -1185,7 +1194,7 @@ void SendUnAck() {
 void SendUnMis() {
 
   uint8_t txSum = 0,txDoubleSum = 0,temp;
-  
+
   RadioWrite(0xAA);
   RadioWrite(3);
   RadioWrite(0xFB);
@@ -1263,7 +1272,7 @@ void UnReliableTransmit() {
 
 void HandShake() {
   uint8_t handShakeState = 0,radioByte,rxSum=0,rxDoubleSum=0;
-  
+
 
   uint32_t radioTimer = millis();
 
@@ -1465,6 +1474,7 @@ void SendHandShakeResponse() {
 
   }
 }
+
 
 
 

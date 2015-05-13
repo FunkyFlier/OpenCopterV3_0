@@ -55,6 +55,9 @@ uint8_t RCSerialAvailable(){
 void RadioSerialBegin(){
   Port0.begin(115200);
   Port2.begin(115200);
+  Port2.write(0x0D);//in case a programmable XBEE is attached
+  delay(500);
+  Port2.print("B");
 }
 
 void SPIInit(uint8_t endian,uint8_t clockDiv,uint8_t mode){

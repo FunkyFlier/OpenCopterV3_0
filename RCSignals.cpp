@@ -1,12 +1,15 @@
 #include "RCSignals.h"
-#include <Streaming.h>
-#include <EEPROM.h>
-
-
+#include "Types.h"
+#include "Definitions.h"
+#include "Comm.h"
+#include "Enums.h"
+#include "Radio.h"
+#include "LED.h"
+#include "FlightControl.h"
 
 RC_t rcData[8];
 int16_t RCValue[8];
-boolean rcDetected = false;
+volatile boolean rcDetected = false;
 volatile uint8_t rcType;
 uint8_t ISRState = STAND;
 volatile boolean RCFailSafe = false;
@@ -44,6 +47,37 @@ void PWMPPMCheck();
 void SBus();
 void DSMSerial();
 
+
+void CheckTXPositions() {
+
+  boolean positionOK = false;
+  if (gsCTRL == false){
+    ControlLED(0x0A);
+    while (positionOK == false) {
+      if (newRC == true) {
+        newRC = false;
+        ProcessChannels();
+      }
+      positionOK = true;
+      if (RCValue[THRO] > 1050) {
+        positionOK = false;
+      }
+      if (RCValue[GEAR] > 1050) {
+        positionOK = false;
+      }
+      if (RCValue[AUX1] > 1050) {
+        positionOK = false;
+      }
+      if (RCValue[AUX2] > 1050) {
+        positionOK = false;
+      }
+      if (RCValue[AUX3] > 1050) {
+        positionOK = false;
+      }
+    }
+  }
+}
+
 void LoadRCValuesFromRom(){
   uint16_t j=0;//index for input buffers
   uint16_t k=0;//index for start of each channel's data in rom
@@ -53,7 +87,7 @@ void LoadRCValuesFromRom(){
   int16_u outInt16;
 
   for(uint16_t i = RC_DATA_START; i <=RC_DATA_END; i++){//index for each rom location
-    
+
     switchControl = i - k;
     if (switchControl < CHAN_INDEX){//first 16 bit ints
       outInt16.buffer[j++] = EEPROMRead(i);
@@ -89,9 +123,9 @@ void LoadRCValuesFromRom(){
       break;
     }
   }
-  
 
-  
+
+
 }
 
 ISR(PCINT2_vect){
@@ -289,7 +323,7 @@ boolean DSMParser(){
           }
 
         }
-     
+
 
       }
     }
@@ -403,6 +437,7 @@ void DSMSerial(){
 
 
 }
+
 
 
 

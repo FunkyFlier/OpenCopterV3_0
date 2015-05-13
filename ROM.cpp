@@ -335,16 +335,8 @@ void ROMFlagsCheck() {
   }
   calibrationFlags = EEPROMRead(CAL_FLAGS);
   VerifyMag();
-  RadioSerialBegin();
   if ( ((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 || ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 || ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 && magDetected ) ) {
-    AssignRadioUART();
-    HandShake();
-
-    if (handShake == false) {
-      USBFlag = true;
-      AssignRadioUSB();
-      HandShake();
-    }
+    TryHandShake();
     if (calibrationMode == true) {
       ControlLED(0x07);
       return;

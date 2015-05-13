@@ -11,16 +11,14 @@
 #include "Motors.h"
 #include "Radio.h"
 
-void PollAcc();
-void PollMag();
-void PollGro();
+
 
 void FlightSM();
 void TrimCheck();
 void InitLoiter();
 void RTBStateMachine();
 void LoiterCalculations();
-void Arm();
+
 void LoiterSM();
 void RotatePitchRoll(float*, float*,float*,float*,float*,float*);
 void HeadingHold();
@@ -33,7 +31,7 @@ float zero = 0;
 
 uint8_t flightMode;
 uint32_t _100HzTimer,_400HzTimer;
-volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount;
+volatile uint32_t RCFailSafeCounter=0,watchDogFailSafeCounter=0,groundFSCount=0;
 float initialYaw;
 boolean integrate;
 uint8_t HHState;
@@ -50,7 +48,7 @@ float controlBearing;
 boolean enterState;
 boolean setTrim,trimComplete,calcYaw;
 float yawInput;
-float _100HzDt;
+float _100HzDt = 0.01;
 
 uint8_t modeArray[9] = {
   RATE,L1,ATT,ATT,ATT,ATT_TRIM,RATE,RATE,L0};
@@ -258,18 +256,7 @@ void _100HzTask(uint32_t loopTime){
 
 
 }
-void PollAcc(){
-  GetAcc();
-  ACCScale();
-}
-void PollMag(){
-  GetMag();
-  MAGScale();
-}
-void PollGro(){
-  GetGro();
-  GROScale();
-}
+
 
 void FlightSM() {
 

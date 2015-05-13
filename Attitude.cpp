@@ -157,7 +157,13 @@ void AHRSupdate(float dt) {
 void SetInitialQuaternion(){
   float magnitude;
   float bx,by;
-
+  PollMag();
+  for(uint8_t i = 0; i < 100; i++){
+    while(StationaryGyro() == false){
+    }
+    PollAcc();
+    delay(3);
+  }
   SetVariables();
   //calculate the ypr from sensors convert to quaternion and rotation matrix
   pitchInRadians = atan2(-acc_x,sqrt(acc_y * acc_y + acc_z * acc_z));

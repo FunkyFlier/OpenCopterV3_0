@@ -16,6 +16,9 @@ void MAGScale();
 void GROScale();
 void SetGyroOffsets();
 boolean StationaryGyro();
+void PollAcc();
+void PollMag();
+void PollGro();
 
 extern float scaledMagX, scaledMagY, scaledMagZ, scaledAccX, scaledAccY, scaledAccZ;
 extern float degreeGyroX,degreeGyroY,degreeGyroZ,radianGyroX,radianGyroY,radianGyroZ;

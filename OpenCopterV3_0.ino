@@ -16,6 +16,9 @@
 #include "PID.h"
 #include "Motors.h"
 #include "FlightControl.h"
+#include "Rom.h"
+#include "Radio.h"
+#include "ISR.h"
 
 uint32_t printTimer;
 uint32_t loopTime;
@@ -23,11 +26,12 @@ uint32_t loopTime;
 
 
 void setup() {
-  Serial.begin(115200);
 
+  RadioSerialBegin();
+  AssignPointerArray();
   SetPinModes();
   ControlLED(0x0F);  
-  CheckDefines();
+  //CheckDefines();
 
   DetectRC();
   _200HzISRConfig();
@@ -35,27 +39,61 @@ void setup() {
   SPIInit(MSBFIRST,SPI_CLOCK_DIV2,SPI_MODE0);
   I2CInit();
 
-  //GPSInit();
-  GPSStart();
-  BaroInit();
-  GyroInit();
+  ROMFlagsCheck();
+  if (rcDetected == true){
+    CheckESCFlag();
+    CalibrateESC();
+  }
+  MotorInit();
+
+  if (handShake == false) {
+    TryHandShake();
+  }
+
   AccInit();
   MagInit();
+  BaroInit();
+  GyroInit();
 
-  LoadCalibValuesFromRom();
-  LoadAttValuesFromRom();
-  LoadRCValuesFromRom();
+  if (calibrationMode == true){
+    CalibrateSensors();
+    ROMFlagsCheck();
+  }
 
+
+  if (rcDetected == false && gsCTRL == false){
+    NoControlIndicatior();
+
+  }
+
+
+
+  Arm();
+  GPSStart();
+  SetGyroOffsets();
   SetInitialQuaternion();
   InertialInit();
+  CheckTXPositions();
 
   ControlLED(0x00);  
-
-
-  Serial<<yawInDegrees<<","<<rollInDegrees<<","<<pitchInDegrees<<"\r\n";
+  watchDogStartCount = true;
+  _400HzTimer = micros();
+  _100HzTimer = _400HzTimer;
 
 }
 
+void NoControlIndicatior(){
+  uint8_t LEDIndex = 0;
+  uint8_t LEDArray[8] = {
+    0x00,0x01,0x03,0x02,0x06,0x04,0x0C,0x08    };
+  while(1){
+    ControlLED(LEDArray[LEDIndex++]);
+    if(LEDIndex == 8){
+      LEDIndex = 0;
+    }
+    delay(250);
+  }
+}
 
 
 void loop() {
@@ -69,25 +107,6 @@ void loop() {
   }
 
 }
-//to do move these functions
-void _200HzISRConfig(){
-  TCCR5A = (1<<COM5A1);
-  TCCR5B = (1<<CS51)|(1<<WGM52);
-  TIMSK5 = (1<<OCIE5A);
-  OCR5A = 10000;
-}
-
-ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
-  RCFailSafeCounter++;
-  watchDogFailSafeCounter++;
-  if (rcType != RC){
-    FeedLine();
-  }
-}
-
-
-
-//end move these functions
 
 
 
@@ -143,5 +162,7 @@ void SetPinModes(){
   LEDInit();
 
 }
+
+
 
 

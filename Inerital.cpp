@@ -119,7 +119,7 @@ void GetBaroZ(){
   baroDT = (millis() - baroTimer) * 0.001;
   baroTimer = millis();
 
-  if (baroDT >= 0.1 || baroDT < 0) {
+  if (baroDT >= 0.1 || baroDT <= 0) {
     baroDT = 0.1;
   }
   GetAltitude(&pressure, &initialPressure, &baroAlt);

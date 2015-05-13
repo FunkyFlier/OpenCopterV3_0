@@ -7,6 +7,7 @@
 void _400HzTask();
 void _100HzTask(uint32_t);
 void ProcessChannels();
+void Arm();
 
 
 //extern PID WayPointPosition;

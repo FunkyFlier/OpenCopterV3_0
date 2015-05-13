@@ -13,7 +13,6 @@ void GyroInit() {
 
   GyroSSLow();
   SPITransfer(L3G_WHO_AM_I  | READ | SINGLE);
-  Serial << _HEX(SPITransfer(0x00)) << "\r\n";
   GyroSSHigh();
 
   GyroSSLow();
@@ -274,9 +273,7 @@ void BaroInit() {
   promCRC.buffer[0] = SPITransfer(0x00);
   BaroSSHigh();
 
-  Serial << C1.val << "," << C2.val << "," << C3.val << "," << C4.val << "," << C5.val << "," << C6.val << "\r\n";
-
-  CheckCRC();
+  //CheckCRC(); //no need to call as it will pass the check if there is no sensor attached
 
 
   baroPollTimer = millis();
@@ -490,7 +487,6 @@ void BaroInit(void) {
   md = (msb << 8) | lsb;
 
   I2CRead(BMP085_ADDRESS,0xD0,1);
-  Serial<<"bmp 085 "<<_HEX(I2CReceive())<<"\r\n";
   //this is to get the ground pressure for relative altitude
   //lower pressure than this means positive altitude
   //higher pressure than this means negative altitude
@@ -605,7 +601,6 @@ void GetAcc() {
   accX.val = tempX;
   accY.val = tempY;
 #endif
-  //Serial<<"* "<<accX.val<<","<<accY.val<<","<<accZ.val<<"\r\n";
 }
 void AccInit() {
   AccSSLow();
@@ -654,19 +649,16 @@ void VerifyMag() {
   I2CRead((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_ID_A, (uint8_t)3);
   
   if (I2CReceive() != 0x48) {
-    Serial<<"id1\r\n";
     magDetected = false;
     return;
   }
 
   if (I2CReceive() != 0x34) {
-    Serial<<"id2\r\n";
     magDetected = false;
     return;
   }
 
   if (I2CReceive() != 0x33) {
-    Serial<<"id3\r\n";
     magDetected = false;
     return;
   }
@@ -703,8 +695,6 @@ void GetMag() {
   i2cTimeOutStatus = I2CRead(MAG_ADDRESS, HMC5983_OUT_X_H, 6);
   if (i2cTimeOutCount == 10){
     magDetected = false;
-    //imu.magDetected = false;
-    Serial<<"mag lost\r\n";
     return;
   }
   if (i2cTimeOutStatus != 0){
