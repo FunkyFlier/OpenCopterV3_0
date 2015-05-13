@@ -17,4 +17,5 @@ extern uint8_t motorState;
 extern uint16_t propIdleCommand, hoverCommand;
 
 extern boolean saveGainsFlag;
+extern boolean throttleCheckFlag;
 #endif

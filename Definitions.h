@@ -46,6 +46,20 @@
 
 #endif//#ifdef QUAD_CAMP
 
+#define CEILING 6
+#define FLOOR 2
+#define TAKE_OFF_ALT 3
+
+#define LAND_VEL -0.28
+#define RTB_VEL 0.25
+
+#define HH_ON 0
+#define HH_OFF 1
+
+
+
+#define MAX_Z_RATE 3.0f
+#define MIN_Z_RATE -3.0f
 //common defines
 #define MODE_FLAG 443
 #define MODE_START 444

@@ -1,17 +1,44 @@
 #include "FlightControl.h"
-
+#include "LED.h"
+#include "Definitions.h"
+#include "Enums.h"
+#include "Sensors.h"
+#include "Attitude.h"
+#include "Inertial.h"
+#include "GPS.h"
+#include "RCSignals.h"
+#include "PID.h"
+#include "Motors.h"
+#include "Radio.h"
 
 void PollAcc();
 void PollMag();
 void PollGro();
 
+void FlightSM();
+void TrimCheck();
+void InitLoiter();
+void RTBStateMachine();
+void LoiterCalculations();
+void Arm();
+void LoiterSM();
+void RotatePitchRoll(float*, float*,float*,float*,float*,float*);
+void HeadingHold();
+
+void ProcessModes();
+
+float zero = 0;
+
+
+
+uint8_t flightMode;
 uint32_t _100HzTimer,_400HzTimer;
 volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount;
 float initialYaw;
 boolean integrate;
 uint8_t HHState;
 float landingThroAdjustment,throttleAdjustment,adjustmentX,adjustmentY,adjustmentZ;
-uint8_t XYLoiterState, ZLoiterState,flightMode,RTBState,txLossRTB;
+uint8_t XYLoiterState, ZLoiterState,RTBState,txLossRTB,previousFlightMode;
 boolean telemFailSafe,txFailSafe;
 
 float homeBaseXOffset,homeBaseYOffset;
@@ -21,6 +48,9 @@ float tiltAngleX,tiltAngleY;
 float distToWayPoint;
 float controlBearing;
 boolean enterState;
+boolean setTrim,trimComplete,calcYaw;
+float yawInput;
+float _100HzDt;
 
 uint8_t modeArray[9] = {
   RATE,L1,ATT,ATT,ATT,ATT_TRIM,RATE,RATE,L0};
@@ -108,7 +138,22 @@ float rateSetPointX;
 float rateSetPointY;
 float rateSetPointZ;
 
+PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
+PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
+PID YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
 
+PID PitchAngle(&pitchSetPoint, &pitchInDegrees, &rateSetPointY, &integrate, &kp_pitch_attitude, &ki_pitch_attitude, &kd_pitch_attitude, &fc_pitch_attitude, &_100HzDt, 800, 800);
+PID RollAngle(&rollSetPoint, &rollInDegrees, &rateSetPointX, &integrate, &kp_roll_attitude, &ki_roll_attitude, &kd_roll_attitude, &fc_roll_attitude, &_100HzDt, 800, 800);
+YAW YawAngle(&yawSetPoint, &yawInDegrees, &rateSetPointZ, &integrate, &kp_yaw_attitude, &ki_yaw_attitude, &kd_yaw_attitude, &fc_yaw_attitude, &_100HzDt, 800, 800);
+
+PID LoiterXPosition(&xTarget, &XEst, &velSetPointX, &integrate, &kp_loiter_pos_x, &ki_loiter_pos_x, &kd_loiter_pos_x, &fc_loiter_pos_x, &_100HzDt, 1, 1);
+PID LoiterXVelocity(&velSetPointX, &velX, &tiltAngleX, &integrate, &kp_loiter_velocity_x, &ki_loiter_velocity_x, &kd_loiter_velocity_x, &fc_loiter_velocity_x, &_100HzDt, 30, 30);
+
+PID LoiterYPosition(&yTarget, &YEst, &velSetPointY, &integrate, &kp_loiter_pos_y, &ki_loiter_pos_y, &kd_loiter_pos_y, &fc_loiter_pos_y, &_100HzDt, 1, 1);
+PID LoiterYVelocity(&velSetPointY, &velY, &tiltAngleY, &integrate, &kp_loiter_velocity_y, &ki_loiter_velocity_y, &kd_loiter_velocity_y, &fc_loiter_velocity_y, &_100HzDt, 30, 30);
+
+PID AltHoldPosition(&zTarget, &ZEstUp, &velSetPointZ, &integrate, &kp_altitude_position, &ki_altitude_position, &kd_altitude_position, &fc_altitude_position, &_100HzDt, 1.5, 1.5);
+PID AltHoldVelocity(&velSetPointZ, &velZUp, &throttleAdjustment, &integrate, &kp_altitude_velocity, &ki_altitude_velocity, &kd_altitude_velocity, &fc_altitude_velocity, &_100HzDt, 250, 250);
 
 void _400HzTask() {
   uint32_t _400HzTime;
@@ -126,7 +171,7 @@ void _400HzTask() {
 void _100HzTask(uint32_t loopTime){
   static uint8_t _100HzState = 0;
 
-  float _100HzDt;
+  
 
   if (loopTime - _100HzTimer >= 10000){
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
@@ -224,5 +269,834 @@ void PollMag(){
 void PollGro(){
   GetGro();
   GROScale();
+}
+
+void FlightSM() {
+
+  switch (flightMode) {
+  case RATE:
+    if (enterState == true) {
+      enterState = false;
+      if (previousFlightMode != RATE && previousFlightMode != ATT) {
+        throttleCheckFlag = true;
+      }
+      ControlLED(0x0F); 
+    }
+    TrimCheck();
+
+    break;
+  case ATT:
+    if (enterState == true) {
+      if (previousFlightMode != RATE && previousFlightMode != ATT) {
+        throttleCheckFlag = true;
+
+      }
+      yawSetPoint = yawInDegrees;
+      enterState = false;
+      ControlLED(flightMode);
+    }
+    HeadingHold();
+    TrimCheck();
+    break;
+  case L0:
+    if (enterState == true) {
+      enterState = false;
+      InitLoiter();
+      yawSetPoint = yawInDegrees;
+      ControlLED(flightMode);
+    }
+    HeadingHold();
+    controlBearing = yawInDegrees;
+    LoiterSM();
+    break;
+  case L1:
+    if (enterState == true) {
+      enterState = false;
+      InitLoiter();
+      yawSetPoint = yawInDegrees;
+      ControlLED(flightMode);
+      controlBearing = initialYaw;
+
+    }
+    HeadingHold();
+    LoiterSM();
+    break;
+  case L2:
+    if (enterState == true) {
+      InitLoiter();
+      yawSetPoint = yawInDegrees;
+      ControlLED(flightMode);
+
+      enterState = false;
+    }
+    HeadingHold();
+    controlBearing = headingToCraft;
+    LoiterSM();
+    break;
+  case FOLLOW:
+    ControlLED(flightMode);
+    if (enterState == true) {
+      enterState = false;
+      yawSetPoint = yawInDegrees;
+    }
+    break;
+  case WP:
+    ControlLED(flightMode);
+    if (enterState == true) {
+      enterState = false;
+      yawSetPoint = yawInDegrees;
+    }
+    break;
+  case RTB:
+    ControlLED(flightMode);
+    if (enterState == true) {
+      enterState = false;
+      xTarget = XEst;
+      yTarget = YEst;
+      zTarget = ZEstUp + 1;
+      if (zTarget > CEILING) {
+        zTarget = CEILING;
+      }
+      if (zTarget < FLOOR) {
+        zTarget = FLOOR;
+      }
+      RTBState = CLIMB;
+      yawSetPoint = yawInDegrees;
+    }
+    HeadingHold();
+    RTBStateMachine();
+    break;
+
+  }
+
+}
+
+void TrimCheck() {
+  uint8_t j;
+  float_u outFloat;
+  if (setTrim == true) {
+    if (trimComplete == false) {
+      trimComplete = true;
+      pitchOffset = rawPitch;
+      rollOffset = rawRoll;
+      j = 0;
+      outFloat.val = pitchOffset;
+      for (uint16_t i = PITCH_OFFSET_START; i <= PITCH_OFFSET_END; i++) {
+        EEPROMWrite(i, outFloat.buffer[j++]);
+      }
+      j = 0;
+      outFloat.val = rollOffset;
+      for (uint16_t i = ROLL_OFFSET_START; i <= ROLL_OFFSET_END; i++) {
+        EEPROMWrite(i, outFloat.buffer[j++]);
+      }
+      EEPROMWrite(PR_FLAG, 0xAA);
+    }
+  }
+}
+
+void InitLoiter() {
+
+  if (previousFlightMode != L1 && previousFlightMode != L2 && previousFlightMode != L0) {
+    if (motorState == LANDING) {
+      velSetPointZ = LAND_VEL;
+    }
+    else{
+      zTarget = ZEstUp;
+      if (zTarget < FLOOR) {
+        zTarget = FLOOR;
+      }
+      if (zTarget > CEILING) {
+        zTarget = FLOOR;
+      }
+    }
+    throttleCheckFlag = true;
+    throttleAdjustment = 0;
+    xTarget = XEst;
+    yTarget = YEst;
+
+    LoiterXPosition.reset();
+    LoiterXVelocity.reset();
+    LoiterYPosition.reset();
+    LoiterYVelocity.reset();
+    AltHoldPosition.reset();
+    AltHoldVelocity.reset();
+  }
+
+}
+
+void RTBStateMachine() {
+  if (motorState == HOLD || motorState == TO) {
+    return;
+  }
+  switch (RTBState) {
+  case CLIMB:
+    LoiterCalculations();
+    RotatePitchRoll(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
+    AltHoldPosition.calculate();
+    AltHoldVelocity.calculate();
+    if (ZEstUp >= (zTarget - 0.1) ) {
+
+      RTBState = TRAVEL;
+      xTarget = homeBaseXOffset;
+      yTarget = homeBaseYOffset;
+    }
+    if (gpsFailSafe == true) {
+      velSetPointZ = LAND_VEL;
+      RTBState = DESCEND;
+    }
+
+    break;
+  case TRAVEL:
+    LoiterXPosition.calculate();
+    LoiterYPosition.calculate();
+    if (velSetPointX > RTB_VEL) {
+      velSetPointX = RTB_VEL;
+    }
+    if (velSetPointX < -RTB_VEL) {
+      velSetPointX = -RTB_VEL;
+    }
+    if (velSetPointY > RTB_VEL) {
+      velSetPointY = RTB_VEL;
+    }
+    if (velSetPointY < -RTB_VEL) {
+      velSetPointY = -RTB_VEL;
+    }
+    LoiterXVelocity.calculate();
+    tiltAngleX *= -1.0;
+    LoiterYVelocity.calculate();
+    RotatePitchRoll(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
+    AltHoldPosition.calculate();
+    AltHoldVelocity.calculate();
+    if (fabs(XEst - xTarget) < 1.0 && fabs(YEst - yTarget) < 1.0) {
+      velSetPointZ = LAND_VEL;
+      RTBState = DESCEND;
+      motorState = LANDING;
+    }
+    if (gpsFailSafe == true) {
+      velSetPointZ = LAND_VEL;
+      RTBState = DESCEND;
+      motorState = LANDING;
+    }
+    break;
+  case DESCEND:
+    if (gpsFailSafe == true) {
+      pitchSetPoint = pitchSetPointTX;
+      rollSetPoint = rollSetPointTX;
+
+      if (txFailSafe == true) {
+        pitchSetPoint = 0;
+        rollSetPoint = 0;
+      }
+    }
+    else {
+      LoiterCalculations();
+      RotatePitchRoll(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
+    }
+    AltHoldVelocity.calculate();
+    break;
+  }
+}
+
+void LoiterCalculations() {
+  LoiterXPosition.calculate();
+  LoiterYPosition.calculate();
+  LoiterXVelocity.calculate();
+  tiltAngleX *= -1.0;
+  LoiterYVelocity.calculate();
+}
+
+//move the rudder to the right to start calibration
+void Arm(){
+  //arming procedure
+  ControlLED(0x00);
+  newRC = false;
+  newGSRC = false;
+  if(gsCTRL == false){
+    while (newRC == false){
+    }
+  }
+  else{
+    while (newGSRC == false){
+      Radio();
+    }
+  }
+  newRC = false;
+  ControlLED(0x02);
+  if (gsCTRL == true){
+    while (GSRCValue[RUDD] < 1750){
+      Radio();
+    } 
+  }
+  else{
+
+    while (RCValue[RUDD] < 1750){
+
+
+      if (newRC == true){
+        ProcessChannels();
+        newRC = false;
+      }
+    } 
+  }
+  ControlLED(0x09);
+
+}
+
+void LoiterSM(){
+  static uint32_t waitTimer;
+  int16_t rcDifference;
+  
+  switch(ZLoiterState){
+  case LOITERING:
+    AltHoldPosition.calculate();
+    AltHoldVelocity.calculate();
+    if (abs(throCommand - 1500) > 200 && throttleCheckFlag == false){
+      ZLoiterState = RCINPUT;
+    }
+    if (throCommand < 1050 && motorState == FLIGHT){
+      ZLoiterState = LAND;
+      motorState = LANDING;
+      velSetPointZ = LAND_VEL;
+    }
+    break;
+  case RCINPUT:
+    if (throttleCheckFlag == true){
+      ZLoiterState = LOITERING;
+      break;
+    }
+    rcDifference = throCommand - 1500;
+    if (abs(rcDifference) < 200){
+      ZLoiterState = LOITERING;
+      zTarget = ZEstUp;
+      if (zTarget <= FLOOR){
+        zTarget = FLOOR;
+      } 
+      if (zTarget >= CEILING){
+        zTarget = CEILING;
+      }
+      AltHoldPosition.calculate();
+      AltHoldVelocity.calculate();
+      break;
+    }
+    velSetPointZ = rcDifference * 0.0034;
+    if (velSetPointZ > MAX_Z_RATE){
+      velSetPointZ = MAX_Z_RATE;
+    }
+    if (velSetPointZ < MIN_Z_RATE){
+      velSetPointZ = MIN_Z_RATE;
+    }
+    if (throCommand < 1050 && motorState == FLIGHT){
+      ZLoiterState = LAND;
+      motorState = LANDING;
+      velSetPointZ = LAND_VEL;
+      break;
+    }
+
+
+    if (ZEstUp >= CEILING && velSetPointZ > 0){
+      zTarget = CEILING;
+      AltHoldPosition.calculate();
+      AltHoldVelocity.calculate();
+      break;
+    }
+    if (ZEstUp <= FLOOR && velSetPointZ < 0){
+      zTarget = FLOOR;
+      AltHoldPosition.calculate();
+      AltHoldVelocity.calculate();
+      break;
+    }
+
+    AltHoldVelocity.calculate();
+    break;
+
+
+  case LAND:
+    AltHoldVelocity.calculate();
+
+    if (throCommand > 1200 && motorState == LANDING){
+      ZLoiterState = LOITERING;
+      motorState = FLIGHT;
+      zTarget = ZEstUp;
+      if (zTarget <= FLOOR){
+        zTarget = FLOOR;
+      } 
+      if (zTarget >= CEILING){
+        zTarget = CEILING;
+      }
+      throttleCheckFlag = true;
+
+    }
+    break;
+  }
+  if (gpsFailSafe == false && GPSDetected == true){
+    switch(XYLoiterState){
+    case LOITERING:
+      LoiterCalculations();
+      RotatePitchRoll(&yawInDegrees,&zero,&tiltAngleX,&tiltAngleY,&pitchSetPoint,&rollSetPoint);
+      if (fabs(rollSetPointTX) > 0.5 || fabs(pitchSetPointTX) > 0.5){
+        XYLoiterState = RCINPUT;
+      }
+      break;
+    case RCINPUT:
+      RotatePitchRoll(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
+      if (fabs(rollSetPointTX) < 0.5 && fabs(pitchSetPointTX) < 0.5){
+        XYLoiterState = WAIT;
+        waitTimer = millis();
+      }
+      break;
+    case WAIT:
+      if (fabs(rollSetPointTX) > 0.5 || fabs(pitchSetPointTX) > 0.5){
+        XYLoiterState = RCINPUT;
+        break;
+      }
+      if (millis() - waitTimer > 1000){
+        XYLoiterState = LOITERING;
+        xTarget = XEst;
+        yTarget = YEst;
+      }
+      break;
+
+    }  
+  }
+  else{
+    if (flightMode == L2){//check
+      controlBearing = initialYaw;
+    }
+    RotatePitchRoll(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
+  }
+}
+
+
+
+void RotatePitchRoll(float *currentBearing, float *initialBearing, float *pitchIn, float *rollIn, float *pitchOut, float *rollOut){//change to take arguments
+  float headingFreeDifference;
+  float sinHeadingFreeDiff;
+  float cosHeadingFreeDiff;
+  headingFreeDifference = *currentBearing - *initialBearing;
+  sinHeadingFreeDiff = sin(ToRad(headingFreeDifference));
+  cosHeadingFreeDiff = cos(ToRad(headingFreeDifference));
+  *rollOut = *rollIn * cosHeadingFreeDiff + *pitchIn * sinHeadingFreeDiff;
+  *pitchOut = -1.0 * *rollIn * sinHeadingFreeDiff + *pitchIn * cosHeadingFreeDiff;
+
+}
+
+
+void HeadingHold(){
+  if (magDetected == true){
+    switch (HHState){
+    case HH_ON:
+      calcYaw = true;
+      if (fabs(yawInput) > 1){
+        HHState = HH_OFF;
+      }
+      break;
+    case HH_OFF:
+      calcYaw = false;
+      rateSetPointZ = yawInput;
+      if (fabs(yawInput) < 1){
+        yawSetPoint = yawInDegrees;
+        HHState = HH_ON;
+      }
+      break;
+    default:
+      HHState = HH_OFF;
+
+      break;
+    }  
+  }
+  else{
+    rateSetPointZ = yawInput;
+    calcYaw = false;
+  }
+}
+
+void ProcessChannels() {
+  static uint8_t clearTXRTB;
+  for (uint8_t i = 0; i < 8; i++)  {
+    switch (rcData[i].chan) {
+    case THRO:
+      if (rcData[i].reverse == 0) {
+        RCValue[THRO] = (rcData[i].rcvd - rcData[i].min) * rcData[i].scale + 1000;
+      }
+      else {
+        RCValue[THRO] = (rcData[i].rcvd - rcData[i].min) * - rcData[i].scale + 2000;
+      }
+      break;
+    case AILE:
+      if (rcData[i].reverse == 0) {
+        RCValue[AILE] = (rcData[i].rcvd - rcData[i].mid) * rcData[i].scale + 1500;
+      }
+      else {
+        RCValue[AILE] = (rcData[i].rcvd - rcData[i].mid) * - rcData[i].scale + 1500;
+      }
+      break;
+    case ELEV:
+      if (rcData[i].reverse == 0) {
+        RCValue[ELEV] = (rcData[i].rcvd - rcData[i].mid) * rcData[i].scale + 1500;
+      }
+      else {
+        RCValue[ELEV] = (rcData[i].rcvd - rcData[i].mid) * - rcData[i].scale + 1500;
+      }
+
+      break;
+    case RUDD:
+      if (rcData[i].reverse == 0) {
+        RCValue[RUDD] = (rcData[i].rcvd - rcData[i].mid) * rcData[i].scale + 1500;
+      }
+      else {
+        RCValue[RUDD] = (rcData[i].rcvd - rcData[i].mid) * - rcData[i].scale + 1500;
+      }
+      break;
+    case GEAR:
+      if (rcData[i].reverse == 0) {
+        RCValue[GEAR] = (rcData[i].rcvd - rcData[i].min) * rcData[i].scale + 1000;
+      }
+      else {
+        RCValue[GEAR] = (rcData[i].rcvd - rcData[i].min) * - rcData[i].scale + 2000;
+      }
+
+      break;
+    case AUX1:
+      if (rcData[i].reverse == 0) {
+        RCValue[AUX1] = (rcData[i].rcvd - rcData[i].min) * rcData[i].scale + 1000;
+      }
+      else {
+        RCValue[AUX1] = (rcData[i].rcvd - rcData[i].min) * - rcData[i].scale + 2000;
+      }
+
+      break;
+    case AUX2:
+      if (rcData[i].reverse == 0) {
+        RCValue[AUX2] = (rcData[i].rcvd - rcData[i].min) * rcData[i].scale + 1000;
+      }
+      else {
+        RCValue[AUX2] = (rcData[i].rcvd - rcData[i].min) * - rcData[i].scale + 2000;
+      }
+
+      break;
+    case AUX3:
+      if (rcData[i].reverse == 0) {
+        RCValue[AUX3] = (rcData[i].rcvd - rcData[i].min) * rcData[i].scale + 1000;
+      }
+      else {
+        RCValue[AUX3] = (rcData[i].rcvd - rcData[i].min) * - rcData[i].scale + 2000;
+      }
+
+      break;
+
+
+    }
+  }
+
+
+
+  if (txFailSafe == true) {
+    switch (clearTXRTB) {
+
+    case 0:
+      if (RCValue[GEAR] > 1850) {
+        clearTXRTB = 1;
+      }
+      return;
+      break;
+
+    case 1:
+      if (RCValue[GEAR] < 1150) {
+        txFailSafe = false;
+        //failSafe = false;
+        RCFailSafeCounter = 0;
+        clearTXRTB = 0;
+        break;
+      }
+      return;
+      break;
+    default:
+      clearTXRTB = 0;
+      return;
+      break;
+
+    }
+
+
+  }
+  else {
+    ProcessModes();
+  }
+
+
+
+
+}
+
+void ProcessModes() {
+
+  previousFlightMode = flightMode;
+  if (RCValue[AUX2] > 1750) {
+    gsCTRL = false;
+    flightMode = RATE;
+    setTrim = false;
+    trimComplete = false;
+    cmdElev = RCValue[ELEV];
+    cmdAile = RCValue[AILE];
+    cmdRudd = RCValue[RUDD];
+    throCommand = RCValue[THRO];
+    MapVar(&cmdElev, &rateSetPointY, 1000, 2000, -400, 400);
+    MapVar(&cmdAile, &rateSetPointX, 1000, 2000, -400, 400);
+    MapVar(&cmdRudd, &rateSetPointZ, 1000, 2000, -400, 400);
+    if (rateSetPointY < 5 && rateSetPointY > -5) {
+      rateSetPointY = 0;
+    }
+    if (rateSetPointX < 5 && rateSetPointX > -5) {
+      rateSetPointX = 0;
+    }
+    if (rateSetPointZ < 5 && rateSetPointZ > -5) {
+      rateSetPointZ = 0;
+    }
+    
+
+    if (flightMode != previousFlightMode) {
+      enterState = true;
+    }
+
+    return;
+
+  }
+
+
+  if (RCValue[AUX3] > 1750) {
+    gsCTRL = false;
+    flightMode = RTB;
+    cmdElev = RCValue[ELEV];
+    cmdAile = RCValue[AILE];
+    cmdRudd = RCValue[RUDD];
+    throCommand = RCValue[THRO];
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+      rollSetPointTX = 0;
+    }
+    if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+      pitchSetPointTX = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+    if (flightMode != previousFlightMode) {
+      enterState = true;
+    }
+    return;
+
+  }
+
+  if (gsCTRL == false){
+    cmdElev = RCValue[ELEV];
+    cmdAile = RCValue[AILE];
+    cmdRudd = RCValue[RUDD];
+    throCommand = RCValue[THRO];
+    flightMode = modeArray[switchPositions];
+  }
+  else{
+    cmdElev = GSRCValue[ELEV];
+    cmdAile = GSRCValue[AILE];
+    cmdRudd = GSRCValue[RUDD];
+    throCommand = GSRCValue[THRO];
+    flightMode = GSRCValue[GEAR];
+    if (flightMode < 2){
+      flightMode = 2;
+    }
+    if (flightMode > 9){
+      flightMode = 2;
+    }
+  }  
+
+  switch(flightMode){
+  case RATE:
+    flightMode = RATE;
+    setTrim = false;
+    trimComplete = false;
+    MapVar(&cmdElev, &rateSetPointY, 1000, 2000, -400, 400);
+    MapVar(&cmdAile, &rateSetPointX, 1000, 2000, -400, 400);
+    MapVar(&cmdRudd, &rateSetPointZ, 1000, 2000, -400, 400);
+    if (rateSetPointY < 5 && rateSetPointY > -5) {
+      rateSetPointY = 0;
+    }
+    if (rateSetPointX < 5 && rateSetPointX > -5) {
+      rateSetPointX = 0;
+    }
+    if (rateSetPointZ < 5 && rateSetPointZ > -5) {
+      rateSetPointZ = 0;
+    }
+    break;
+  case RATE_TRIM:
+    setTrim = true;
+    flightMode = RATE;
+    MapVar(&cmdElev, &rateSetPointY, 1000, 2000, -400, 400);
+    MapVar(&cmdAile, &rateSetPointX, 1000, 2000, -400, 400);
+    MapVar(&cmdRudd, &rateSetPointZ, 1000, 2000, -400, 400);
+    if (rateSetPointY < 5 && rateSetPointY > -5) {
+      rateSetPointY = 0;
+    }
+    if (rateSetPointX < 5 && rateSetPointX > -5) {
+      rateSetPointX = 0;
+    }
+    if (rateSetPointZ < 5 && rateSetPointZ > -5) {
+      rateSetPointZ = 0;
+    }
+    break;
+  case ATT:
+    flightMode = ATT;
+    setTrim = false;
+    trimComplete = false;
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPoint < 1 && rollSetPoint > -1) {
+      rollSetPoint = 0;
+    }
+    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+      pitchSetPoint = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+    break;
+  case ATT_TRIM:
+    flightMode = ATT;
+    setTrim = true;
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPoint < 1 && rollSetPoint > -1) {
+      rollSetPoint = 0;
+    }
+    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+      pitchSetPoint = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+    break;
+  case L0:
+    flightMode = L0;
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+      rollSetPointTX = 0;
+    }
+    if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+      pitchSetPointTX = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+    break;
+  case L1:
+    flightMode = L1;
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+      rollSetPointTX = 0;
+    }
+    if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+      pitchSetPointTX = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+    break;
+  case L2:
+    flightMode = L2;
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+      rollSetPointTX = 0;
+    }
+    if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+      pitchSetPointTX = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+    if (gpsFailSafe == true) {
+      flightMode = L1;
+
+    }
+    break;
+  case FOLLOW://TBD impliment FOLLOW and WP modes currently operate as ATT
+    flightMode = ATT;
+    setTrim = false;
+    trimComplete = false;
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPoint < 1 && rollSetPoint > -1) {
+      rollSetPoint = 0;
+    }
+    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+      pitchSetPoint = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+    break;
+  case WP:
+    flightMode = ATT;
+    setTrim = false;
+    trimComplete = false;
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPoint < 1 && rollSetPoint > -1) {
+      rollSetPoint = 0;
+    }
+    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+      pitchSetPoint = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+    break;
+  case RTB:
+    flightMode = RTB;
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+      rollSetPointTX = 0;
+    }
+    if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+      pitchSetPointTX = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+    if (flightMode != previousFlightMode) {
+      enterState = true;
+    }
+    break;
+
+  }
+  if (flightMode > L0 && magDetected == false) {
+    flightMode = L0;
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPoint < 1 && rollSetPoint > -1) {
+      rollSetPoint = 0;
+    }
+    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+      pitchSetPoint = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+  }
+  if (flightMode != previousFlightMode) {
+    enterState = true;
+  }
 }
 

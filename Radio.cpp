@@ -35,7 +35,7 @@ boolean hsTX,lsTX,sendCalibrationData;
 uint32_t hsMillis,lsMillis;
 
 void Radio() {
-  uint8_t radioByte,rxSum,rxDoubleSum,packetLength,numRXbytes,radioState = 0,itemIndex;
+  uint8_t radioByte,rxSum=0,rxDoubleSum=0,packetLength=0,numRXbytes=0,radioState = 0,itemIndex=0;
   float_u outFloat;
   uint8_t j;
   while (RadioAvailable() > 0) { //---
@@ -863,7 +863,7 @@ void WriteCalibrationDataToRom() {
     break;//--------------------------------------------
   case 6://MODES
     EEPROMWrite(MODE_FLAG,0xAA);
-    for(uint8_t i = MODE_START; i <= MODE_END; i++){
+    for(uint16_t i = MODE_START; i <= MODE_END; i++){
       EEPROMWrite(i,itemBuffer[itemIndex++]);
     }
 
@@ -1262,7 +1262,7 @@ void UnReliableTransmit() {
 
 
 void HandShake() {
-  uint8_t handShakeState = 0,radioByte,rxSum,rxDoubleSum;
+  uint8_t handShakeState = 0,radioByte,rxSum=0,rxDoubleSum=0;
   
 
   uint32_t radioTimer = millis();

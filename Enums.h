@@ -218,6 +218,11 @@ enum BYTES {
   TX_FS_STATUS
 
 };
+enum RTBStates {
+  CLIMB,
+  TRAVEL,
+  DESCEND
+};
 
 enum CalibrationFlags {
   RC_FLAG,

@@ -1,18 +1,17 @@
 #ifndef FLIGHTCONTROL_H
 #define FLIGHTCONTROL_H
 
-#include "Definitions.h"
-#include "Enums.h"
-#include "Sensors.h"
-#include "Attitude.h"
-#include "Inertial.h"
-#include "GPS.h"
-#include "RCSignals.h"
+#include "PID.h"
 #include <Arduino.h>
 
 void _400HzTask();
 void _100HzTask(uint32_t);
+void ProcessChannels();
 
+
+//extern PID WayPointPosition;
+//extern PID WayPointRate;
+extern uint8_t flightMode;
 extern uint32_t _100HzTimer,_400HzTimer;
 extern volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount;
 extern float initialYaw;
@@ -118,5 +117,23 @@ extern float rateSetPointZ;
 extern float adjustmentX;
 extern float adjustmentY;
 extern float adjustmentZ;
+
+extern PID PitchRate;
+extern PID RollRate;
+extern PID YawRate;
+
+extern PID PitchAngle;
+extern PID RollAngle;
+extern YAW YawAngle;
+
+extern PID LoiterXPosition;
+extern PID LoiterXVelocity;
+
+extern PID LoiterYPosition;
+extern PID LoiterYVelocity;
+
+extern PID AltHoldPosition;
+extern PID AltHoldVelocity;
+
 
 #endif

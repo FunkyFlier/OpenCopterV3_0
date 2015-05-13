@@ -22,7 +22,6 @@ RC_t;
 void FeedLine();
 void DetectRC();
 void LoadRCValuesFromRom();
-void ProcessChannels();
 
 
 extern RC_t rcData[8];
