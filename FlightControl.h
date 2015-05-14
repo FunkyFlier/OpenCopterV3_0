@@ -26,7 +26,7 @@ extern float velSetPointX,velSetPointY,velSetPointZ;
 extern float tiltAngleX,tiltAngleY;
 extern float distToWayPoint;
 extern float controlBearing;
-extern boolean telemFailSafe,txFailSafe;
+extern boolean telemFailSafe,txFailSafe,tuningTrasnmitOK;
 
 extern boolean enterState;
 

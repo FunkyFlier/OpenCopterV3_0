@@ -20,6 +20,7 @@ void FeedLine();
 void DetectRC();
 void LoadRCValuesFromRom();
 void CheckTXPositions();
+void GetSwitchPositions();
 
 extern RC_t rcData[8];
 extern int16_t RCValue[8];

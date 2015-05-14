@@ -78,9 +78,7 @@ void GPSStart() {
 
     }
     LEDIndex = 0;
-    memcpy(LEDPattern, (uint8_t[]){
-      0x01, 0x02, 0x04,0x08    }
-    , 4);
+    memcpy(LEDPattern, (uint8_t[]){      0x01, 0x02, 0x04,0x08    }    , 4);
     while (GPSData.vars.hAcc * 0.001 > (HACC_MAX - 0.5) ) {
       GPSMonitor();
       if (millis() - generalPurposeTimer > 500) {

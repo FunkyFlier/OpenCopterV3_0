@@ -48,6 +48,31 @@ void SBus();
 void DSMSerial();
 
 
+void GetSwitchPositions() {
+  //value from gear switch
+  if (RCValue[GEAR] < 1250) {
+    switchPositions = 0;
+  }
+  if (RCValue[GEAR] < 1650 && RCValue[GEAR] > 1350) {
+    switchPositions = 3;
+  }
+  if (RCValue[GEAR] > 1750) {
+    switchPositions = 6;
+  }
+
+  //value from aux 1
+  if (RCValue[AUX1] < 1250) {
+    switchPositions += 0;
+  }
+  if (RCValue[AUX1] < 1650 && RCValue[AUX1] > 1350) {
+    switchPositions += 1;
+  }
+  if (RCValue[AUX1] > 1750) {
+    switchPositions += 2;
+  }
+
+}
+
 void CheckTXPositions() {
 
   boolean positionOK = false;

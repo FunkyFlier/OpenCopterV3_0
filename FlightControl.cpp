@@ -18,6 +18,7 @@ void TrimCheck();
 void InitLoiter();
 void RTBStateMachine();
 void LoiterCalculations();
+void FailSafeHandler();
 
 void LoiterSM();
 void RotatePitchRoll(float*, float*,float*,float*,float*,float*);
@@ -29,7 +30,7 @@ float zero = 0;
 
 
 
-uint8_t flightMode;
+uint8_t flightMode = 0;
 uint32_t _100HzTimer,_400HzTimer;
 volatile uint32_t RCFailSafeCounter=0,watchDogFailSafeCounter=0,groundFSCount=0;
 float initialYaw;
@@ -37,7 +38,7 @@ boolean integrate;
 uint8_t HHState;
 float landingThroAdjustment,throttleAdjustment,adjustmentX,adjustmentY,adjustmentZ;
 uint8_t XYLoiterState, ZLoiterState,RTBState,txLossRTB,previousFlightMode;
-boolean telemFailSafe,txFailSafe;
+boolean telemFailSafe,txFailSafe,tuningTrasnmitOK;
 
 float homeBaseXOffset,homeBaseYOffset;
 float xTarget,yTarget,zTarget;
@@ -169,7 +170,7 @@ void _400HzTask() {
 void _100HzTask(uint32_t loopTime){
   static uint8_t _100HzState = 0;
 
-  
+
 
   if (loopTime - _100HzTimer >= 10000){
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
@@ -215,10 +216,15 @@ void _100HzTask(uint32_t loopTime){
         _100HzState = POLL_GPS;
         break;
       case POLL_GPS:
-        GPSMonitor();
-        if (newGPSData == true) {
-          newGPSData = false;
-          CorrectXY();
+        if (GPSDetected == true) {
+          GPSMonitor();
+          if (newGPSData == true) {
+            newGPSData = false;
+            CorrectXY();
+          }
+        }
+        if (GPSFailSafeCounter > 200) {
+          gpsFailSafe = true;
         }
         _100HzState = POLL_BARO;
         break;
@@ -228,10 +234,14 @@ void _100HzTask(uint32_t loopTime){
           newBaro = false;
           CorrectZ();
         }
-        _100HzState = PROCESS_CONTROL_SIGNALS;
+        _100HzState = FLIGHT_STATE_MACHINE;
         break;
-      case PROCESS_CONTROL_SIGNALS:
-        if (newRC == true) {//9
+      case FLIGHT_STATE_MACHINE:
+        FlightSM();
+        _100HzState = PROCESS_RC_CONTROL_SIGNALS;
+        break;
+      case PROCESS_RC_CONTROL_SIGNALS:
+        if (newRC == true) {
           newRC = false;
           ProcessChannels();
           RCFailSafeCounter = 0;
@@ -239,9 +249,54 @@ void _100HzTask(uint32_t loopTime){
         if (RCFailSafeCounter > 200){
           RCFailSafe = true;
         }
+        txFailSafe = RCFailSafe;
+        _100HzState = PROCESS_GS_CONTROL_SIGNALS;
+        break;
+      case PROCESS_GS_CONTROL_SIGNALS:
+        if (newGSRC == true) {
+
+          groundFSCount = 0;
+          newGSRC = false;
+          telemFailSafe = false;
+          if (gsCTRL == true){
+            ProcessModes();
+          }
+        }
+        if (groundFSCount >= 200) {
+          telemFailSafe = true;
+        }
+        _100HzState = HANDLE_FAILSAFES;
+        break;
+      case HANDLE_FAILSAFES:
+        FailSafeHandler();
+        if (flightMode > 0){
+          _100HzState = ATTITUDE_PID_LOOPS;
+        }
+        else{
+          _100HzState = RATE_PID_LOOPS;
+        }
+
+        break;
+      case ATTITUDE_PID_LOOPS:
+        PitchAngle.calculate();
+        RollAngle.calculate();
+        if (calcYaw == true) {
+          YawAngle.calculate();
+        }
+        _100HzState = RATE_PID_LOOPS;
+        break;
+      case RATE_PID_LOOPS:
+        PitchRate.calculate();
+        RollRate.calculate();
+        YawRate.calculate();
+        _100HzState = MOTOR_HANDLER;
+        break;
+      case MOTOR_HANDLER:
         _100HzState = LAST_100HZ_TASK;
         break;
       default:
+        MotorHandler();
+        tuningTrasnmitOK = true;
         _100HzState = GET_GYRO;
         break;
       }
@@ -257,7 +312,95 @@ void _100HzTask(uint32_t loopTime){
 
 }
 
+void FailSafeHandler(){
+  if (gsCTRL == false){
+    if (RCFailSafe == true) {
+      if (txLossRTB == 0) {
+        TIMSK5 = (0 << OCIE5A);
+        Motor1WriteMicros(0);
+        Motor2WriteMicros(0);
+        Motor3WriteMicros(0);
+        Motor4WriteMicros(0);
+        Motor5WriteMicros(0);
+        Motor6WriteMicros(0);
+        Motor7WriteMicros(0);
+        Motor8WriteMicros(0);
+        RedLEDHigh();
+        while (1) {
 
+          YellowLEDHigh();
+          if (RCFailSafeCounter >= 200 ) {
+            GreenLEDLow();
+          }
+          delay(500);
+          YellowLEDLow();
+          if (RCFailSafeCounter >= 200 ) {
+            YellowLEDHigh();
+          }
+          delay(500);
+        }
+      }
+
+    }
+  }
+  if (RCFailSafe == true) {
+    if (motorState >= FLIGHT) {
+      if (flightMode != RTB) {
+        enterState = true;
+        flightMode = RTB;
+      }
+    }
+  }
+
+  if (telemFailSafe == true){
+
+    if (gsCTRL == true){
+
+      if (rcDetected == true){
+        gsCTRL = false;
+      }
+      else{
+
+        if (txLossRTB == 0){
+          TIMSK5 = (0 << OCIE5A);
+          Motor1WriteMicros(0);//set the output compare value
+          Motor2WriteMicros(0);
+          Motor3WriteMicros(0);
+          Motor4WriteMicros(0);
+          Motor5WriteMicros(0);
+          Motor6WriteMicros(0);
+          Motor7WriteMicros(0);
+          Motor8WriteMicros(0);
+          BlueLEDHigh();
+
+          while (1) {
+
+            YellowLEDHigh();
+            if (groundFSCount >= 200 ) {
+              GreenLEDLow();
+            }
+            delay(500);
+            YellowLEDLow();
+            if (groundFSCount >= 200 ) {
+              GreenLEDHigh();
+            }
+            delay(500);
+          }
+        }
+        else{
+          if (motorState >= FLIGHT) {
+            if (flightMode != RTB) {
+              enterState = true;
+              flightMode = RTB;
+            }
+          }
+        }
+
+      }
+
+    }
+  }
+}
 void FlightSM() {
 
   switch (flightMode) {
@@ -470,7 +613,7 @@ void RTBStateMachine() {
       pitchSetPoint = pitchSetPointTX;
       rollSetPoint = rollSetPointTX;
 
-      if (txFailSafe == true) {
+      if (RCFailSafe == true) {
         pitchSetPoint = 0;
         rollSetPoint = 0;
       }
@@ -532,7 +675,7 @@ void Arm(){
 void LoiterSM(){
   static uint32_t waitTimer;
   int16_t rcDifference;
-  
+
   switch(ZLoiterState){
   case LOITERING:
     AltHoldPosition.calculate();
@@ -777,7 +920,7 @@ void ProcessChannels() {
 
 
 
-  if (txFailSafe == true) {
+  if (RCFailSafe == true) {
     switch (clearTXRTB) {
 
     case 0:
@@ -789,8 +932,7 @@ void ProcessChannels() {
 
     case 1:
       if (RCValue[GEAR] < 1150) {
-        txFailSafe = false;
-        //failSafe = false;
+        RCFailSafe = false;
         RCFailSafeCounter = 0;
         clearTXRTB = 0;
         break;
@@ -807,7 +949,10 @@ void ProcessChannels() {
 
   }
   else {
-    ProcessModes();
+    GetSwitchPositions();
+    if (gsCTRL == false){
+      ProcessModes();
+    }
   }
 
 
@@ -839,7 +984,7 @@ void ProcessModes() {
     if (rateSetPointZ < 5 && rateSetPointZ > -5) {
       rateSetPointZ = 0;
     }
-    
+
 
     if (flightMode != previousFlightMode) {
       enterState = true;
@@ -1086,4 +1231,18 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -57,7 +57,6 @@ void setup() {
 
   if (calibrationMode == true){
     CalibrateSensors();
-    ROMFlagsCheck();
   }
 
 
@@ -82,6 +81,35 @@ void setup() {
 
 }
 
+
+void loop() {
+  
+  
+  _400HzTask();
+  loopTime = micros();
+  _100HzTask(loopTime);
+  Telemetry();
+  watchDogFailSafeCounter = 0;
+  /*if (millis() - printTimer > 100) {
+    printTimer = millis();
+    //Serial <<yawInDegrees<<","<<rollInDegrees<<","<<pitchInDegrees<<"\r\n";
+  }*/
+
+}
+
+void Telemetry(){
+  if (handShake == true) {
+    Radio();
+    if (tuningTrasnmitOK == true) {
+      TuningTransmitter();
+
+      tuningTrasnmitOK = false;
+
+    }
+  }
+  
+}
+
 void NoControlIndicatior(){
   uint8_t LEDIndex = 0;
   uint8_t LEDArray[8] = {
@@ -94,22 +122,6 @@ void NoControlIndicatior(){
     delay(250);
   }
 }
-
-
-void loop() {
-  watchDogFailSafeCounter = 0;
-  _400HzTask();
-  loopTime = micros();
-  _100HzTask(loopTime);
-  if (millis() - printTimer > 100) {
-    printTimer = millis();
-    //Serial <<yawInDegrees<<","<<rollInDegrees<<","<<pitchInDegrees<<"\r\n";
-  }
-
-}
-
-
-
 void CheckDefines(){
 
 #ifdef V1
