@@ -956,7 +956,7 @@ void ProcessChannels() {
 }
 
 void ProcessModes() {
-
+  uint8_t flightModeControl=0;
   previousFlightMode = flightMode;
   if (RCValue[AUX2] > 1750) {
     gsCTRL = false;
@@ -1021,23 +1021,23 @@ void ProcessModes() {
     cmdAile = RCValue[AILE];
     cmdRudd = RCValue[RUDD];
     throCommand = RCValue[THRO];
-    flightMode = modeArray[switchPositions];
+    flightModeControl = modeArray[switchPositions];
   }
   else{
     cmdElev = GSRCValue[ELEV];
     cmdAile = GSRCValue[AILE];
     cmdRudd = GSRCValue[RUDD];
     throCommand = GSRCValue[THRO];
-    flightMode = GSRCValue[GEAR];
-    if (flightMode < 2){
-      flightMode = 2;
+    flightModeControl = GSRCValue[GEAR];
+    if (flightModeControl < 2){
+      flightModeControl = 2;
     }
-    if (flightMode > 9){
-      flightMode = 2;
+    if (flightModeControl > 9){
+      flightModeControl = 2;
     }
   }  
 
-  switch(flightMode){
+  switch(flightModeControl){
   case RATE:
     flightMode = RATE;
     setTrim = false;

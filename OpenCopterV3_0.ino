@@ -20,7 +20,6 @@
 #include "Radio.h"
 #include "ISR.h"
 
-uint32_t printTimer;
 uint32_t loopTime;
 
 
@@ -60,7 +59,7 @@ void setup() {
   }
 
 
-  if (rcDetected == false && gsCTRL == false){
+  if (gsCTRL == false && (rcDetected == false || RCFailSafe == true)){
     NoControlIndicatior();
 
   }
@@ -83,17 +82,14 @@ void setup() {
 
 
 void loop() {
-  
-  
+
+
   _400HzTask();
   loopTime = micros();
   _100HzTask(loopTime);
   Telemetry();
   watchDogFailSafeCounter = 0;
-  /*if (millis() - printTimer > 100) {
-    printTimer = millis();
-    //Serial <<yawInDegrees<<","<<rollInDegrees<<","<<pitchInDegrees<<"\r\n";
-  }*/
+
 
 }
 
@@ -107,13 +103,13 @@ void Telemetry(){
 
     }
   }
-  
+
 }
 
 void NoControlIndicatior(){
   uint8_t LEDIndex = 0;
   uint8_t LEDArray[8] = {
-    0x00,0x01,0x03,0x02,0x06,0x04,0x0C,0x08    };
+    0x00,0x01,0x03,0x02,0x06,0x04,0x0C,0x08      };
   while(1){
     ControlLED(LEDArray[LEDIndex++]);
     if(LEDIndex == 8){
@@ -174,6 +170,7 @@ void SetPinModes(){
   LEDInit();
 
 }
+
 
 
 
