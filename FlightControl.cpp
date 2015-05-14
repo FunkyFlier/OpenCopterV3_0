@@ -159,11 +159,8 @@ void _400HzTask() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
-    //what to do with DT calculation
-    D22High();
     _400HzTimer = _400HzTime;
     PollAcc();
-    D22Low();
   }
 }
 
@@ -175,7 +172,6 @@ void _100HzTask(uint32_t loopTime){
   if (loopTime - _100HzTimer >= 10000){
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
-    D23High();
     while(_100HzState < LAST_100HZ_TASK){
       switch (_100HzState){
       case GET_GYRO:
@@ -209,7 +205,7 @@ void _100HzTask(uint32_t loopTime){
         break;
       case POS_VEL_PREDICTION:
         Predict(_100HzDt);
-        _100HzState = POLL_GPS;
+        _100HzState = UPDATE_LAG_INDEX;
         break;
       case UPDATE_LAG_INDEX:
         UpdateLagIndex();
@@ -292,18 +288,17 @@ void _100HzTask(uint32_t loopTime){
         _100HzState = MOTOR_HANDLER;
         break;
       case MOTOR_HANDLER:
+        MotorHandler();
+        tuningTrasnmitOK = true;
         _100HzState = LAST_100HZ_TASK;
         break;
       default:
-        MotorHandler();
-        tuningTrasnmitOK = true;
         _100HzState = GET_GYRO;
         break;
       }
       _400HzTask();
 
     }
-    D23Low();
     _100HzState = GET_GYRO;
   }
 
@@ -1231,6 +1226,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 

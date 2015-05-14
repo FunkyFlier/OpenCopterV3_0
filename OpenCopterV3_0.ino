@@ -100,8 +100,9 @@ void loop() {
 void Telemetry(){
   if (handShake == true) {
     Radio();
+    tuningTrasnmitOK = false;
     if (tuningTrasnmitOK == true) {
-      TuningTransmitter();
+      TuningTransmitter(); 
 
       tuningTrasnmitOK = false;
 
@@ -142,7 +143,7 @@ void CheckDefines(){
 #ifdef HEX_FRAME
   Serial<<"HEX_FRAME\r\n";
 #endif
-#ifdef V2
+#ifdef X_8
   Serial<<"X_8\r\n";
 #endif
 }
