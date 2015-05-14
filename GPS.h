@@ -46,7 +46,7 @@ extern float gpsAlt,floatLat, floatLon,velN, velE, velD;
 extern int32_t homeLat,homeLon;
 extern float homeLatFloat,homeLonFloat;
 extern float hAcc,sAcc;
-extern uint32_t GPSFailSafeCounter;
+extern volatile uint32_t GPSFailSafeCounter;
 
 
 

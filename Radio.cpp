@@ -12,7 +12,7 @@
 
 boolean USBFlag=false,handShake=false,calibrationMode=false,gsCTRL=false;
 
-uint16_t GSRCValue[8];
+int16_t GSRCValue[8];
 boolean newGSRC;
 
 void SetTransmissionRate();
@@ -33,6 +33,7 @@ uint8_t typeNum,cmdNum,itemBuffer[255],calibrationNumber,hsRequestNumber,lsReque
 uint16_t localPacketNumberOrdered, localPacketNumberUn, remotePacketNumberOrdered, remotePacketNumberUn, packetTemp[2];
 boolean hsTX,lsTX,sendCalibrationData;
 uint32_t hsMillis,lsMillis;
+
 void TryHandShake(){
   AssignRadioUART();
   HandShake();
@@ -43,6 +44,7 @@ void TryHandShake(){
     HandShake();
   }
 }
+
 void Radio() {
   static uint8_t rxSum=0,rxDoubleSum=0,packetLength=0,numRXbytes=0,radioState = 0,itemIndex=0;
   uint8_t radioByte;
@@ -628,7 +630,6 @@ void SetTransmissionRate() {
 
 void WriteCalibrationDataToRom() {
   uint8_t temp,calibrationFlags;
-  //int16_u temp16;
   uint8_t itemIndex = 0;
 
   switch (cmdNum) {
@@ -1118,8 +1119,6 @@ void UnReliableTransmit() {
 
 void HandShake() {
   uint8_t handShakeState = 0,radioByte,rxSum=0,rxDoubleSum=0;
-
-
   uint32_t radioTimer = millis();
 
   if (EEPROMRead(HS_FLAG) == 0xAA || EEPROMRead(HS_FLAG) == 0xBB) { //Check for handshake from calibration

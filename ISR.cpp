@@ -24,7 +24,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
     groundFSCount++;
     GPSFailSafeCounter++;
   }
-if (rcType != RC){
+  if (rcType != RC){
     FeedLine();
   }
   if (watchDogFailSafeCounter >=200){
@@ -49,5 +49,6 @@ if (rcType != RC){
     }
   }
 }
+
 
 

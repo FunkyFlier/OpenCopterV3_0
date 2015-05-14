@@ -11,6 +11,6 @@ void TryHandShake();
 void CalibrateSensors();
 
 extern boolean USBFlag,handShake,calibrationMode,newGSRC,gsCTRL;
-extern uint16_t GSRCValue[8];
+extern int16_t GSRCValue[8];
 
 #endif

@@ -164,10 +164,12 @@ void CorrectXY(){
 }
 
 void CorrectZ(){
-  GetBaroZ();
+  
   float zPosError,zVelError;
   float accelBiasXEF,accelBiasYEF,accelBiasZEF;
-  
+   
+  GetBaroZ();
+ 
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
 

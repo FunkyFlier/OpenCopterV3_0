@@ -20,7 +20,7 @@
 #include "Radio.h"
 #include "ISR.h"
 
-uint32_t loopTime,printTimer;
+uint32_t loopTime;
 
 
 
@@ -58,13 +58,9 @@ void setup() {
     CalibrateSensors();
   }
 
-
   if (gsCTRL == false && (rcDetected == false || RCFailSafe == true)){
     NoControlIndicatior();
-
   }
-
-
 
   Arm();
   GPSStart();
@@ -82,17 +78,13 @@ void setup() {
 
 
 void loop() {
-
-
+  
   _400HzTask();
   loopTime = micros();
   _100HzTask(loopTime);
   Telemetry();
   watchDogFailSafeCounter = 0;
-  if (millis() - printTimer > 250){
-    Serial<<throCommand<<","<<cmdAile<<","<<cmdElev<<","<<cmdRudd<<"\r\n";
-  }
-
+  
 }
 
 void Telemetry(){
@@ -100,7 +92,6 @@ void Telemetry(){
     Radio();
     if (tuningTrasnmitOK == true) {
       TuningTransmitter(); 
-
       tuningTrasnmitOK = false;
 
     }

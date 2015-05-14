@@ -38,8 +38,6 @@ uint32_t changeTime[8];
 
 uint8_t channelCount = 0;
 
-uint32_t timeDiff,waitTimer;
-
 boolean DSMParser();
 void DSMDetectRes();
 void SBusParser();
@@ -413,6 +411,7 @@ void PWMPPMCheck(){//checks if serial RC was incorrectly detected
 }
 
 void SBus(){
+  uint32_t waitTimer;
   rcDetected = false;
   RCSerialBegin(100000,SERIAL_8E2);
   waitTimer = millis();
@@ -436,6 +435,7 @@ void SBus(){
 
 }
 void DSMSerial(){
+  uint32_t waitTimer;
   RCSerialBegin(115200,SERIAL_8N1);
   delay(23);
   while( RCSerialAvailable() > 0){

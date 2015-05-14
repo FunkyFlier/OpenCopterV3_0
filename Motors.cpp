@@ -20,14 +20,11 @@ uint32_t romWriteDelayTimer;
 float motorCommand1, motorCommand2, motorCommand3, motorCommand4,motorCommand5, motorCommand6, motorCommand7, motorCommand8;
 int16_t pwmHigh, pwmLow;
 int16_t throttleCommand;
-//float landingThroAdjustment,adjustmentX,adjustmentY,adjustmentZ;
 uint8_t motorState;
-
-//todo move
 uint16_t propIdleCommand, hoverCommand;
 
 
-boolean saveGainsFlag;
+boolean saveGainsFlag = false;
 boolean throttleCheckFlag = false;
 
 void CheckESCFlag(){
@@ -202,7 +199,6 @@ void SaveGains(){
     EEPROMWrite(j++, outFloat.buffer[1]);
     EEPROMWrite(j++, outFloat.buffer[2]);
     EEPROMWrite(j++, outFloat.buffer[3]);
-    watchDogFailSafeCounter = 0;
   }
   j = DEC_START;
   outFloat.val = *floatPointerArray[MAG_DEC_];
@@ -210,7 +206,6 @@ void SaveGains(){
   EEPROMWrite(j++, outFloat.buffer[1]);
   EEPROMWrite(j++, outFloat.buffer[2]);
   EEPROMWrite(j++, outFloat.buffer[3]);
-  watchDogFailSafeCounter = 0;
   cosDec = cos(declination);
   sinDec = sin(declination);
 

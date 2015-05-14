@@ -10,7 +10,7 @@ boolean gpsFailSafe;
 uint8_t GPSState;
 float deltaLon;
 float deltaLat;
-uint32_t GPSFailSafeCounter;
+volatile uint32_t GPSFailSafeCounter;
 
 GPS_Union_t GPSData;
 
