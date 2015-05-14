@@ -20,7 +20,7 @@
 #include "Radio.h"
 #include "ISR.h"
 
-uint32_t loopTime;
+uint32_t loopTime,printTimer;
 
 
 
@@ -89,7 +89,9 @@ void loop() {
   _100HzTask(loopTime);
   Telemetry();
   watchDogFailSafeCounter = 0;
-
+  if (millis() - printTimer > 250){
+    Serial<<throCommand<<","<<cmdAile<<","<<cmdElev<<","<<cmdRudd<<"\r\n";
+  }
 
 }
 

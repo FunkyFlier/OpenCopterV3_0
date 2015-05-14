@@ -219,7 +219,7 @@ void SaveGains(){
   EEPROMWrite(CAL_FLAGS,calibrationFlags);
 }
 void MotorHandler(){
-  boolean rudderFlag = false;
+  static boolean rudderFlag = false;
   switch(motorState){
   case HOLD:
 
@@ -265,7 +265,7 @@ void MotorHandler(){
 
     }
     if (rudderFlag == true){
-
+    
       if (abs(cmdRudd - 1500) < 50){
         rudderFlag = false;
         motorState = TO;

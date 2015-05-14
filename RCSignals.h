@@ -6,10 +6,10 @@
 
 
 typedef struct {
-  uint16_t max;
-  uint16_t min;
-  uint16_t mid;
-  volatile uint16_t rcvd;
+  int16_t max;
+  int16_t min;
+  int16_t mid;
+  volatile int16_t rcvd;
   uint8_t chan;
   float scale;
   uint8_t reverse;

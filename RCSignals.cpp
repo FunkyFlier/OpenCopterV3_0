@@ -166,7 +166,7 @@ ISR(PCINT2_vect){
           timeDifference = currentTime - changeTime[i];//if so then calculate the pulse width
           if (900 < timeDifference && timeDifference < 2200){//check to see if it is a valid length
             rcData[i].rcvd = timeDifference;
-            if (rcData[i].chan == THRO && ((timeDifference ) < (rcData[i].min - 50) )){  
+            if (rcData[i].chan == THRO && ((timeDifference ) < ((uint16_t)rcData[i].min - 50) )){  
               RCFailSafe = true;
             }
             newRC = true;
@@ -190,7 +190,7 @@ ISR(PCINT2_vect){
       }
       else{
         rcData[channelCount].rcvd = timeDifference;
-        if (rcData[channelCount].chan == THRO && ((timeDifference ) < (rcData[channelCount].min - 50) )){  
+        if (rcData[channelCount].chan == THRO && ((timeDifference ) < ((uint16_t)rcData[channelCount].min - 50) )){  
           RCFailSafe = true;
         }
         newRC = true;
