@@ -100,7 +100,6 @@ void loop() {
 void Telemetry(){
   if (handShake == true) {
     Radio();
-    tuningTrasnmitOK = false;
     if (tuningTrasnmitOK == true) {
       TuningTransmitter(); 
 
