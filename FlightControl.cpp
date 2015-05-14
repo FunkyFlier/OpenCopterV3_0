@@ -159,8 +159,10 @@ void _400HzTask() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
+    D22High();
     _400HzTimer = _400HzTime;
     PollAcc();
+    D22Low();
   }
 }
 
@@ -170,6 +172,7 @@ void _100HzTask(uint32_t loopTime){
 
 
   if (loopTime - _100HzTimer >= 10000){
+    D23High();
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
     while(_100HzState < LAST_100HZ_TASK){
@@ -300,6 +303,7 @@ void _100HzTask(uint32_t loopTime){
 
     }
     _100HzState = GET_GYRO;
+    D23Low();
   }
 
 
@@ -473,7 +477,7 @@ void FlightSM() {
     }
     break;
   case RTB:
-    ControlLED(flightMode);
+    ControlLED(0x0B);
     if (enterState == true) {
       enterState = false;
       xTarget = XEst;

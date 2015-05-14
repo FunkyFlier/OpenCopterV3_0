@@ -89,12 +89,15 @@ void loop() {
 
 void Telemetry(){
   if (handShake == true) {
+    D24High();
     Radio();
     if (tuningTrasnmitOK == true) {
+      D25High();
       TuningTransmitter(); 
       tuningTrasnmitOK = false;
-
+      D25Low();
     }
+    D24Low();
   }
 
 }
