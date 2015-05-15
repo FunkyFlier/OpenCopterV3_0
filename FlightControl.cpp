@@ -159,10 +159,8 @@ void _400HzTask() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
-    D22High();
     _400HzTimer = _400HzTime;
     PollAcc();
-    D22Low();
   }
 }
 
@@ -172,7 +170,6 @@ void _100HzTask(uint32_t loopTime){
 
 
   if (loopTime - _100HzTimer >= 10000){
-    D23High();
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
     while(_100HzState < LAST_100HZ_TASK){
@@ -303,7 +300,6 @@ void _100HzTask(uint32_t loopTime){
 
     }
     _100HzState = GET_GYRO;
-    D23Low();
   }
 
 
@@ -312,57 +308,14 @@ void _100HzTask(uint32_t loopTime){
 }
 
 void FailSafeHandler(){
-  if (gsCTRL == false){
-    if (RCFailSafe == true) {
-      if (txLossRTB == 0) {
-        TIMSK5 = (0 << OCIE5A);
-        Motor1WriteMicros(0);
-        Motor2WriteMicros(0);
-        Motor3WriteMicros(0);
-        Motor4WriteMicros(0);
-        Motor5WriteMicros(0);
-        Motor6WriteMicros(0);
-        Motor7WriteMicros(0);
-        Motor8WriteMicros(0);
-        RedLEDHigh();
-        while (1) {
 
-          YellowLEDHigh();
-          if (RCFailSafeCounter >= 200 ) {
-            GreenLEDLow();
-          }
-          delay(500);
-          YellowLEDLow();
-          if (RCFailSafeCounter >= 200 ) {
-            YellowLEDHigh();
-          }
-          delay(500);
-        }
-      }
-
-    }
-  }
-  if (RCFailSafe == true) {
-    if (motorState >= FLIGHT) {
-      if (flightMode != RTB) {
-        enterState = true;
-        flightMode = RTB;
-      }
-    }
-  }
-
-  if (telemFailSafe == true){
-
-    if (gsCTRL == true){
-
-      if (rcDetected == true){
-        gsCTRL = false;
-      }
-      else{
-
+  if (gsCTRL == true){
+    if (telemFailSafe == true){
+      gsCTRL = false;
+      if (rcDetected == false || RCFailSafe == true){
         if (txLossRTB == 0){
           TIMSK5 = (0 << OCIE5A);
-          Motor1WriteMicros(0);//set the output compare value
+          Motor1WriteMicros(0);
           Motor2WriteMicros(0);
           Motor3WriteMicros(0);
           Motor4WriteMicros(0);
@@ -370,6 +323,7 @@ void FailSafeHandler(){
           Motor6WriteMicros(0);
           Motor7WriteMicros(0);
           Motor8WriteMicros(0);
+          ControlLED(0x00); 
           BlueLEDHigh();
 
           while (1) {
@@ -387,18 +341,60 @@ void FailSafeHandler(){
           }
         }
         else{
-          if (motorState >= FLIGHT) {
-            if (flightMode != RTB) {
-              enterState = true;
-              flightMode = RTB;
-            }
+          //if (motorState >= FLIGHT) {
+          if (flightMode != RTB) {
+            enterState = true;
+            flightMode = RTB;
           }
+          //}
         }
 
       }
 
+
+    }
+
+  }
+  else{
+    if (RCFailSafe == true){
+      if (txLossRTB == 0) {
+        TIMSK5 = (0 << OCIE5A);
+        Motor1WriteMicros(0);
+        Motor2WriteMicros(0);
+        Motor3WriteMicros(0);
+        Motor4WriteMicros(0);
+        Motor5WriteMicros(0);
+        Motor6WriteMicros(0);
+        Motor7WriteMicros(0);
+        Motor8WriteMicros(0);
+        ControlLED(0x00); 
+        RedLEDHigh();
+        while (1) {
+          YellowLEDHigh();
+          if (RCFailSafeCounter >= 200 ) {
+            GreenLEDLow();
+          }
+          delay(500);
+          YellowLEDLow();
+          if (RCFailSafeCounter >= 200 ) {
+            YellowLEDHigh();
+          }
+          delay(500);
+        }
+      }
+      else{
+        //if (motorState >= FLIGHT) {
+        if (flightMode != RTB) {
+          enterState = true;
+          flightMode = RTB;
+        }
+        //}
+      }
     }
   }
+
+
+
 }
 void FlightSM() {
 
@@ -1230,6 +1226,12 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
+
+
 
 
 

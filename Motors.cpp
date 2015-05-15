@@ -65,8 +65,8 @@ void CheckESCFlag(){
   }
   newRC = false;
   while(newRC == false){
-    ProcessChannels();
   }
+  ProcessChannels();
   newRC = false;
 
   LEDTimer = millis();
