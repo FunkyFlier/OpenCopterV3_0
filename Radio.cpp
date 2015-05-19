@@ -26,11 +26,11 @@ void SendUnMis();
 void UnReliableTransmit();
 void SendHandShakeResponse();
 void SendCalData();
-
+void HandleGSRCData();
 
 
 uint8_t typeNum,cmdNum,itemBuffer[255],calibrationNumber,hsRequestNumber,lsRequestNumber,hsNumItems,lsNumItems, hsList[40], lsList[40];
-uint16_t localPacketNumberOrdered, localPacketNumberUn, remotePacketNumberOrdered, remotePacketNumberUn, packetTemp[2];
+uint16_t localPacketNumberOrdered, remotePacketNumberOrdered, remotePacketNumberUn, packetTemp[2];
 boolean hsTX,lsTX,sendCalibrationData;
 uint32_t hsMillis,lsMillis;
 
@@ -124,26 +124,7 @@ void Radio() {
       numRXbytes++;
       packetTemp[1] = radioByte;
       remotePacketNumberUn = (packetTemp[1] << 8 ) | packetTemp[0];
-      if (remotePacketNumberUn > localPacketNumberUn) {
-        if ( (remotePacketNumberUn - localPacketNumberUn) > 1000) {
-          radioState = 8;
-          break;
-        }
-        SendUnMis();
-        radioState = 0;
-        break;
-      }
-      if (remotePacketNumberUn == localPacketNumberUn) {
-        radioState = 8;
-        break;
-      }
-      if (remotePacketNumberUn < localPacketNumberUn) {
-        if ((localPacketNumberUn - remotePacketNumberUn) > 1000) {
-          SendUnMis();
-          radioState = 0;
-        }
-        radioState = 8;
-      }
+      radioState = 8;
       break;
     case 8://get typeNum
       typeNum = radioByte;
@@ -172,9 +153,6 @@ void Radio() {
     case 11://check the second sum
       if (rxDoubleSum == radioByte) {
         SendUnAck();
-        if (remotePacketNumberUn == localPacketNumberUn) {
-          localPacketNumberUn++;
-        }
       }
       radioState = 0;
 
@@ -679,11 +657,6 @@ void WriteCalibrationDataToRom() {
     EEPROMWrite(PKT_LOCAL_ORD_L, temp);
     temp = localPacketNumberOrdered >> 8;
     EEPROMWrite(PKT_LOCAL_ORD_M, temp);
-
-    temp = localPacketNumberUn & 0x00FF;
-    EEPROMWrite(PKT_LOCAL_UN_L, temp);
-    temp = localPacketNumberUn >> 8;
-    EEPROMWrite(PKT_LOCAL_UN_M, temp);
     Motor1WriteMicros(0);//set the output compare value
     Motor2WriteMicros(0);
     Motor3WriteMicros(0);
@@ -1038,7 +1011,7 @@ void SendUnAck() {
   }
 }
 
-void SendUnMis() {
+/*void SendUnMis() {
 
   uint8_t txSum = 0,txDoubleSum = 0,temp;
 
@@ -1058,7 +1031,7 @@ void SendUnMis() {
   RadioWrite(txSum);
   RadioWrite(txDoubleSum);
 
-}
+}*/
 
 void UnReliableTransmit() {
   uint8_t txSum = 0, txDoubleSum = 0;
@@ -1132,14 +1105,14 @@ void HandShake() {
     packetTemp[0] = EEPROMRead(PKT_LOCAL_ORD_L);//lsb for packetNumberLocalOrdered
     packetTemp[1] = EEPROMRead(PKT_LOCAL_ORD_M);//msb for packetNumberLocalOrdered
     localPacketNumberOrdered = (packetTemp[1] << 8) | packetTemp[0];
-    packetTemp[0] = EEPROMRead(PKT_LOCAL_UN_L);//lsb for packetNumberLocalUnOrdered
+    /*packetTemp[0] = EEPROMRead(PKT_LOCAL_UN_L);//lsb for packetNumberLocalUnOrdered
     packetTemp[1] = EEPROMRead(PKT_LOCAL_UN_M);//msb for packetNumberLocalUnOrdered
-    localPacketNumberUn = (packetTemp[1] << 8) | packetTemp[0];
+    localPacketNumberUn = (packetTemp[1] << 8) | packetTemp[0];*/
     handShake = true;
     return;
   }
   localPacketNumberOrdered = 0;
-  localPacketNumberUn = 0;
+  //localPacketNumberUn = 0;
   while (RadioAvailable() > 0) {
     RadioRead();//clear any data in the buffer
   }

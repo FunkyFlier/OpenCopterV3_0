@@ -5,7 +5,6 @@
 
 void HandShake();
 void Radio();
-void HandleGSRCData();
 void TuningTransmitter();
 void TryHandShake();
 void CalibrateSensors();
