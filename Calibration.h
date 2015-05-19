@@ -10,7 +10,6 @@
 
 
 #define NUMBER_GYRO_SAMPLES_FOR_AVG 200
-void LoadCalibValuesFromRom();
 void ACCScale();
 void MAGScale();
 void GROScale();

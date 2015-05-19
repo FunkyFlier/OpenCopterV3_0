@@ -2,11 +2,6 @@
 #include "Rom.h"
 
 
-//void LoadACC();
-//void LoadMAG();
-//void LPF(float*, float*, float*, float);
-
-//rename?
 float scaledMagX, scaledMagY, scaledMagZ, scaledAccX, scaledAccY, scaledAccZ;
 float degreeGyroX,degreeGyroY,degreeGyroZ,radianGyroX,radianGyroY,radianGyroZ;
 float filtAccX,filtAccY,filtAccZ;
@@ -23,14 +18,6 @@ accXOffset,accYOffset,accZOffset;
 
 
 
-void LoadCalibValuesFromRom(){
-  LoadACC();
-  LoadMAG();
-  SetGyroOffsets();
-  MAGScale();
-  ACCScale();
-  GROScale();
-}
 void PollAcc(){
   GetAcc();
   ACCScale();

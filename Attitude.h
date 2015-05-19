@@ -15,7 +15,6 @@
 #define SAMPLES_FOR_ACC_MAGNITUDE 200
 
 void SetInitialQuaternion();
-void LoadAttValuesFromRom();
 
 void AHRSupdate(float);
 void GenerateRotationMatrix();

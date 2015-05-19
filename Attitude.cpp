@@ -242,16 +242,6 @@ void GenerateRotationMatrix(){
 
 }
 
-void LoadAttValuesFromRom(){
-  uint16_t i = DEC_START;
-  float_u inFloat;
-  inFloat.buffer[0] = EEPROM.read(i++);
-  inFloat.buffer[1] = EEPROM.read(i++);
-  inFloat.buffer[2] = EEPROM.read(i++);
-  inFloat.buffer[3] = EEPROM.read(i++);
-  declination = inFloat.val;
-}
-
 void SetVariables(){
   acc_x = -filtAccX;
   acc_y = -filtAccY;

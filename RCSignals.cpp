@@ -101,55 +101,7 @@ void CheckTXPositions() {
   }
 }
 
-void LoadRCValuesFromRom(){
-  uint16_t j=0;//index for input buffers
-  uint16_t k=0;//index for start of each channel's data in rom
-  uint16_t l=0;//index for each channel
-  uint16_t switchControl;
-  float_u outFloat;
-  int16_u outInt16;
 
-  for(uint16_t i = RC_DATA_START; i <=RC_DATA_END; i++){//index for each rom location
-
-    switchControl = i - k;
-    if (switchControl < CHAN_INDEX){//first 16 bit ints
-      outInt16.buffer[j++] = EEPROMRead(i);
-    }
-    if (switchControl > CHAN_INDEX && i - k < REV_INDEX){//scale factor
-      outFloat.buffer[j++] = EEPROMRead(i);
-    }
-
-    switch (switchControl){
-    case MAX_INDEX://max
-      rcData[l].max = outInt16.val;
-      j=0;
-      break;
-    case MIN_INDEX://min
-      rcData[l].min = outInt16.val;
-      j=0;
-      break;
-    case MID_INDEX://mid
-      rcData[l].mid = outInt16.val;
-      j=0;
-      break;
-    case CHAN_INDEX://chan
-      rcData[l].chan = EEPROMRead(i);
-      break;
-    case SCALE_INDEX://scale
-      rcData[l].scale = outFloat.val;
-      j=0;
-      break;
-    case REV_INDEX://reverse
-      rcData[l].reverse = EEPROMRead(i);
-      k += 12;
-      l += 1;
-      break;
-    }
-  }
-
-
-
-}
 
 ISR(PCINT2_vect){
   switch(ISRState){

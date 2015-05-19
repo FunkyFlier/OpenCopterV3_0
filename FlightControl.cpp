@@ -26,6 +26,7 @@ void HeadingHold();
 
 void ProcessModes();
 
+
 float zero = 0;
 
 
@@ -306,7 +307,34 @@ void _100HzTask(uint32_t loopTime){
 
 
 }
+void MotorShutDown(){
+  TIMSK5 = (0 << OCIE5A);
+  Motor1WriteMicros(0);
+  Motor2WriteMicros(0);
+  Motor3WriteMicros(0);
+  Motor4WriteMicros(0);
+  Motor5WriteMicros(0);
+  Motor6WriteMicros(0);
+  Motor7WriteMicros(0);
+  Motor8WriteMicros(0);
+  ControlLED(0x00); 
+  BlueLEDHigh();
 
+  while (1) {
+
+    YellowLEDHigh();
+    if (groundFSCount >= 200 ) {
+      GreenLEDLow();
+    }
+    delay(500);
+    YellowLEDLow();
+    if (groundFSCount >= 200 ) {
+      GreenLEDHigh();
+    }
+    delay(500);
+  }
+
+}
 void FailSafeHandler(){
 
   if (gsCTRL == true){
@@ -314,31 +342,7 @@ void FailSafeHandler(){
       gsCTRL = false;
       if (rcDetected == false || RCFailSafe == true){
         if (txLossRTB == 0){
-          TIMSK5 = (0 << OCIE5A);
-          Motor1WriteMicros(0);
-          Motor2WriteMicros(0);
-          Motor3WriteMicros(0);
-          Motor4WriteMicros(0);
-          Motor5WriteMicros(0);
-          Motor6WriteMicros(0);
-          Motor7WriteMicros(0);
-          Motor8WriteMicros(0);
-          ControlLED(0x00); 
-          BlueLEDHigh();
-
-          while (1) {
-
-            YellowLEDHigh();
-            if (groundFSCount >= 200 ) {
-              GreenLEDLow();
-            }
-            delay(500);
-            YellowLEDLow();
-            if (groundFSCount >= 200 ) {
-              GreenLEDHigh();
-            }
-            delay(500);
-          }
+          MotorShutDown();
         }
         else{
           //if (motorState >= FLIGHT) {
@@ -358,29 +362,7 @@ void FailSafeHandler(){
   else{
     if (RCFailSafe == true){
       if (txLossRTB == 0) {
-        TIMSK5 = (0 << OCIE5A);
-        Motor1WriteMicros(0);
-        Motor2WriteMicros(0);
-        Motor3WriteMicros(0);
-        Motor4WriteMicros(0);
-        Motor5WriteMicros(0);
-        Motor6WriteMicros(0);
-        Motor7WriteMicros(0);
-        Motor8WriteMicros(0);
-        ControlLED(0x00); 
-        RedLEDHigh();
-        while (1) {
-          YellowLEDHigh();
-          if (RCFailSafeCounter >= 200 ) {
-            GreenLEDLow();
-          }
-          delay(500);
-          YellowLEDLow();
-          if (RCFailSafeCounter >= 200 ) {
-            YellowLEDHigh();
-          }
-          delay(500);
-        }
+        MotorShutDown();
       }
       else{
         //if (motorState >= FLIGHT) {
@@ -1226,6 +1208,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
