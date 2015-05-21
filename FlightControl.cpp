@@ -337,6 +337,10 @@ void MotorShutDown(){
 }
 void FailSafeHandler(){
 
+  if (magDetected == false){
+    GPSDetected = false;
+    gpsFailSafe = false;
+  }
   if (gsCTRL == true){
     if (telemFailSafe == true){
       gsCTRL = false;
@@ -1088,9 +1092,9 @@ void ProcessModes() {
     break;
   case L0:
     flightMode = L0;
-    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
-    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -35, 35);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -35, 35);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -100, 100);
     if (rollSetPointTX < 1 && rollSetPointTX > -1) {
       rollSetPointTX = 0;
     }
@@ -1103,9 +1107,9 @@ void ProcessModes() {
     break;
   case L1:
     flightMode = L1;
-    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
-    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -35, 35);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -35, 35);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -100, 100);
     if (rollSetPointTX < 1 && rollSetPointTX > -1) {
       rollSetPointTX = 0;
     }
@@ -1118,9 +1122,9 @@ void ProcessModes() {
     break;
   case L2:
     flightMode = L2;
-    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
-    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -35, 35);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -35, 35);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -100, 100);
     if (rollSetPointTX < 1 && rollSetPointTX > -1) {
       rollSetPointTX = 0;
     }
@@ -1191,9 +1195,9 @@ void ProcessModes() {
   }
   if (flightMode > L0 && magDetected == false) {
     flightMode = L0;
-    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
-    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -35, 35);
+    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -35, 35);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -100, 100);
     if (rollSetPoint < 1 && rollSetPoint > -1) {
       rollSetPoint = 0;
     }
@@ -1208,6 +1212,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
