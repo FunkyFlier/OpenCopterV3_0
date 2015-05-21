@@ -49,8 +49,8 @@ void AssignPointerArray() {
   floatPointerArray[ACC_Z_SC] = &scaledAccZ;
 
   floatPointerArray[MAG_X_SC] = &scaledMagX;//cailbration
-  floatPointerArray[MAG_Y_SC] = &scaledMagX;
-  floatPointerArray[MAG_Z_SC] = &scaledMagX;
+  floatPointerArray[MAG_Y_SC] = &scaledMagY;
+  floatPointerArray[MAG_Z_SC] = &scaledMagZ;
 
   floatPointerArray[DIST_TO_CRAFT] = &distToCraft;//inertial
   floatPointerArray[HEAD_TO_CRAFT] = &headingToCraft;
