@@ -80,10 +80,10 @@ boolean newBaro = false;
 long Pressure(unsigned long );
 short Temperature(unsigned int );
 
-void StartUT(void);
-unsigned int ReadUT(void);
-void StartUP(void);
-unsigned long ReadUP(void) ;
+void StartUT(uint8_t*);
+unsigned int ReadUT(uint8_t*);
+void StartUP(uint8_t*);
+unsigned long ReadUP(uint8_t*) ;
 //v1 vars
 //barometer variables
 //int32_t pres;
@@ -340,30 +340,53 @@ void CheckCRC() {
 
 #ifdef V1
 void PollPressure(void) {
+  uint8_t i2cTimeOutStatus;
+  float pressureTemp;
   if (millis() - baroPollTimer > POLL_RATE) {
     switch (pressureState) {
     case 0://read ut
-      StartUT();
-      pressureState = 1;
-      baroTimer = millis();
+      StartUT(&i2cTimeOutStatus);
+      if (i2cTimeOutStatus == 0){
+        pressureState = 1;
+        baroTimer = millis();
+      }
+      else{
+        baroPollTimer = millis();
+      }
       break;
     case 1://wait for ready signal
       if (millis() - baroTimer > 5) {
-        pressureState = 2;
-        ut = ReadUT();
-        StartUP();
-        baroTimer = millis();
+        ut = ReadUT(&i2cTimeOutStatus);
+        if (i2cTimeOutStatus != 0){
+          pressureState = 0;
+          baroPollTimer = millis();
+          break;
+        }
+        StartUP(&i2cTimeOutStatus);
+        if (i2cTimeOutStatus == 0){
+          pressureState = 2;
+          baroTimer = millis();
+        }
+        else{
+          pressureState = 0;
+          baroPollTimer = millis();
+          break;
+        }
       }
-
       break;
     case 2://read up
       if (millis() - baroTimer > CONV_TIME) {
-        up = ReadUP();
-        temperature = Temperature(ut);
-        pressure = (float)Pressure(up);
+        up = ReadUP(&i2cTimeOutStatus);
+        if (i2cTimeOutStatus == 0){
+          pressureTemp = (float)Pressure(up);
+          if (pressureTemp > 30000 && pressureTemp < 110000){ 
+            temperature = Temperature(ut);
+            pressure = pressureTemp;
+            newBaro = true;
+          }
+          baroPollTimer = millis();
+        }
         pressureState = 0;
-        newBaro = true;
-        baroPollTimer = millis();
       }
       break;
 
@@ -410,28 +433,33 @@ short Temperature(unsigned int ut) {
   return ((b5 + 8) >> 4);
 }
 
-void StartUT(void) {
-  I2CWrite(BMP085_ADDRESS, 0xF4, 0x2E);
+void StartUT(uint8_t *statusByte) {
+  *statusByte = I2CWrite(BMP085_ADDRESS, 0xF4, 0x2E);
 }
 
-unsigned int ReadUT(void) {
+unsigned int ReadUT(uint8_t *statusByte) {
 
-
-
-  I2CRead(BMP085_ADDRESS, 0xF6, 2);
+  *statusByte = I2CRead(BMP085_ADDRESS, 0xF6, 2);
+  if (*statusByte !=0){
+    return 0;
+  }
   msb = I2CReceive();
   lsb = I2CReceive();
 
   return ((msb << 8) | lsb);
 }
 
-void StartUP(void) {
-  I2CWrite(BMP085_ADDRESS, 0xF4, (0x34 + (OSS << 6)));
+void StartUP(uint8_t *statusByte) {
+
+  *statusByte = I2CWrite(BMP085_ADDRESS, 0xF4, (0x34 + (OSS << 6)));
+
 }
 
-unsigned long ReadUP(void) {
-
-  I2CRead(BMP085_ADDRESS, 0xF6, 3);
+unsigned long ReadUP(uint8_t *statusByte) {
+  *statusByte = I2CRead(BMP085_ADDRESS, 0xF6, 3);
+  if (*statusByte !=0){
+    return 0;
+  }
   msb = I2CReceive();
   lsb = I2CReceive();
   xlsb = I2CReceive();
@@ -439,9 +467,13 @@ unsigned long ReadUP(void) {
 }
 
 void BaroInit(void) {
+  uint8_t i2cTimeOutStatus;
   pressureState = 0;
   newBaro = false;
-  I2CRead(BMP085_ADDRESS, 0xAA, 22);
+  i2cTimeOutStatus = I2CRead(BMP085_ADDRESS, 0xAA, 22);
+  if (i2cTimeOutStatus != 0){
+    Serial<<"baro failed 5\r\n";
+  }
   msb = I2CReceive();
   lsb = I2CReceive();
   ac1 = (msb << 8) | lsb;
@@ -486,7 +518,7 @@ void BaroInit(void) {
   lsb = I2CReceive();
   md = (msb << 8) | lsb;
 
-  I2CRead(BMP085_ADDRESS,0xD0,1);
+  //I2CRead(BMP085_ADDRESS,0xD0,1);
   //this is to get the ground pressure for relative altitude
   //lower pressure than this means positive altitude
   //higher pressure than this means negative altitude
@@ -529,27 +561,21 @@ int16_u  accX, accY, accZ;
 
 
 void AccInit() {
-
   SPISetMode(SPI_MODE3);
-
   AccSSLow();
   SPITransfer(WRITE | SINGLE | BW_RATE);
   SPITransfer(0x0C);
   AccSSHigh();
-
   AccSSLow();
   SPITransfer(WRITE | SINGLE | POWER_CTL);
   SPITransfer(0x08);//start measurment
   AccSSHigh();
-
   AccSSLow();
   SPITransfer(WRITE | SINGLE | DATA_FORMAT);
   SPITransfer(0x08);//full resolution + / - 16g
   AccSSHigh();
   SPISetMode(SPI_MODE0);
-
   GetAcc();
-
 }
 
 void GetAcc() {
@@ -573,7 +599,6 @@ void GetAcc() {
   accX.val = tempX;
   accY.val = tempY;
 #endif
-  GetAcc();
 
 
 }
@@ -647,7 +672,7 @@ boolean magDetected = true;
 
 void VerifyMag() {
   I2CRead((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_ID_A, (uint8_t)3);
-  
+
   if (I2CReceive() != 0x48) {
     magDetected = false;
     return;
@@ -684,8 +709,8 @@ void MagInit() {
   magY.buffer[0] = I2CReceive();
 #ifdef V1
 #ifndef EXT_MAG
-      magY.val *= -1;
-      magZ.val *= -1;
+  magY.val *= -1;
+  magZ.val *= -1;
 #endif
 #endif
   GetMag();
@@ -710,8 +735,8 @@ void GetMag() {
   magY.buffer[0] = I2CReceive();
 #ifdef V1
 #ifndef EXT_MAG
-      magY.val *= -1;
-      magZ.val *= -1;
+  magY.val *= -1;
+  magZ.val *= -1;
 #endif
 #endif
 
@@ -720,4 +745,15 @@ void GetMag() {
 }
 
 //end mag------------------------------
+
+
+
+
+
+
+
+
+
+
+
 

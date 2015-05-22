@@ -1,7 +1,7 @@
 #ifndef Definitions_h
 #define Definitions_h
 
-#define ROT_45
+//#define ROT_45
 
 //#define QUAD_CAMP
 
@@ -9,8 +9,10 @@
 //#define HEX_FRAME
 //#define X_8
 
-//#define V1
-#define V2
+#define EXT_MAG
+
+#define V1
+//#define V2
 
 #ifdef V2
 #ifdef V1

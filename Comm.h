@@ -18,10 +18,11 @@ void RadioSerialBegin();
 
 uint8_t SPITransfer(uint8_t);
 void    SPIInit(uint8_t, uint8_t, uint8_t);
+void    SPISetMode(uint8_t);
 
 void    I2CInit();
 uint8_t I2CRead(uint8_t, uint8_t, uint8_t);
-void    I2CWrite(uint8_t, uint8_t, uint8_t);
+uint8_t I2CWrite(uint8_t, uint8_t, uint8_t);
 uint8_t I2CReceive();
 
 void    EEPROMWrite(uint16_t,uint16_t);

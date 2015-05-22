@@ -86,8 +86,8 @@ uint8_t I2CRead(uint8_t deviceAddress, uint8_t registerAddress, uint8_t numBytes
   return I2c.read(deviceAddress, registerAddress, numBytes);
 }
 
-void I2CWrite(uint8_t deviceAddress, uint8_t registerAddress, uint8_t value){
-  I2c.write(deviceAddress, registerAddress, value);
+uint8_t I2CWrite(uint8_t deviceAddress, uint8_t registerAddress, uint8_t value){
+  return I2c.write(deviceAddress, registerAddress, value);
 }
 
 uint8_t I2CReceive(){
