@@ -517,7 +517,7 @@ void InitLoiter() {
         zTarget = FLOOR;
       }
       if (zTarget > CEILING) {
-        zTarget = FLOOR;
+        zTarget = CEILING;
       }
     }
     throttleCheckFlag = true;
