@@ -15,6 +15,7 @@
 #include <EEPROM.h>
 
 void SaveGains();
+void ResetPIDs();
 
 uint32_t romWriteDelayTimer;
 float motorCommand1, motorCommand2, motorCommand3, motorCommand4,motorCommand5, motorCommand6, motorCommand7, motorCommand8;
@@ -213,6 +214,27 @@ void SaveGains(){
   calibrationFlags &= ~(1<<GAINS_FLAG);
   EEPROMWrite(CAL_FLAGS,calibrationFlags);
 }
+void ResetPIDs(){
+  PitchAngle.reset();
+  RollAngle.reset();
+  YawAngle.reset();
+
+  PitchRate.reset();
+  RollRate.reset();
+  YawRate.reset();
+
+  AltHoldPosition.reset();
+  AltHoldVelocity.reset();
+
+  //WayPointPosition.reset();
+  //WayPointRate.reset();
+
+  LoiterXPosition.reset();
+  LoiterXVelocity.reset();
+
+  LoiterYPosition.reset();
+  LoiterYVelocity.reset();
+}
 void MotorHandler(){
   static boolean rudderFlag = false;
   switch(motorState){
@@ -260,30 +282,12 @@ void MotorHandler(){
 
     }
     if (rudderFlag == true){
-    
+
       if (abs(cmdRudd - 1500) < 50){
         rudderFlag = false;
         motorState = TO;
 
-        PitchAngle.reset();
-        RollAngle.reset();
-        YawAngle.reset();
 
-        PitchRate.reset();
-        RollRate.reset();
-        YawRate.reset();
-
-        AltHoldPosition.reset();
-        AltHoldVelocity.reset();
-
-        //WayPointPosition.reset();
-        //WayPointRate.reset();
-
-        LoiterXPosition.reset();
-        LoiterXVelocity.reset();
-
-        LoiterYPosition.reset();
-        LoiterYVelocity.reset();
         homeBaseXOffset = XEst;
         homeBaseYOffset = YEst;
         if (magDetected == true){
@@ -332,12 +336,14 @@ void MotorHandler(){
     if (flightMode == RATE || flightMode == ATT){
       if (throCommand > 1150 && throCommand < 1350){
         motorState = FLIGHT;
+        ResetPIDs();
         integrate = true;
       }
     }
     if (flightMode <= L2 && flightMode >= L0){
       if (throCommand <= 1600 && throCommand >= 1450){
         motorState = FLIGHT;
+        ResetPIDs();
         zTarget = TAKE_OFF_ALT;
         enterState = true;
         throttleAdjustment = 0;
@@ -517,6 +523,7 @@ void MotorHandler(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
 
 
 
