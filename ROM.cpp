@@ -335,7 +335,7 @@ void ROMFlagsCheck() {
   }
   calibrationFlags = EEPROMRead(CAL_FLAGS);
   VerifyMag();
-  if ( ((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 || ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 || ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 && magDetected ) ) {
+  if ( (((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 && rcDetected == true && RCFailSafe == false)|| ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 || ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 && magDetected ) ) {
     TryHandShake();
     if (calibrationMode == true) {
       ControlLED(0x07);

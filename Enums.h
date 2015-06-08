@@ -1,5 +1,31 @@
 #ifndef ENUMS_H
 #define ENUMS_H
+
+enum RadioStates{
+  SB_CHECK,
+  PKT_LEN,
+  ITEM_TYPE,
+  UNREL_START,
+  UNREL_CK_SM1,
+  UNREL_CK_SM2,
+  REL_QRY_PKT_LSB,
+  REL_QRY_PKT_MSB,
+  REL_QRY_TYP_NUM,
+  REL_QRY_CMD_NUM,
+  REL_QRY_SUM1,
+  REL_QRY_SUM2,
+  REL_SET_PKT_LSB,
+  REL_SET_PKT_MSB,
+  REL_SET_TYPE,
+  REL_SET_CMD,
+  REL_SET_BUFFER,
+  REL_SET_SUM1,
+  REL_SET_SUM2,
+  GS_RC_CMD_NUM,
+  GS_RC_BUFFER,
+  GS_RC_SUM1,
+  GS_RC_SUM2
+};
 enum _100HzStates{
   GET_GYRO,
   GET_MAG,
@@ -256,3 +282,4 @@ enum RC_Types {
 enum RC_Chan {
   THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 #endif
+

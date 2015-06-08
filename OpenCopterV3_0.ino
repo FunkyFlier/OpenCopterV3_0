@@ -23,9 +23,7 @@
 uint32_t loopTime;
 
 
-
 void setup() {
-
   RadioSerialBegin();
   AssignPointerArray();
   SetPinModes();
@@ -34,10 +32,8 @@ void setup() {
 
   DetectRC();
   _200HzISRConfig();
-
   SPIInit(MSBFIRST,SPI_CLOCK_DIV2,SPI_MODE0);
   I2CInit();
-
   ROMFlagsCheck();
   if (rcDetected == true){
     CheckESCFlag();

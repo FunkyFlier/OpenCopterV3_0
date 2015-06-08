@@ -54,174 +54,174 @@ void Radio() {
 
     radioByte = RadioRead();
     switch (radioState) { //+++
-    case 0://check for start byte
+    case SB_CHECK://check for start byte
       rxSum = 0;
       rxDoubleSum = 0;
       if (radioByte == 0xAA) {
-        radioState = 1;
+        radioState = PKT_LEN;
       }
       break;
-    case 1:
+    case PKT_LEN:
       packetLength = radioByte;
       numRXbytes = 0;
-      radioState = 2;
+      radioState = ITEM_TYPE;
       break;
 
-    case 2:
+    case ITEM_TYPE:
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
       if (radioByte == 0xFA) { //reliable querie
-        radioState = 6;
+        radioState = REL_QRY_PKT_LSB;
         break;
       }
       if (radioByte == 0xFD) { //reliable set
-        radioState = 12;
+        radioState = REL_SET_PKT_LSB;
         break;
       }
       typeNum = radioByte;
       if (typeNum == 11 && packetLength == 18) {
-        radioState = 19;
+        radioState = GS_RC_CMD_NUM;
         break;
       }
       if (packetLength == 2) { //length for unrelaible will always be 2
-        radioState = 3;//unrelaible data
+        radioState = UNREL_START;//unrelaible data
       }
       else {
-        radioState = 0;
+        radioState = SB_CHECK;
       }
       break;
 
-    case 3://unrelaible
+    case UNREL_START://unrelaible
       cmdNum = radioByte;
       rxSum += radioByte;
       rxDoubleSum += rxSum;
-      radioState = 4;
+      radioState = UNREL_CK_SM1;
       break;
-    case 4://unreliable checksum 1
+    case UNREL_CK_SM1://unreliable checksum 1
       if (rxSum == radioByte) {
-        radioState = 5;
+        radioState = UNREL_CK_SM2;
         break;
       }
-      radioState = 0;
+      radioState = SB_CHECK;
       break;
-    case 5://unreliable check sum 2
+    case UNREL_CK_SM2://unreliable check sum 2
       if (rxDoubleSum == radioByte) {
         //UnReliableTransmit();
       }
-      radioState = 0;
+      radioState = SB_CHECK;
       break;
-    case 6://reliable queries - get packet num LSB
+    case REL_QRY_PKT_LSB://reliable queries - get packet num LSB
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
       packetTemp[0] = radioByte;
-      radioState = 7;
+      radioState = REL_QRY_PKT_MSB;
       break;
-    case 7://packet num MSB and verify
+    case REL_QRY_PKT_MSB://packet num MSB and verify
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
       packetTemp[1] = radioByte;
       remotePacketNumberUn = (packetTemp[1] << 8 ) | packetTemp[0];
-      radioState = 8;
+      radioState = REL_QRY_TYP_NUM;
       break;
-    case 8://get typeNum
+    case REL_QRY_TYP_NUM://get typeNum
       typeNum = radioByte;
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
-      radioState = 9;
+      radioState = REL_QRY_CMD_NUM;
       break;
-    case 9://get cmdNum
+    case REL_QRY_CMD_NUM://get cmdNum
       cmdNum = radioByte;
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
       itemIndex = 0;
-      radioState = 10;
+      radioState = REL_QRY_SUM1;
       break;
 
-    case 10://check the first sum
+    case REL_QRY_SUM1://check the first sum
       if (rxSum == radioByte) {
-        radioState = 11;
+        radioState = REL_QRY_SUM2;
         break;
       }
-      radioState = 0;
+      radioState = SB_CHECK;
       break;
 
-    case 11://check the second sum
+    case REL_QRY_SUM2://check the second sum
       if (rxDoubleSum == radioByte) {
         SendUnAck();
       }
-      radioState = 0;
+      radioState = SB_CHECK;
 
       break;
 
-    case 12://reliable set get packet num lsb
+    case REL_SET_PKT_LSB://reliable set get packet num lsb
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
       packetTemp[0] = radioByte;
-      radioState = 13;
+      radioState = REL_SET_PKT_MSB;
       break;
 
-    case 13://get packet num msb and verify
+    case REL_SET_PKT_MSB://get packet num msb and verify
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
       packetTemp[1] = radioByte;
       remotePacketNumberOrdered = (packetTemp[1] << 8 ) | packetTemp[0];
-      radioState = 14;
+      radioState = REL_SET_TYPE;
       break;
 
-    case 14:
+    case REL_SET_TYPE:
       typeNum = radioByte;
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
-      radioState = 15;
+      radioState = REL_SET_CMD;
       break;
 
-    case 15:
+    case REL_SET_CMD:
       cmdNum = radioByte;
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
       itemIndex = 0;
-      radioState = 16;
+      radioState = REL_SET_BUFFER;
       if (typeNum == 6 || typeNum == 8 ) {
-        radioState = 17;
+        radioState = REL_SET_SUM1;
       }
       if (typeNum == 7 && cmdNum == 3) {
-        radioState = 17;
+        radioState = REL_SET_SUM1;
       }
       break;
 
-    case 16://buffer in data
+    case REL_SET_BUFFER://buffer in data
       itemBuffer[itemIndex++] = radioByte;
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
       if (packetLength > 250) {
-        radioState = 0;
+        radioState = SB_CHECK;
       }
       if (numRXbytes == packetLength) {
-        radioState = 17;
+        radioState = REL_SET_SUM1;
       }
       break;
-    case 17://check first sum
+    case REL_SET_SUM1://check first sum
       if (rxSum != radioByte) {
-        radioState = 0;
+        radioState = SB_CHECK;
         break;
       }
-      radioState = 18;
+      radioState = REL_SET_SUM2;
       break;
-    case 18:
+    case REL_SET_SUM2:
       if (rxDoubleSum == radioByte) {
         if (remotePacketNumberOrdered != localPacketNumberOrdered) {
           SendOrdMis();
-          radioState = 0;
+          radioState = SB_CHECK;
           break;
         }
         if (calibrationMode == true) {
@@ -260,42 +260,42 @@ void Radio() {
         }
         SendOrdAck();
       }
-      radioState = 0;
+      radioState = SB_CHECK;
       break;
-    case 19:
+    case GS_RC_CMD_NUM:
       cmdNum = radioByte;
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       itemIndex = 0;
       if (cmdNum == 8) {
-        radioState = 20;
+        radioState = GS_RC_BUFFER;
       }
       else {
-        radioState = 0;
+        radioState = SB_CHECK;
       }
       break;
-    case 20:
+    case GS_RC_BUFFER:
       itemBuffer[itemIndex++] = radioByte;
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       if (itemIndex == (cmdNum * 2)) {
-        radioState = 21;
+        radioState = GS_RC_SUM1;
       }
       break;
-    case 21:
+    case GS_RC_SUM1:
       if (rxSum == radioByte) {
-        radioState = 22;
+        radioState = GS_RC_SUM2;
       }
       else {
-        radioState = 0;
+        radioState = SB_CHECK;
       }
       break;
-    case 22:
+    case GS_RC_SUM2:
       if (rxDoubleSum == radioByte) {
         HandleGSRCData();
 
       }
-      radioState = 0;
+      radioState = SB_CHECK;
       break;
 
     }//+++

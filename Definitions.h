@@ -11,8 +11,8 @@
 
 #define EXT_MAG
 
-#define V1
-//#define V2
+//#define V1
+#define V2
 
 #ifdef V2
 #ifdef V1
