@@ -339,7 +339,7 @@ void FailSafeHandler(){
 
   if (magDetected == false){
     GPSDetected = false;
-    gpsFailSafe = false;
+    gpsFailSafe = true;
   }
   if (gsCTRL == true){
     if (telemFailSafe == true){

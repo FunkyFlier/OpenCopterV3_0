@@ -9,7 +9,7 @@
 //#define HEX_FRAME
 //#define X_8
 
-#define EXT_MAG
+//#define EXT_MAG
 
 //#define V1
 #define V2
@@ -53,7 +53,7 @@
 #define TAKE_OFF_ALT 3
 
 #define LAND_VEL -0.28
-#define RTB_VEL 0.25
+#define RTB_VEL 10
 
 #define HH_ON 0
 #define HH_OFF 1

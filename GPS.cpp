@@ -43,16 +43,23 @@ void DistBearing(int32_t *lat1, int32_t *lon1, int32_t *lat2, int32_t *lon2,floa
 }
 
 void GPSStart() {
-  uint32_t generalPurposeTimer;
+  enum GPSStartStates{
+    FIX,
+    H_ACC,
+    S_ACC,
+    WAIT
+  };
+  uint32_t gpsStartTimer,gpsLEDTimer;
   uint8_t LEDPattern[4] = {
-    0x00,0x00,0x00,0x00        };
+    0x00,0x00,0x00,0x00                        };
   uint8_t LEDIndex = 0;
-
+  uint8_t gpsStartState = 0;
+  boolean gpsStartComplete = false;
   GPSInit();
 
-  generalPurposeTimer = millis();
+  gpsStartTimer = millis();
 
-  while ((millis() - generalPurposeTimer < 1000) && (newGPSData== false)) {
+  while ((millis() - gpsStartTimer < 1000) && (newGPSData== false)) {
     GPSMonitor();
     if (newGPSData == true) {
       GPSDetected = true;
@@ -60,49 +67,87 @@ void GPSStart() {
   }
   //to do add feed back with leds
   if (GPSDetected == true) {
-    //gpsFailSafe = false;
-    memcpy(LEDPattern, (uint8_t[]){
-      0x00, 0x0F, 0x00,0x0F    }
-    , 4);
 
-    while (GPSData.vars.gpsFix != 0x3) {
+    while(gpsStartComplete == false){
+      switch (gpsStartState){
+      case FIX:
+        memcpy(LEDPattern, (uint8_t[]){
+          0x00, 0x0F, 0x00,0x0F                                    } 
+        , 4);
+        while (GPSData.vars.gpsFix != 0x3) {
+          GPSMonitor();
+          if (millis() - gpsLEDTimer > 500) {
+            gpsLEDTimer = millis();
+            ControlLED(LEDPattern[LEDIndex++]);
+            if (LEDIndex >=4){
+              LEDIndex = 0;
+            }
+          }
+        }
+        gpsStartState = H_ACC;
+        break;
+      case H_ACC:
+        LEDIndex = 0;
+        memcpy(LEDPattern, (uint8_t[]){
+          0x01, 0x02, 0x04,0x08                                    }
+        , 4);
+        while (GPSData.vars.hAcc * 0.001 > HACC_MAX ) {
+          GPSMonitor();
+          if (millis() - gpsLEDTimer > 500) {
+            gpsLEDTimer = millis();
+            ControlLED(LEDPattern[LEDIndex++]);
+            if (LEDIndex >=4){
+              LEDIndex = 0;
+            }
+          }
+        }
+        gpsStartState = S_ACC;
+        break;
+      case S_ACC:
+        memcpy(LEDPattern, (uint8_t[]){
+          0x08, 0x04, 0x02,0x01                                                  }
+        , 4);
+        while (GPSData.vars.sAcc * 0.001 > SACC_MAX  ) {
+          GPSMonitor();
+          if (millis() - gpsLEDTimer > 500) {
+            gpsLEDTimer = millis();
+            ControlLED(LEDPattern[LEDIndex++]);
+            if (LEDIndex >=4){
+              LEDIndex = 0;
+            }
+          }
+        }
+        gpsStartState = WAIT;
+        break;
+      case WAIT:
+        memcpy(LEDPattern, (uint8_t[]){
+          0x01, 0x03, 0x05,0x07                                                  }
+        , 4);
+        gpsStartTimer = millis();
+        while(millis() - gpsStartTimer < 30000){
+          GPSMonitor();
+          if (millis() - gpsLEDTimer > 500) {
+            gpsLEDTimer = millis();
+            ControlLED(LEDPattern[LEDIndex++]);
+            if (LEDIndex >=4){
+              LEDIndex = 0;
+            }
+          }
+          if (GPSData.vars.sAcc * 0.001 > SACC_MAX || GPSData.vars.hAcc * 0.001 > HACC_MAX || GPSData.vars.gpsFix != 0x3){
+            gpsStartState = FIX;
+            break;
+          }
+        }
+        if (gpsStartState == FIX){
+          break;
+        }
+        gpsStartComplete = true;
+        gpsFailSafe = false;
+        break;
+      }
+    }
 
-      GPSMonitor();
-      if (millis() - generalPurposeTimer > 500) {
-        generalPurposeTimer = millis();
-        ControlLED(LEDPattern[LEDIndex++]);
-        if (LEDIndex >=4){
-          LEDIndex = 0;
-        }
-      }
 
-    }
-    LEDIndex = 0;
-    memcpy(LEDPattern, (uint8_t[]){      0x01, 0x02, 0x04,0x08    }    , 4);
-    while (GPSData.vars.hAcc * 0.001 > (HACC_MAX - 0.5) ) {
-      GPSMonitor();
-      if (millis() - generalPurposeTimer > 500) {
-        generalPurposeTimer = millis();
-        ControlLED(LEDPattern[LEDIndex++]);
-        if (LEDIndex >=4){
-          LEDIndex = 0;
-        }
-      }
-    }
-    LEDIndex = 0;
-    memcpy(LEDPattern, (uint8_t[]){
-      0x08, 0x04, 0x02,0x01    }
-    , 4);
-    while (GPSData.vars.sAcc * 0.001 > (SACC_MAX - 0.25) ) {
-      GPSMonitor();
-      if (millis() - generalPurposeTimer > 500) {
-        generalPurposeTimer = millis();
-        ControlLED(LEDPattern[LEDIndex++]);
-        if (LEDIndex >=4){
-          LEDIndex = 0;
-        }
-      }
-    }
 
     newGPSData = false;
     while (newGPSData == false) {
@@ -245,6 +290,14 @@ void GPSMonitor(){
     GPSFailSafeCounter = 0;
   }
 }
+
+
+
+
+
+
+
+
 
 
 
