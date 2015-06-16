@@ -681,6 +681,7 @@ void WriteCalibrationDataToRom() {
     else {
       EEPROMWrite(HS_FLAG, 0xAA); //set handshake compelte flag in EEPROM
     }
+    TIMSK5 = (0<<OCIE5A);
     SendOrdAck();
     //save the packet numbers
     temp = localPacketNumberOrdered & 0x00FF;
@@ -1144,6 +1145,7 @@ void HandShake() {
     packetTemp[0] = EEPROMRead(PKT_LOCAL_ORD_L);//lsb for packetNumberLocalOrdered
     packetTemp[1] = EEPROMRead(PKT_LOCAL_ORD_M);//msb for packetNumberLocalOrdered
     localPacketNumberOrdered = (packetTemp[1] << 8) | packetTemp[0];
+    groundStationID = EEPROMRead(GS_ID_INDEX);
     /*packetTemp[0] = EEPROMRead(PKT_LOCAL_UN_L);//lsb for packetNumberLocalUnOrdered
      packetTemp[1] = EEPROMRead(PKT_LOCAL_UN_M);//msb for packetNumberLocalUnOrdered
      localPacketNumberUn = (packetTemp[1] << 8) | packetTemp[0];*/
@@ -1166,7 +1168,9 @@ void HandShake() {
     return;
   }
   handShake = false;
-
+  calibrationModeESCs = false;
+  gsCTRL = false;
+  calibrationMode = false;
   while (millis() - radioTimer < 1000 && handShake == false) { //***
 
     if (RadioAvailable() > 0) { //---
@@ -1282,6 +1286,8 @@ void HandShake() {
     calibrationModeESCs = false;
     gsCTRL = false;
     calibrationMode = false;
+  }else{
+    EEPROMWrite(GS_ID_INDEX,groundStationID);
   }
 
 }
@@ -1533,6 +1539,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 

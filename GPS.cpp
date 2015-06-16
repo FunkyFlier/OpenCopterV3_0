@@ -1,6 +1,6 @@
 #include "GPS.h"
 #include "LED.h"
-#include <Streaming.h>
+#include "Streaming_.h"
 #include "Enums.h"
 
 boolean newGPSData,GPSDetected;
@@ -45,7 +45,7 @@ void DistBearing(int32_t *lat1, int32_t *lon1, int32_t *lat2, int32_t *lon2,floa
 
 void GPSStart() {
 
-  uint32_t gpsStartTimer,gpsLEDTimer;
+  uint32_t gpsStartTimer = 0,gpsLEDTimer = 0;
   uint8_t LEDPattern[4] = {
     0x00,0x00,0x00,0x00                        };
   uint8_t LEDIndex = 0;

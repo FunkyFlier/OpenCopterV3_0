@@ -34,7 +34,7 @@ boolean calibrationModeESCs = false;
 
 void CheckESCFlag(){
   int16_u outInt16;
-  uint32_t LEDTimer;
+  uint32_t LEDTimer = 0,timeOutTimer = 0;
   uint8_t LEDControlNumber = 0;
   calibrationMode = false;
   if (EEPROMRead(PWM_FLAG) != 0xAA){
@@ -70,7 +70,7 @@ void CheckESCFlag(){
     pwmLow = PWM_LOW_MAX;
   }
   LEDTimer = millis();
-
+  timeOutTimer = millis();
   if (EEPROMRead(ESC_CAL_FLAG) == 0xAA){
     if (rcDetected == false){
       while(1){
@@ -88,6 +88,11 @@ void CheckESCFlag(){
       newRC = false;
     }
     while(RCValue[THRO] > 1100 || RCValue[AILE] > 1100 || RCValue[ELEV] > 1100 || RCValue[RUDD] > 1100){
+      if (millis() - timeOutTimer > 60000){
+        EEPROMWrite(ESC_CAL_FLAG,0xFF);
+        while(1){
+        }//add lights
+      }
       if (millis() - LEDTimer > 250){
         LEDTimer = millis();
         ControlLED(LEDControlNumber++);
@@ -102,9 +107,10 @@ void CheckESCFlag(){
   if (EEPROMRead(ESC_CAL_FLAG) == 0xBB){
     calibrateESCs = false;
     TryHandShake();
-    if (handShake == false){
+    if (handShake == false || calibrationModeESCs == false){
       EEPROMWrite(ESC_CAL_FLAG,0xFF);
-      while(1){}//add lights
+      while(1){
+      }//add lights
     }
     while(calibrateESCs == false){
       if (millis() - LEDTimer > 250){
@@ -562,6 +568,7 @@ void MotorHandler(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
 
 
 

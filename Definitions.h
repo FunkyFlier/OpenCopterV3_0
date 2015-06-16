@@ -369,5 +369,8 @@
 
 #define GAINS_START 88
 #define GAINS_END 327
+
+#define GS_ID_INDEX 451
+
 #endif//#ifndef Definitions.h
 
