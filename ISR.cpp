@@ -5,6 +5,7 @@
 #include "FlightControl.h"
 #include "GPS.h"
 #include "Enums.h"
+#include "Radio.h"
 
 volatile boolean watchDogStartCount = false;
 
@@ -23,6 +24,11 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
     }
     groundFSCount++;
     GPSFailSafeCounter++;
+  }
+  else{
+    if (handShake == true){
+      Radio();
+    }
   }
   if (rcType != RC){
     FeedLine();
@@ -49,6 +55,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
     }
   }
 }
+
 
 
 

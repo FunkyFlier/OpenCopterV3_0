@@ -1,6 +1,7 @@
 #include "GPS.h"
 #include "LED.h"
 #include <Streaming.h>
+#include "Enums.h"
 
 boolean newGPSData,GPSDetected;
 int32_t homeLat,homeLon;
@@ -43,12 +44,7 @@ void DistBearing(int32_t *lat1, int32_t *lon1, int32_t *lat2, int32_t *lon2,floa
 }
 
 void GPSStart() {
-  enum GPSStartStates{
-    FIX,
-    H_ACC,
-    S_ACC,
-    WAIT
-  };
+
   uint32_t gpsStartTimer,gpsLEDTimer;
   uint8_t LEDPattern[4] = {
     0x00,0x00,0x00,0x00                        };
@@ -70,7 +66,7 @@ void GPSStart() {
 
     while(gpsStartComplete == false){
       switch (gpsStartState){
-      case FIX:
+      case GPS_START_FIX:
         memcpy(LEDPattern, (uint8_t[]){
           0x00, 0x0F, 0x00,0x0F                                    } 
         , 4);
@@ -84,9 +80,9 @@ void GPSStart() {
             }
           }
         }
-        gpsStartState = H_ACC;
+        gpsStartState = GPS_START_H_ACC;
         break;
-      case H_ACC:
+      case GPS_START_H_ACC:
         LEDIndex = 0;
         memcpy(LEDPattern, (uint8_t[]){
           0x01, 0x02, 0x04,0x08                                    }
@@ -101,9 +97,9 @@ void GPSStart() {
             }
           }
         }
-        gpsStartState = S_ACC;
+        gpsStartState = GPS_START_S_ACC;
         break;
-      case S_ACC:
+      case GPS_START_S_ACC:
         memcpy(LEDPattern, (uint8_t[]){
           0x08, 0x04, 0x02,0x01                                                  }
         , 4);
@@ -117,9 +113,9 @@ void GPSStart() {
             }
           }
         }
-        gpsStartState = WAIT;
+        gpsStartState = GPS_START_WAIT;
         break;
-      case WAIT:
+      case GPS_START_WAIT:
         memcpy(LEDPattern, (uint8_t[]){
           0x01, 0x03, 0x05,0x07                                                  }
         , 4);
@@ -134,11 +130,11 @@ void GPSStart() {
             }
           }
           if (GPSData.vars.sAcc * 0.001 > SACC_MAX || GPSData.vars.hAcc * 0.001 > HACC_MAX || GPSData.vars.gpsFix != 0x3){
-            gpsStartState = FIX;
+            gpsStartState = GPS_START_FIX;
             break;
           }
         }
-        if (gpsStartState == FIX){
+        if (gpsStartState == GPS_START_FIX){
           break;
         }
         gpsStartComplete = true;

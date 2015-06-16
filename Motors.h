@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 void CheckESCFlag();
-void CalibrateESC();
+void SetRCControlESCCalFlag();
 void MotorInit();
 void MotorHandler();
 
@@ -17,4 +17,7 @@ extern uint16_t propIdleCommand, hoverCommand;
 
 extern boolean saveGainsFlag;
 extern boolean throttleCheckFlag;
+extern boolean calibrateESCs;
+extern boolean calibrationModeESCs;
+
 #endif

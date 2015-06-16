@@ -9,7 +9,7 @@
 //#define HEX_FRAME
 //#define X_8
 
-//#define EXT_MAG
+#define EXT_MAG
 
 //#define V1
 #define V2

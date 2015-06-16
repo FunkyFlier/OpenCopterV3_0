@@ -3,7 +3,7 @@
 #include "Attitude.h"
 #include "GPS.h"
 #include "Sensors.h"
-#include <Streaming.h>
+#include "Streaming_.h"
 
 float inertialX,inertialY,inertialZ;
 float velX,velY,velZ,velZUp;

@@ -12,10 +12,12 @@
 #include "Inertial.h"
 #include "Calibration.h"
 #include "Rom.h"
+#include "Radio.h"
 #include <EEPROM.h>
 
 void SaveGains();
 void ResetPIDs();
+void CompleteESCCalibration();
 
 uint32_t romWriteDelayTimer;
 float motorCommand1, motorCommand2, motorCommand3, motorCommand4,motorCommand5, motorCommand6, motorCommand7, motorCommand8;
@@ -27,11 +29,14 @@ uint16_t propIdleCommand, hoverCommand;
 
 boolean saveGainsFlag = false;
 boolean throttleCheckFlag = false;
+boolean calibrateESCs = false;
+boolean calibrationModeESCs = false;
 
 void CheckESCFlag(){
   int16_u outInt16;
   uint32_t LEDTimer;
   uint8_t LEDControlNumber = 0;
+  calibrationMode = false;
   if (EEPROMRead(PWM_FLAG) != 0xAA){
     pwmHigh = PWM_HIGH_MAX;
     pwmLow = PWM_LOW_MIN;
@@ -64,15 +69,24 @@ void CheckESCFlag(){
   if (pwmLow > PWM_LOW_MAX){
     pwmLow = PWM_LOW_MAX;
   }
-  newRC = false;
-  while(newRC == false){
-  }
-  ProcessChannels();
-  newRC = false;
-
   LEDTimer = millis();
-  if (EEPROMRead(ESC_CAL_FLAG) == 0xAA){
 
+  if (EEPROMRead(ESC_CAL_FLAG) == 0xAA){
+    if (rcDetected == false){
+      while(1){
+        ControlLED(0x0F);
+        delay(75);
+        ControlLED(0x00);
+        delay(75);
+      }
+    }
+    else{
+      newRC = false;
+      while(newRC == false){
+      }
+      ProcessChannels();
+      newRC = false;
+    }
     while(RCValue[THRO] > 1100 || RCValue[AILE] > 1100 || RCValue[ELEV] > 1100 || RCValue[RUDD] > 1100){
       if (millis() - LEDTimer > 250){
         LEDTimer = millis();
@@ -83,55 +97,80 @@ void CheckESCFlag(){
         ProcessChannels();
       } 
     }
-    DDRE |= B00111000;
-    DDRH |= B00111000;
-    DDRB |= B01100000;
-
-
-    TCCR3A = (1<<WGM31)|(1<<COM3A1)|(1<<COM3B1)|(1<<COM3C1);  
-    TCCR3B = (1<<WGM33)|(1<<WGM32)|(1<<CS31);               
-    ICR3 = PERIOD;   
-
-    TCCR4A = (1<<WGM41)|(1<<COM4A1)|(1<<COM4B1)|(1<<COM4C1);
-    TCCR4B = (1<<WGM43)|(1<<WGM42)|(1<<CS41);
-    ICR4 = PERIOD;  
-
-    TCCR1A = (1<<WGM11)|(1<<COM1A1)|(1<<COM1B1);
-    TCCR1B = (1<<WGM13)|(1<<WGM12)|(1<<CS11);
-    ICR1 = PERIOD; 
-
-    Motor1WriteMicros(pwmHigh);//set the output compare value
-    Motor2WriteMicros(pwmHigh);
-    Motor3WriteMicros(pwmHigh);
-    Motor4WriteMicros(pwmHigh);
-    Motor5WriteMicros(pwmHigh);
-    Motor6WriteMicros(pwmHigh);
-    Motor7WriteMicros(pwmHigh);
-    Motor8WriteMicros(pwmHigh);
-
-    delay(ESC_CALIBRATION_DELAY);
-    Motor1WriteMicros(pwmLow);//set the output compare value
-    Motor2WriteMicros(pwmLow);
-    Motor3WriteMicros(pwmLow);
-    Motor4WriteMicros(pwmLow);
-    Motor5WriteMicros(pwmLow);
-    Motor6WriteMicros(pwmLow);
-    Motor7WriteMicros(pwmLow);
-    Motor8WriteMicros(pwmLow);
-
-    EEPROMWrite(ESC_CAL_FLAG,0xFF);
-    LEDTimer = millis();
-    while(1){
+    CompleteESCCalibration();
+  }
+  if (EEPROMRead(ESC_CAL_FLAG) == 0xBB){
+    calibrateESCs = false;
+    TryHandShake();
+    if (handShake == false){
+      EEPROMWrite(ESC_CAL_FLAG,0xFF);
+      while(1){}//add lights
+    }
+    while(calibrateESCs == false){
       if (millis() - LEDTimer > 250){
         LEDTimer = millis();
-        ControlLED(LEDControlNumber--);
+        ControlLED(LEDControlNumber++);
       }
+      Radio();
+    }
+    if (calibrateESCs == true){
+      CompleteESCCalibration();
     }
   }
 }
 
+void CompleteESCCalibration(){
 
-void CalibrateESC(){
+  uint32_t LEDTimer;
+  uint8_t LEDControlNumber = 0;
+
+  DDRE |= B00111000;
+  DDRH |= B00111000;
+  DDRB |= B01100000;
+
+
+  TCCR3A = (1<<WGM31)|(1<<COM3A1)|(1<<COM3B1)|(1<<COM3C1);  
+  TCCR3B = (1<<WGM33)|(1<<WGM32)|(1<<CS31);               
+  ICR3 = PERIOD;   
+
+  TCCR4A = (1<<WGM41)|(1<<COM4A1)|(1<<COM4B1)|(1<<COM4C1);
+  TCCR4B = (1<<WGM43)|(1<<WGM42)|(1<<CS41);
+  ICR4 = PERIOD;  
+
+  TCCR1A = (1<<WGM11)|(1<<COM1A1)|(1<<COM1B1);
+  TCCR1B = (1<<WGM13)|(1<<WGM12)|(1<<CS11);
+  ICR1 = PERIOD; 
+
+  Motor1WriteMicros(pwmHigh);//set the output compare value
+  Motor2WriteMicros(pwmHigh);
+  Motor3WriteMicros(pwmHigh);
+  Motor4WriteMicros(pwmHigh);
+  Motor5WriteMicros(pwmHigh);
+  Motor6WriteMicros(pwmHigh);
+  Motor7WriteMicros(pwmHigh);
+  Motor8WriteMicros(pwmHigh);
+
+  delay(ESC_CALIBRATION_DELAY);
+  Motor1WriteMicros(pwmLow);//set the output compare value
+  Motor2WriteMicros(pwmLow);
+  Motor3WriteMicros(pwmLow);
+  Motor4WriteMicros(pwmLow);
+  Motor5WriteMicros(pwmLow);
+  Motor6WriteMicros(pwmLow);
+  Motor7WriteMicros(pwmLow);
+  Motor8WriteMicros(pwmLow);
+
+  EEPROMWrite(ESC_CAL_FLAG,0xFF);
+  LEDTimer = millis();
+  while(1){
+    if (millis() - LEDTimer > 250){
+      LEDTimer = millis();
+      ControlLED(LEDControlNumber--);
+    }
+  }
+}
+
+void SetRCControlESCCalFlag(){
   uint32_t LEDTimer;
   uint8_t LEDControlNumber = 0;
   delay(100);//wait for new frame
@@ -523,6 +562,9 @@ void MotorHandler(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
+
+
 
 
 

@@ -33,6 +33,7 @@ uint8_t typeNum,cmdNum,itemBuffer[255],calibrationNumber,hsRequestNumber,lsReque
 uint16_t localPacketNumberOrdered, remotePacketNumberOrdered, remotePacketNumberUn, packetTemp[2];
 boolean hsTX,lsTX,sendCalibrationData;
 uint32_t hsMillis,lsMillis;
+uint8_t groundStationID;
 
 void TryHandShake(){
   AssignRadioUART();
@@ -58,7 +59,15 @@ void Radio() {
       rxSum = 0;
       rxDoubleSum = 0;
       if (radioByte == 0xAA) {
+        radioState = CHECK_GS_ID;
+      }
+      break;
+    case CHECK_GS_ID:
+      if (radioByte == groundStationID){
         radioState = PKT_LEN;
+      }
+      else{
+        radioState = SB_CHECK;
       }
       break;
     case PKT_LEN:
@@ -80,10 +89,12 @@ void Radio() {
         break;
       }
       typeNum = radioByte;
-      if (typeNum == 11 && packetLength == 18) {
+      if (typeNum == GS_CONTROL && packetLength == 18) {
         radioState = GS_RC_CMD_NUM;
         break;
       }
+
+
       if (packetLength == 2) { //length for unrelaible will always be 2
         radioState = UNREL_START;//unrelaible data
       }
@@ -180,6 +191,10 @@ void Radio() {
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
+      if (typeNum == GS_PING){
+        radioState = REL_SET_SUM1;
+        break;
+      }
       radioState = REL_SET_CMD;
       break;
 
@@ -190,10 +205,10 @@ void Radio() {
       numRXbytes++;
       itemIndex = 0;
       radioState = REL_SET_BUFFER;
-      if (typeNum == 6 || typeNum == 8 ) {
+      if (typeNum == START_CAL_DATA || typeNum == SET_PR_OFFSETS || typeNum == ESC_CAL) {
         radioState = REL_SET_SUM1;
       }
-      if (typeNum == 7 && cmdNum == 3) {
+      if (typeNum == END_CAL_DATA && (cmdNum == 3 || cmdNum == 7)) {
         radioState = REL_SET_SUM1;
       }
       break;
@@ -225,23 +240,23 @@ void Radio() {
           break;
         }
         if (calibrationMode == true) {
-          if (typeNum == 6) {
+          if (typeNum == START_CAL_DATA) {
             sendCalibrationData = true;
             calibrationNumber = cmdNum;
           }
-          if (typeNum == 7) {
+          if (typeNum == END_CAL_DATA) {
             WriteCalibrationDataToRom();
             sendCalibrationData = false;
           }
         }
         else {
-          if (typeNum < 3) {
+          if (typeNum < UINT8) {
             OrderedSet();
           }
-          if (typeNum == 4 || typeNum == 5) {
+          if (typeNum == HS_DATA || typeNum == LS_DATA) {
             SetTransmissionRate();
           }
-          if (typeNum == 8) {
+          if (typeNum == SET_PR_OFFSETS) {
 
             pitchOffset = rawPitch;
             rollOffset = rawRoll;
@@ -257,6 +272,20 @@ void Radio() {
             }
             EEPROMWrite(PR_FLAG, 0xAA);
           }
+          if (typeNum == ESC_CAL && calibrationModeESCs == true){
+            switch(cmdNum){
+            case 0:
+              calibrateESCs = true;
+              break;
+            case 1:
+              SendOrdAck();
+              delay(500);
+              asm volatile ("  jmp 0");
+              break;
+
+            }
+          }
+
         }
         SendOrdAck();
       }
@@ -392,6 +421,7 @@ void TuningTransmitter() { //
       packetLength = 0;
       //assemble the transmit buffer
       liveDataBuffer[tuningItemIndex++] = 0xAA;
+      liveDataBuffer[tuningItemIndex++] = groundStationID;
       tuningItemIndex++;//skip packet length for now
       liveDataBuffer[tuningItemIndex++] = 4;
       txSum += 4;
@@ -458,8 +488,8 @@ void TuningTransmitter() { //
         }
       }//***
 
-      liveDataBuffer[1] = packetLength;
-      for (uint8_t i = 0; i < (packetLength + 2); i++) {
+      liveDataBuffer[2] = packetLength;
+      for (uint8_t i = 0; i < (packetLength + 3); i++) {
         RadioWrite(liveDataBuffer[i]);
       }
       RadioWrite(txSum);
@@ -481,6 +511,7 @@ void TuningTransmitter() { //
       packetLength = 0;
       //assemble the transmit buffer
       liveDataBuffer[tuningItemIndex++] = 0xAA;
+      liveDataBuffer[tuningItemIndex++] = groundStationID;
       tuningItemIndex++;//skip packet length for now
       liveDataBuffer[tuningItemIndex++] = 5;
       txSum += 5;
@@ -549,8 +580,8 @@ void TuningTransmitter() { //
         }
       }//***
 
-      liveDataBuffer[1] = packetLength;
-      for (uint8_t i = 0; i < (packetLength + 2); i++) {
+      liveDataBuffer[2] = packetLength;
+      for (uint8_t i = 0; i < (packetLength + 3); i++) {
         RadioWrite(liveDataBuffer[i]);
       }
       RadioWrite(txSum);
@@ -564,7 +595,7 @@ void TuningTransmitter() { //
 
 void SetTransmissionRate() {
 
-  if (typeNum == 4) {
+  if (typeNum == HS_DATA) {
     if (cmdNum == 0) {
       hsTX = false;
     }
@@ -609,7 +640,6 @@ void SetTransmissionRate() {
 void WriteCalibrationDataToRom() {
   uint8_t temp,calibrationFlags;
   uint8_t itemIndex = 0;
-
   switch (cmdNum) {
   case 0://mag calibration data
     if (magDetected == true) {
@@ -698,7 +728,11 @@ void WriteCalibrationDataToRom() {
     }
 
     break;//--------------------------------------------
+  case 7:
+    EEPROMWrite(ESC_CAL_FLAG,0xBB);
+    break;
   }
+
 
 
 
@@ -708,7 +742,7 @@ void WriteCalibrationDataToRom() {
 void OrderedSet() {
   float_u outFloat;
   switch (typeNum) {
-  case 0:
+  case FLOAT:
     if (cmdNum >= KP_PITCH_RATE_ && cmdNum <= MAG_DEC_) {
       for (uint8_t i = 0; i < 4; i++) {
         outFloat.buffer[i] =  itemBuffer[i];
@@ -719,13 +753,13 @@ void OrderedSet() {
 
     }
     break;
-  case 1:
+  case INT16:
     /*
       for (uint8_t i = 0; i < 2; i++){
      (*int16PointerArray[cmdNum]).buffer[i] =  itemBuffer[i];
      }*/
     break;
-  case 2:
+  case INT32:
     /*
       for (uint8_t i = 0; i < 4; i++){
      (*int32PointerArray[cmdNum]).buffer[i] =  itemBuffer[i];
@@ -741,6 +775,7 @@ void SendOrdAck() {
   uint8_t txSum = 0,txDoubleSum = 0,temp;
 
   RadioWrite(0xAA);
+  RadioWrite(groundStationID);
   RadioWrite(3);
   RadioWrite(0xFC);
   txSum = 0xFC;
@@ -763,6 +798,7 @@ void SendOrdMis() {
   uint8_t txSum = 0,txDoubleSum = 0,temp;
 
   RadioWrite(0xAA);
+  RadioWrite(groundStationID);
   RadioWrite(3);
   RadioWrite(0xFB);
   txSum = 0xFB;
@@ -783,24 +819,24 @@ void OrderedQuery() {
   float_u outFloat;
   int16_u outInt16;
   switch (typeNum) {
-  case 0:
+  case FLOAT:
     outFloat.val = *floatPointerArray[cmdNum];
     for (uint8_t i = 0; i < 4; i++) {
       itemBuffer[i] = outFloat.buffer[i];
     }
     break;
-  case 1:
+  case INT16:
     outInt16.val = *int16PointerArray[cmdNum];
     for (uint8_t i = 0; i < 2; i++) {
       itemBuffer[i] = outInt16.buffer[i];
     }
     break;
-  case 2:
+  case INT32:
     /*for (uint8_t i = 0; i < 4; i++){
      itemBuffer[i] = (*int32PointerArray[cmdNum]).buffer[i];
      }*/
     break;
-  case 3:
+  case UINT8:
 
     break;
   }
@@ -812,8 +848,9 @@ void SendUnAck() {
   float_u outFloat;
   float_u outInt16;
   RadioWrite(0XAA);
+  RadioWrite(groundStationID);
   switch (typeNum) {
-  case 0:
+  case FLOAT:
     RadioWrite(9);
     RadioWrite(0xF9);
     txSum = 0xF9;
@@ -851,7 +888,7 @@ void SendUnAck() {
     RadioWrite(txDoubleSum);
 
     break;
-  case 1:
+  case INT16:
     RadioWrite(7);
     RadioWrite(0xF9);
     txSum += 0xF9;
@@ -881,7 +918,7 @@ void SendUnAck() {
     RadioWrite(txDoubleSum);
 
     break;
-  case 2:
+  case INT32:
     /*RadioWrite(9);
      RadioWrite(0xF9);
      txSum = 0xF9;
@@ -916,7 +953,7 @@ void SendUnAck() {
      RadioWrite(txDoubleSum);*/
 
     break;
-  case 3:
+  case UINT8:
     RadioWrite(6);
     RadioWrite(0xF9);
     txSum += 0xF9;
@@ -946,7 +983,7 @@ void SendUnAck() {
 
 
 
-  if (typeNum == 1) {
+  if (typeNum == INT16) {
     RadioWrite(7);
     RadioWrite(0xF9);
     txSum += 0xF9;
@@ -1012,34 +1049,36 @@ void SendUnAck() {
 }
 
 /*void SendUnMis() {
-
-  uint8_t txSum = 0,txDoubleSum = 0,temp;
-
-  RadioWrite(0xAA);
-  RadioWrite(3);
-  RadioWrite(0xF8);
-  txSum += 0xF8;
-  txDoubleSum += txSum;
-  temp = localPacketNumberUn & 0x00FF;
-  RadioWrite(temp);
-  txSum += temp;
-  txDoubleSum += txSum;
-  temp = (localPacketNumberUn >> 8) & 0x00FF;
-  RadioWrite(temp);
-  txSum += temp;
-  txDoubleSum += txSum;
-  RadioWrite(txSum);
-  RadioWrite(txDoubleSum);
-
-}*/
+ 
+ uint8_t txSum = 0,txDoubleSum = 0,temp;
+ 
+ RadioWrite(0xAA);
+ RadioWrite(groundStationID);
+ RadioWrite(3);
+ RadioWrite(0xF8);
+ txSum += 0xF8;
+ txDoubleSum += txSum;
+ temp = localPacketNumberUn & 0x00FF;
+ RadioWrite(temp);
+ txSum += temp;
+ txDoubleSum += txSum;
+ temp = (localPacketNumberUn >> 8) & 0x00FF;
+ RadioWrite(temp);
+ txSum += temp;
+ txDoubleSum += txSum;
+ RadioWrite(txSum);
+ RadioWrite(txDoubleSum);
+ 
+ }*/
 
 void UnReliableTransmit() {
   uint8_t txSum = 0, txDoubleSum = 0;
   float_u outFloat;
   int16_u outInt16;
   RadioWrite(0xAA);
+  RadioWrite(groundStationID);
   switch (typeNum) {
-  case 0://float
+  case FLOAT://float
     RadioWrite(4);
     RadioWrite(typeNum);
     txSum += typeNum;
@@ -1054,7 +1093,7 @@ void UnReliableTransmit() {
       txDoubleSum += txSum;
     }
     break;
-  case 1://int16
+  case INT16://int16
     RadioWrite(2);
     RadioWrite(typeNum);
     txSum += typeNum;
@@ -1069,7 +1108,7 @@ void UnReliableTransmit() {
       txDoubleSum += txSum;
     }
     break;
-  case 2://int32
+  case INT32://int32
     /*RadioWrite(4);
      RadioWrite(typeNum);
      txSum += typeNum;
@@ -1106,8 +1145,8 @@ void HandShake() {
     packetTemp[1] = EEPROMRead(PKT_LOCAL_ORD_M);//msb for packetNumberLocalOrdered
     localPacketNumberOrdered = (packetTemp[1] << 8) | packetTemp[0];
     /*packetTemp[0] = EEPROMRead(PKT_LOCAL_UN_L);//lsb for packetNumberLocalUnOrdered
-    packetTemp[1] = EEPROMRead(PKT_LOCAL_UN_M);//msb for packetNumberLocalUnOrdered
-    localPacketNumberUn = (packetTemp[1] << 8) | packetTemp[0];*/
+     packetTemp[1] = EEPROMRead(PKT_LOCAL_UN_M);//msb for packetNumberLocalUnOrdered
+     localPacketNumberUn = (packetTemp[1] << 8) | packetTemp[0];*/
     handShake = true;
     return;
   }
@@ -1138,41 +1177,52 @@ void HandShake() {
 
         switch (handShakeState) { //^^^
 
-        case 0://check for 0xAA
+        case START_BYTE://check for 0xAA
           rxSum = 0;
           rxDoubleSum = 0;
           calibrationMode = false;
           if (radioByte == 0xAA) {
-            handShakeState = 1;
+            handShakeState = GET_GS_ID;
           }
           break;
+        case GET_GS_ID:
+          groundStationID = radioByte;
+          handShakeState = LENGTH;
+          break;
 
-        case 1://get and verify the length
+        case LENGTH://get and verify the length
           if (radioByte == 0x02) { //len will always be 2 for the HS
-            handShakeState = 2;
+            handShakeState = CMD_BYTE;
           }
           else {
-            handShakeState = 0;
+            handShakeState = START_BYTE;
           }
           break;
 
-        case 2://check for correct command byte
+        case CMD_BYTE://check for correct command byte
           if (radioByte == 0xFF) {
             rxSum += radioByte;
             rxDoubleSum += rxSum;
-            handShakeState = 3;
+            handShakeState = HS_TYPE;
           }
           else {
-            handShakeState = 0;
+            handShakeState = START_BYTE;
           }
           break;
 
-        case 3://check handshake type
+        case HS_TYPE://check handshake type
+          if (radioByte == 0x04){
+            calibrationModeESCs = true;
+            rxSum += radioByte;
+            rxDoubleSum += rxSum;
+            handShakeState = HS_SUM_1;
+            break;
+          }
           if (radioByte == 0x03) {//gs ctrl calibration 
             gsCTRL = true;
             rxSum += radioByte;
             rxDoubleSum += rxSum;
-            handShakeState = 4;
+            handShakeState = HS_SUM_1;
             calibrationMode = true;
             break;
           }
@@ -1180,41 +1230,44 @@ void HandShake() {
             gsCTRL = true;
             rxSum += radioByte;
             rxDoubleSum += rxSum;
-            handShakeState = 4;
+            handShakeState = HS_SUM_1;
             break;
           }
           if (radioByte == 0x01) {//calibration 
             gsCTRL = false;
             rxSum += radioByte;
             rxDoubleSum += rxSum;
-            handShakeState = 4;
+            handShakeState = HS_SUM_1;
             calibrationMode = true;
             break;
           }
           if (radioByte == 0x00) {//normal
             gsCTRL = false;
             rxDoubleSum += rxSum;
-            handShakeState = 4;
+            handShakeState = HS_SUM_1;
             break;
           }
-          handShakeState = 0;
+          handShakeState = START_BYTE;
 
           break;
 
-        case 4://verify sum
+        case HS_SUM_1://verify sum
           if (radioByte == rxSum) {
-            handShakeState = 5;
+            handShakeState = HS_SUM_2;
             break;
           }
-          handShakeState = 0;
+          handShakeState = START_BYTE;
           break;
 
-        case 5://verify double sum
+        case HS_SUM_2://verify double sum
           if (radioByte == rxDoubleSum) {
             SendHandShakeResponse();
             handShake = true;
+            handShakeState = START_BYTE;
+            break;
           }
-          handShakeState = 0;
+
+          handShakeState = START_BYTE;
           break;
 
         }//^^^
@@ -1226,8 +1279,9 @@ void HandShake() {
   }//***
 
   if (handShake == false) {
-    calibrationMode = false;
+    calibrationModeESCs = false;
     gsCTRL = false;
+    calibrationMode = false;
   }
 
 }
@@ -1235,6 +1289,7 @@ void HandShake() {
 void SendHandShakeResponse() {
   uint8_t txSum = 0, txDoubleSum = 0;
   RadioWrite(0xAA);
+  RadioWrite(groundStationID);
   RadioWrite(0x04);//packet length
   if (calibrationMode == true) {
 
@@ -1254,6 +1309,7 @@ void SendHandShakeResponse() {
     RadioWrite(txDoubleSum);
     for (uint8_t i = 0; i < 15; i++) {
       RadioWrite(0xAA);
+      RadioWrite(groundStationID);
       RadioWrite(0x04);//packet length
       RadioWrite(0xF7);//cmd byte
       RadioWrite(1);//version number
@@ -1265,29 +1321,59 @@ void SendHandShakeResponse() {
 
   }
   else {
-    RadioWrite(0xFE);//cmd byte
-    txSum += 0xFE;
-    txDoubleSum += txSum;
-    RadioWrite(1);//version number
-    txSum += 1;
-    txDoubleSum += txSum;
-    RadioWrite(1);//sub version number
-    txSum += 1;
-    txDoubleSum += txSum;
-    RadioWrite(NUM_WAY_POINTS);
-    txSum += NUM_WAY_POINTS;
-    txDoubleSum += txSum;
-    RadioWrite(txSum);
-    RadioWrite(txDoubleSum);
-    for (uint8_t i = 0; i < 15; i++) {
-      RadioWrite(0xAA);
-      RadioWrite(0x04);//packet length
-      RadioWrite(0xFE);//cmd byte
+    if(calibrationModeESCs == true){
+      RadioWrite(0xF6);//cmd byte
+      txSum += 0xF6;
+      txDoubleSum += txSum;
       RadioWrite(1);//version number
+      txSum += 1;
+      txDoubleSum += txSum;
       RadioWrite(1);//sub version number
+      txSum += 1;
+      txDoubleSum += txSum;
       RadioWrite(NUM_WAY_POINTS);
+      txSum += NUM_WAY_POINTS;
+      txDoubleSum += txSum;
       RadioWrite(txSum);
       RadioWrite(txDoubleSum);
+      for (uint8_t i = 0; i < 15; i++) {
+        RadioWrite(0xAA);
+        RadioWrite(groundStationID);
+        RadioWrite(0x04);//packet length
+        RadioWrite(0xFE);//cmd byte
+        RadioWrite(1);//version number
+        RadioWrite(1);//sub version number
+        RadioWrite(NUM_WAY_POINTS);
+        RadioWrite(txSum);
+        RadioWrite(txDoubleSum);
+      }
+    }
+    else{
+      RadioWrite(0xFE);//cmd byte
+      txSum += 0xFE;
+      txDoubleSum += txSum;
+      RadioWrite(1);//version number
+      txSum += 1;
+      txDoubleSum += txSum;
+      RadioWrite(1);//sub version number
+      txSum += 1;
+      txDoubleSum += txSum;
+      RadioWrite(NUM_WAY_POINTS);
+      txSum += NUM_WAY_POINTS;
+      txDoubleSum += txSum;
+      RadioWrite(txSum);
+      RadioWrite(txDoubleSum);
+      for (uint8_t i = 0; i < 15; i++) {
+        RadioWrite(0xAA);
+        RadioWrite(groundStationID);
+        RadioWrite(0x04);//packet length
+        RadioWrite(0xFE);//cmd byte
+        RadioWrite(1);//version number
+        RadioWrite(1);//sub version number
+        RadioWrite(NUM_WAY_POINTS);
+        RadioWrite(txSum);
+        RadioWrite(txDoubleSum);
+      }
     }
 
   }
@@ -1299,6 +1385,7 @@ void SendCalData() {
   uint8_t txSum = 0;
   uint8_t txDoubleSum = 0;
   RadioWrite(0xAA);
+  RadioWrite(groundStationID);
   switch (calibrationNumber) {
   case 0:
     RadioWrite(7);
@@ -1446,6 +1533,13 @@ void SendCalData() {
     break;
   }
 }
+
+
+
+
+
+
+
 
 
 

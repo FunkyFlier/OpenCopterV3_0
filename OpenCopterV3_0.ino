@@ -1,7 +1,7 @@
 #include <SPI.h>
-#include <I2C.h>
+#include "I2C_.h"
 #include <EEPROM.h>
-#include <Streaming.h>
+#include "Streaming_.h"
 #include "GPS.h"
 #include "Types.h"
 #include "Definitions.h"
@@ -35,9 +35,9 @@ void setup() {
   SPIInit(MSBFIRST,SPI_CLOCK_DIV2,SPI_MODE0);
   I2CInit();
   ROMFlagsCheck();
+  CheckESCFlag();
   if (rcDetected == true){
-    CheckESCFlag();
-    CalibrateESC();
+    SetRCControlESCCalFlag();
   }
   MotorInit();
 

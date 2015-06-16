@@ -1,7 +1,7 @@
 #include "Attitude.h"
 
 #include <EEPROM.h>
-#include <Streaming.h>
+#include "Streaming_.h"
 
 void SetVariables();
 void GetPitch();

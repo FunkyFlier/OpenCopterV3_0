@@ -3,10 +3,10 @@
 
 #include "Definitions.h"
 #include "Types.h"
-#include <Streaming.h>
+#include "Streaming_.h"
 #include "Comm.h"
 #include <SPI.h>
-#include <I2c.h>
+#include "I2C_.h"
 
 void VerifyMag();
 

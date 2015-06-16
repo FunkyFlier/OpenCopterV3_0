@@ -1,8 +1,18 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+
+enum GPSStartStates{
+  GPS_START_FIX,
+  GPS_START_H_ACC,
+  GPS_START_S_ACC,
+  GPS_START_WAIT
+};
+
+
 enum RadioStates{
   SB_CHECK,
+  CHECK_GS_ID,
   PKT_LEN,
   ITEM_TYPE,
   UNREL_START,
@@ -25,6 +35,31 @@ enum RadioStates{
   GS_RC_BUFFER,
   GS_RC_SUM1,
   GS_RC_SUM2
+};
+enum TypeNums{
+  FLOAT,
+  INT16,
+  INT32,
+  UINT8,
+  HS_DATA,
+  LS_DATA,
+  START_CAL_DATA,
+  END_CAL_DATA,
+  SET_PR_OFFSETS,
+  WP_CTRL,
+  WP_QUERY,
+  GS_CONTROL,
+  ESC_CAL,
+  GS_PING
+};
+enum HandShakeStates{
+  START_BYTE,
+  GET_GS_ID,
+  LENGTH,
+  CMD_BYTE,
+  HS_TYPE,
+  HS_SUM_1,
+  HS_SUM_2
 };
 enum _100HzStates{
   GET_GYRO,
@@ -282,4 +317,8 @@ enum RC_Types {
 enum RC_Chan {
   THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 #endif
+
+
+
+
 
