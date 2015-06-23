@@ -40,7 +40,10 @@ void DistBearing(int32_t *lat1, int32_t *lon1, int32_t *lat2, int32_t *lon2,floa
   *distX = deltaLat * RADIUS_EARTH;
   *distY = deltaLon * RADIUS_EARTH;
   *distDirect = sqrt(*distX * *distX + *distY * *distY);
-  *bearing = FastAtan2(*distY,*distX);
+  *bearing = ToDeg(atan2(*distY,*distX));
+  if (*bearing < 0.0){
+    *bearing += 360.0;
+  }
 }
 
 void GPSStart() {

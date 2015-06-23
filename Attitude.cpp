@@ -74,7 +74,7 @@ void AHRSupdate(float dt) {
     acc_z *= recipNorm;
 
     if (magDetected == true){
-      recipNorm = InvSqrt(mag_x * mag_x + mag_y * mag_y + mag_z * mag_z);
+      recipNorm = 1.0/sqrt(mag_x * mag_x + mag_y * mag_y + mag_z * mag_z);
       mag_x *= recipNorm;
       mag_y *= recipNorm;
       mag_z *= recipNorm;
@@ -266,17 +266,17 @@ void GetPitch(){
 }
 
 void GetRoll(){
-  rollInRadians = FastAtan2(2 * (q0 * q1 + q2 * q3),1 - 2.0 * (q1 * q1 + q2 * q2));
+  rollInRadians = atan2(2 * (q0 * q1 + q2 * q3),1 - 2.0 * (q1 * q1 + q2 * q2));
   rawRoll = ToDeg(rollInRadians);
   rollInDegrees = rawRoll - rollOffset;
 }
 
 void GetYaw(){
-  yawInRadians = FastAtan2(2.0 * (q0 * q3 + q1 * q2) , 1 - 2.0* (q2 * q2 + q3 * q3));
+  yawInRadians = atan2(2.0 * (q0 * q3 + q1 * q2) , 1 - 2.0* (q2 * q2 + q3 * q3));
   yawInDegrees = ToDeg(yawInRadians);
 
-  if (yawInDegrees < 0){
-    yawInDegrees +=360;
+  if (yawInDegrees < 0.0){
+    yawInDegrees +=360.0;
   }
 }
 
