@@ -312,9 +312,6 @@
 #define RC_SSLow() PORTH &= ~(1<<7)
 
 #define CAL_FLAGS 0
-#define CEILING 6
-#define FLOOR 2
-#define TAKE_OFF_ALT 3
 
 #define PR_FLAG 6
 
