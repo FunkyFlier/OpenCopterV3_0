@@ -36,7 +36,7 @@ void CheckESCFlag(){
   int16_u outInt16;
   uint32_t LEDTimer = 0,timeOutTimer = 0;
   uint8_t LEDControlNumber = 0;
-  calibrationMode = false;
+  
   if (EEPROMRead(PWM_FLAG) != 0xAA){
     pwmHigh = PWM_HIGH_MAX;
     pwmLow = PWM_LOW_MIN;
@@ -72,6 +72,7 @@ void CheckESCFlag(){
   LEDTimer = millis();
   timeOutTimer = millis();
   if (EEPROMRead(ESC_CAL_FLAG) == 0xAA){
+    calibrationMode = false;
     if (rcDetected == false){
       while(1){
         ControlLED(0x0F);
@@ -105,6 +106,7 @@ void CheckESCFlag(){
     CompleteESCCalibration();
   }
   if (EEPROMRead(ESC_CAL_FLAG) == 0xBB){
+    calibrationMode = false;
     calibrateESCs = false;
     TryHandShake();
     if (handShake == false || calibrationModeESCs == false){
