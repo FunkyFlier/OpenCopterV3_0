@@ -749,6 +749,10 @@ void OrderedSet() {
         outFloat.buffer[i] =  itemBuffer[i];
       }
       *floatPointerArray[cmdNum] = outFloat.val;
+      if (cmdNum == MAG_DEC_){
+        cosDec = cos(declination);
+        sinDec = sin(declination);
+      }
       saveGainsFlag = true;
       romWriteDelayTimer = millis();
 
@@ -1286,7 +1290,8 @@ void HandShake() {
     calibrationModeESCs = false;
     gsCTRL = false;
     calibrationMode = false;
-  }else{
+  }
+  else{
     EEPROMWrite(GS_ID_INDEX,groundStationID);
   }
 
@@ -1539,6 +1544,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 

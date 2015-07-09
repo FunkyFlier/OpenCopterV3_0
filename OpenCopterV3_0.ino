@@ -60,12 +60,14 @@ void setup() {
 
   Arm();
   GPSStart();
-  SetGyroOffsets();
+  
   SetInitialQuaternion();
   InertialInit();
+  
   CheckTXPositions();
 
   ControlLED(0x00);  
+  SetGyroOffsets();
   watchDogStartCount = true;
   _400HzTimer = micros();
   _100HzTimer = _400HzTimer;
@@ -108,7 +110,6 @@ void NoControlIndicatior(){
   }
 }
 void CheckDefines(){
-
 #ifdef V1
   Serial<<"V1\r\n";
 #endif
@@ -130,6 +131,7 @@ void CheckDefines(){
 #ifdef X_8
   Serial<<"X_8\r\n";
 #endif
+
 }
 
 

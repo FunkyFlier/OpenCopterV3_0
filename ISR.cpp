@@ -28,6 +28,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
   else{
     if (handShake == true){
       Radio();
+      TuningTransmitter(); 
     }
   }
   if (rcType != RC){

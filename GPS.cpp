@@ -41,8 +41,8 @@ void DistBearing(int32_t *lat1, int32_t *lon1, int32_t *lat2, int32_t *lon2,floa
   *distY = deltaLon * RADIUS_EARTH;
   *distDirect = sqrt(*distX * *distX + *distY * *distY);
   *bearing = ToDeg(atan2(*distY,*distX));
-  if (*bearing < 0.0){
-    *bearing += 360.0;
+  if (*bearing < 360){
+    *bearing += 360;
   }
 }
 

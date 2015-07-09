@@ -281,6 +281,10 @@ void ResetPIDs(){
 
   LoiterYPosition.reset();
   LoiterYVelocity.reset();
+
+  WPPosition.reset(); 
+  WPVelocity.reset(); 
+  WPCrossTrack.reset(); 
 }
 void MotorHandler(){
   static boolean rudderFlag = false;
@@ -570,6 +574,7 @@ void MotorHandler(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 #ifndef Definitions_h
 #define Definitions_h
 
-//#define ROT_45
+#define ROT_45
 
 //#define QUAD_CAMP
 
@@ -9,7 +9,7 @@
 //#define HEX_FRAME
 //#define X_8
 
-#define EXT_MAG
+//#define EXT_MAG
 
 //#define V1
 #define V2
@@ -48,12 +48,14 @@
 
 #endif//#ifdef QUAD_CAMP
 
-#define CEILING 6
-#define FLOOR 2
-#define TAKE_OFF_ALT 3
+#define CEILING 6.0
+#define FLOOR 2.0
+#define TAKE_OFF_ALT 3.0
+
+#define MIN_RTB_DIST 1.5
 
 #define LAND_VEL -0.28
-#define RTB_VEL 10
+#define RTB_VEL 1
 
 #define HH_ON 0
 #define HH_OFF 1
@@ -172,12 +174,8 @@
 #define FlashSSLow() PORTL &= ~(1<<4)
 
 
-#define FREQ_TRIG 20
-#define PRESCALE_TRIG 64
-#define PERIOD_TRIG ((F_CPU/PRESCALE_TRIG/FREQ_TRIG) - 1)
-
 #define Port0 Serial
-#define RCSigPort Serial1
+#define RC_SERIAL_PORT Serial1
 #define Port2 Serial2
 #define gpsPort Serial3
 
@@ -253,18 +251,40 @@
 #define BARO_CONV_TIME 50
 
 
-#define Motor1WriteMicros(x) OCR3A = x * 2//motor 1 is attached to pin2
-#define Motor2WriteMicros(x) OCR3B = x * 2//motor 2 is attached to pin3
-#define Motor3WriteMicros(x) OCR3C = x * 2//motor 3 is attached to pin5
-#define Motor4WriteMicros(x) OCR4A = x * 2//motor 4 is attached to pin6
-#define Motor5WriteMicros(x) OCR4B = x * 2//motor 1 is attached to pin7
-#define Motor6WriteMicros(x) OCR4C = x * 2//motor 2 is attached to pin8
-#define Motor7WriteMicros(x) OCR1A = x * 2//motor 3 is attached to pin11
-#define Motor8WriteMicros(x) OCR1B = x * 2//motor 4 is attached to pin12
+#define Motor1WriteMicros(x) OCR3A = x * 2
+#define Motor2WriteMicros(x) OCR3B = x * 2
+#define Motor3WriteMicros(x) OCR3C = x * 2
+#define Motor4WriteMicros(x) OCR4A = x * 2
+#define Motor5WriteMicros(x) OCR4B = x * 2
+#define Motor6WriteMicros(x) OCR4C = x * 2
+#define Motor7WriteMicros(x) OCR1A = x * 2
+#define Motor8WriteMicros(x) OCR1B = x * 2
 #endif//#ifdef V2
 //end V2 defines
 
 
+
+#define FC_ACC 5
+#define RC_CONST_ACC 1/(2.0 * 3.14 * FC_ACC)
+
+#define FC_BARO 3.0
+#define RC_CONST_BARO 1/(2.0 * 3.14 * FC_BARO)
+
+#define DEC_START 328
+#define DEC_END 331
+
+#define RC_SS 44
+
+
+
+
+#define RC_SS_Output() DDRH |= 1<<7 
+#define RC_SSHigh() PORTH |= 1<<7 
+#define RC_SSLow() PORTH &= ~(1<<7)
+
+#define CAL_FLAGS 0
+
+#define PR_FLAG 6
 
 #define ACC_S_X_INDEX 11
 #define ACC_S_Y_INDEX 15
@@ -272,7 +292,6 @@
 #define ACC_O_X_INDEX 23
 #define ACC_O_Y_INDEX 27
 #define ACC_O_Z_INDEX 31
-
 
 #define MAG_OFF_X_INDEX 35
 #define MAG_OFF_Y_INDEX 39
@@ -292,29 +311,6 @@
 
 #define MAG_CALIB_START 32
 #define MAG_CALIB_END 79
-
-#define FC_ACC 5
-#define RC_CONST_ACC 1/(2.0 * 3.14 * FC_ACC)
-
-#define FC_BARO 3.0
-#define RC_CONST_BARO 1/(2.0 * 3.14 * FC_BARO)
-
-#define DEC_START 328
-#define DEC_END 331
-
-#define RC_SS 44
-
-#define RC_SERIAL_PORT Serial1
-
-
-#define RC_SS_Output() DDRH |= 1<<7 
-#define RC_SSHigh() PORTH |= 1<<7 
-#define RC_SSLow() PORTH &= ~(1<<7)
-
-#define CAL_FLAGS 0
-
-#define PR_FLAG 6
-
 
 #define RC_DATA_START 332
 #define RC_DATA_END 427

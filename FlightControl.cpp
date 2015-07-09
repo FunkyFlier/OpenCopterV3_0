@@ -21,7 +21,7 @@ void LoiterCalculations();
 void FailSafeHandler();
 
 void LoiterSM();
-void RotatePitchRoll(float*, float*,float*,float*,float*,float*);
+void Rotate2dVector(float*, float*, float*, float*, float*, float*);
 void HeadingHold();
 
 void ProcessModes();
@@ -138,6 +138,9 @@ float rateSetPointX;
 float rateSetPointY;
 float rateSetPointZ;
 
+float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
+float xFromTO,yFromTO;
+float angleDiffOutput;
 PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
 PID YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
@@ -147,13 +150,18 @@ PID RollAngle(&rollSetPoint, &rollInDegrees, &rateSetPointX, &integrate, &kp_rol
 YAW YawAngle(&yawSetPoint, &yawInDegrees, &rateSetPointZ, &integrate, &kp_yaw_attitude, &ki_yaw_attitude, &kd_yaw_attitude, &fc_yaw_attitude, &_100HzDt, 800, 800);
 
 PID LoiterXPosition(&xTarget, &XEst, &velSetPointX, &integrate, &kp_loiter_pos_x, &ki_loiter_pos_x, &kd_loiter_pos_x, &fc_loiter_pos_x, &_100HzDt, 1, 1);
-PID LoiterXVelocity(&velSetPointX, &velX, &tiltAngleX, &integrate, &kp_loiter_velocity_x, &ki_loiter_velocity_x, &kd_loiter_velocity_x, &fc_loiter_velocity_x, &_100HzDt, 30, 30);
+PID LoiterXVelocity(&velSetPointX, &velX, &tiltAngleX, &integrate, &kp_loiter_velocity_x, &ki_loiter_velocity_x, &kd_loiter_velocity_x, &fc_loiter_velocity_x, &_100HzDt, 15, 15);
 
 PID LoiterYPosition(&yTarget, &YEst, &velSetPointY, &integrate, &kp_loiter_pos_y, &ki_loiter_pos_y, &kd_loiter_pos_y, &fc_loiter_pos_y, &_100HzDt, 1, 1);
-PID LoiterYVelocity(&velSetPointY, &velY, &tiltAngleY, &integrate, &kp_loiter_velocity_y, &ki_loiter_velocity_y, &kd_loiter_velocity_y, &fc_loiter_velocity_y, &_100HzDt, 30, 30);
+PID LoiterYVelocity(&velSetPointY, &velY, &tiltAngleY, &integrate, &kp_loiter_velocity_y, &ki_loiter_velocity_y, &kd_loiter_velocity_y, &fc_loiter_velocity_y, &_100HzDt, 15, 15);
 
 PID AltHoldPosition(&zTarget, &ZEstUp, &velSetPointZ, &integrate, &kp_altitude_position, &ki_altitude_position, &kd_altitude_position, &fc_altitude_position, &_100HzDt, 1.5, 1.5);
 PID AltHoldVelocity(&velSetPointZ, &velZUp, &throttleAdjustment, &integrate, &kp_altitude_velocity, &ki_altitude_velocity, &kd_altitude_velocity, &fc_altitude_velocity, &_100HzDt, 250, 250);
+
+PID WPPosition(&zero, &distToWayPoint, &wpVelSetPoint, &integrate, &kp_waypoint_position, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &_100HzDt, 1,1);
+PID WPVelocity(&wpVelSetPoint, &wpPathVelocity,&wpTilX, &integrate, &kp_waypoint_velocity, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &_100HzDt, 15,15);
+
+PID WPCrossTrack(&zero, &wpCrossTrackVelocity, &wpTiltY, &integrate, &kp_cross_track ,&ki_cross_track, &kd_cross_track,&fc_cross_track , &_100HzDt, 15,15);
 
 void _400HzTask() {
   uint32_t _400HzTime;
@@ -167,8 +175,6 @@ void _400HzTask() {
 
 void _100HzTask(uint32_t loopTime){
   static uint8_t _100HzState = 0;
-
-
 
   if (loopTime - _100HzTimer >= 10000){
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
@@ -207,6 +213,14 @@ void _100HzTask(uint32_t loopTime){
       case POS_VEL_PREDICTION:
         Predict(_100HzDt);
         _100HzState = UPDATE_LAG_INDEX;
+        /*xFromTO = XEst - homeBaseXOffset;
+        yFromTO = YEst - homeBaseYOffset;
+        distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
+        headingToWayPoint = ToDeg(atan2(-1.0 * yFromTO , -1.0 * xFromTO));
+        if (headingToWayPoint < 0.0){
+          headingToWayPoint += 360.0;
+        }
+        Rotate2dVector(&headingToWayPoint,&zero,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);*/
         break;
       case UPDATE_LAG_INDEX:
         UpdateLagIndex();
@@ -349,12 +363,10 @@ void FailSafeHandler(){
           MotorShutDown();
         }
         else{
-          //if (motorState >= FLIGHT) {
           if (flightMode != RTB) {
             enterState = true;
             flightMode = RTB;
           }
-          //}
         }
 
       }
@@ -369,12 +381,10 @@ void FailSafeHandler(){
         MotorShutDown();
       }
       else{
-        //if (motorState >= FLIGHT) {
         if (flightMode != RTB) {
           enterState = true;
           flightMode = RTB;
         }
-        //}
       }
     }
   }
@@ -383,7 +393,6 @@ void FailSafeHandler(){
 
 }
 void FlightSM() {
-
   switch (flightMode) {
   case RATE:
     if (enterState == true) {
@@ -462,17 +471,30 @@ void FlightSM() {
     ControlLED(0x0B);
     if (enterState == true) {
       enterState = false;
+
+
       xTarget = XEst;
       yTarget = YEst;
       zTarget = ZEstUp + 1;
+      xFromTO = XEst - homeBaseXOffset;
+      yFromTO = YEst - homeBaseYOffset;
+      if (sqrt(xFromTO * xFromTO + yFromTO * yFromTO) < MIN_RTB_DIST || gpsFailSafe == true){
+        yawSetPoint = initialYaw;
+      }
+      else{
+        yawSetPoint = ToDeg(atan2(yFromTO , xFromTO));
+        if (yawSetPoint < 0.0){
+          yawSetPoint += 360.0;
+        }
+      }
       if (zTarget > CEILING) {
         zTarget = CEILING;
       }
       if (zTarget < FLOOR) {
         zTarget = FLOOR;
       }
-      RTBState = CLIMB;
-      yawSetPoint = yawInDegrees;
+      RTBState = RTB_CLIMB;
+
     }
     HeadingHold();
     RTBStateMachine();
@@ -540,56 +562,93 @@ void RTBStateMachine() {
     return;
   }
   switch (RTBState) {
-  case CLIMB:
+  case RTB_CLIMB:
     LoiterCalculations();
-    RotatePitchRoll(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
+    Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
     AltHoldPosition.calculate();
     AltHoldVelocity.calculate();
     if (ZEstUp >= (zTarget - 0.1) ) {
-
-      RTBState = TRAVEL;
-      xTarget = homeBaseXOffset;
-      yTarget = homeBaseYOffset;
+      RTBState = RTB_TRAVEL;
     }
     if (gpsFailSafe == true) {
       velSetPointZ = LAND_VEL;
-      RTBState = DESCEND;
+      RTBState = RTB_LAND;
+      motorState = LANDING;
     }
 
     break;
-  case TRAVEL:
+  case RTB_TRAVEL:
+    AltHoldPosition.calculate();
+    AltHoldVelocity.calculate();
+    //within min radius switch to lioter 
+    xFromTO = XEst - homeBaseXOffset;
+    yFromTO = YEst - homeBaseYOffset;
+    if (sqrt(xFromTO * xFromTO + yFromTO * yFromTO) < MIN_RTB_DIST){
+      RTBState = RTB_LOITER;
+      xTarget = homeBaseXOffset;
+      yTarget = homeBaseYOffset;
+      break;
+    }
+
+
+    //calculate distance and heading to origin
+    distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
+    headingToWayPoint = ToDeg(atan2(-1.0 * yFromTO , -1.0 * xFromTO));
+    if (headingToWayPoint < 0.0){
+      headingToWayPoint += 360.0;
+    }
+    yawSetPoint = headingToWayPoint - 180.0;
+    if(yawSetPoint < 0){
+      yawSetPoint +=360;
+    }
+    //rotate EF velocity to path frame
+    //Rotate2dVector(&headingToWayPoint,&zero,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);
+    Rotate2dVector(&zero,&headingToWayPoint,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);
+    //wp pos PID
+    WPPosition.calculate(); 
+    wpVelSetPoint *= -1.0;
+    //wp vel PID
+    WPVelocity.calculate(); 
+    wpTilX *= -1.0;
+    //cross track vel PID
+    WPCrossTrack.calculate(); 
+    //rotate wp tilx and tilty to body pitch and roll
+    Rotate2dVector(&yawInDegrees,&headingToWayPoint,&wpTilX,&wpTiltY,&pitchSetPoint,&rollSetPoint);
+    if (gpsFailSafe == true) {
+      velSetPointZ = LAND_VEL;
+      RTBState = RTB_LAND;
+      motorState = LANDING;
+    }
+    break;
+  case RTB_LOITER:
     LoiterXPosition.calculate();
     LoiterYPosition.calculate();
-    if (velSetPointX > RTB_VEL) {
-      velSetPointX = RTB_VEL;
-    }
-    if (velSetPointX < -RTB_VEL) {
-      velSetPointX = -RTB_VEL;
-    }
-    if (velSetPointY > RTB_VEL) {
-      velSetPointY = RTB_VEL;
-    }
-    if (velSetPointY < -RTB_VEL) {
-      velSetPointY = -RTB_VEL;
-    }
+    /*if (velSetPointX > RTB_VEL) {
+     velSetPointX = RTB_VEL;
+     }
+     if (velSetPointX < -RTB_VEL) {
+     velSetPointX = -RTB_VEL;
+     }
+     if (velSetPointY > RTB_VEL) {
+     velSetPointY = RTB_VEL;
+     }
+     if (velSetPointY < -RTB_VEL) {
+     velSetPointY = -RTB_VEL;
+     }*/
     LoiterXVelocity.calculate();
     tiltAngleX *= -1.0;
     LoiterYVelocity.calculate();
-    RotatePitchRoll(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
+    Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
     AltHoldPosition.calculate();
     AltHoldVelocity.calculate();
-    if (fabs(XEst - xTarget) < 1.0 && fabs(YEst - yTarget) < 1.0) {
+    if ( (fabs(XEst - xTarget) < 1.0 && fabs(YEst - yTarget) < 1.0) || gpsFailSafe == true) {
       velSetPointZ = LAND_VEL;
-      RTBState = DESCEND;
+      RTBState = RTB_LAND;
       motorState = LANDING;
     }
-    if (gpsFailSafe == true) {
-      velSetPointZ = LAND_VEL;
-      RTBState = DESCEND;
-      motorState = LANDING;
-    }
+
     break;
-  case DESCEND:
+  case RTB_LAND:
     if (gpsFailSafe == true) {
       pitchSetPoint = pitchSetPointTX;
       rollSetPoint = rollSetPointTX;
@@ -601,7 +660,7 @@ void RTBStateMachine() {
     }
     else {
       LoiterCalculations();
-      RotatePitchRoll(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
+      Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
     }
     AltHoldVelocity.calculate();
     break;
@@ -743,13 +802,13 @@ void LoiterSM(){
     switch(XYLoiterState){
     case LOITERING:
       LoiterCalculations();
-      RotatePitchRoll(&yawInDegrees,&zero,&tiltAngleX,&tiltAngleY,&pitchSetPoint,&rollSetPoint);
+      Rotate2dVector(&yawInDegrees,&zero,&tiltAngleX,&tiltAngleY,&pitchSetPoint,&rollSetPoint);
       if (fabs(rollSetPointTX) > 0.5 || fabs(pitchSetPointTX) > 0.5){
         XYLoiterState = RCINPUT;
       }
       break;
     case RCINPUT:
-      RotatePitchRoll(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
+      Rotate2dVector(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
       if (fabs(rollSetPointTX) < 0.5 && fabs(pitchSetPointTX) < 0.5){
         XYLoiterState = WAIT;
         waitTimer = millis();
@@ -773,23 +832,22 @@ void LoiterSM(){
     if (flightMode == L2){//check
       controlBearing = initialYaw;
     }
-    RotatePitchRoll(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
+    Rotate2dVector(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
   }
 }
 
-
-
-void RotatePitchRoll(float *currentBearing, float *initialBearing, float *pitchIn, float *rollIn, float *pitchOut, float *rollOut){//change to take arguments
-  float headingFreeDifference;
-  float sinHeadingFreeDiff;
-  float cosHeadingFreeDiff;
-  headingFreeDifference = *currentBearing - *initialBearing;
-  sinHeadingFreeDiff = sin(ToRad(headingFreeDifference));
-  cosHeadingFreeDiff = cos(ToRad(headingFreeDifference));
-  *rollOut = *rollIn * cosHeadingFreeDiff + *pitchIn * sinHeadingFreeDiff;
-  *pitchOut = -1.0 * *rollIn * sinHeadingFreeDiff + *pitchIn * cosHeadingFreeDiff;
-
+void Rotate2dVector(float *currentBearing, float *initialBearing, float *xStart, float *yStart, float *xEnd, float *yEnd){
+  float angleDifference;
+  float sinDiff;
+  float cosDiff;
+  angleDifference = *currentBearing - *initialBearing;
+  angleDiffOutput = angleDifference;
+  sinDiff = sin(ToRad(angleDifference));
+  cosDiff = cos(ToRad(angleDifference));
+  *xEnd = *xStart * cosDiff + -1.0 * *yStart * sinDiff;
+  *yEnd = *xStart * sinDiff + *yStart * cosDiff;  
 }
+
 
 
 void HeadingHold(){
@@ -1212,6 +1270,14 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
+
+
+
+
 
 
 

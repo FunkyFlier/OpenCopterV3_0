@@ -29,5 +29,6 @@ extern float inertialXBiased,inertialYBiased,inertialZBiased;
 extern float distToCraft,headingToCraft;
 extern float gpsX,gpsY,baroZ,baroVel;
 extern float prevBaro;
+extern float xPosError,yPosError,xVelError,yVelError;
 
 #endif

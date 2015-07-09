@@ -8,7 +8,6 @@
 #define PI_FLOAT     3.14159265f
 #define PIBY2_FLOAT  1.5707963f
 
-
 void MapVar (volatile int16_t*, float*, float, float, float, float);
 void MapVar ( float* , float* , int16_t,int16_t, int16_t , int16_t );
 

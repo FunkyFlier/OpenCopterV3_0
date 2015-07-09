@@ -207,16 +207,28 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
+//float xPosError,yPosError,xVelError,yVelError;
 
-
-  floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
+  /*floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
   floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
   floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
   floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
   floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
   floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
   floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
-  floatPointerArray[MOTOR_CMD_8] = &motorCommand8;
+  floatPointerArray[MOTOR_CMD_8] = &motorCommand8;*/
+    floatPointerArray[MOTOR_CMD_1] = &wpVelSetPoint;//motors
+  floatPointerArray[MOTOR_CMD_2] = &wpPathVelocity;
+  floatPointerArray[MOTOR_CMD_3] = &wpCrossTrackVelocity;
+  floatPointerArray[MOTOR_CMD_4] = &wpTilX;/*
+  floatPointerArray[MOTOR_CMD_1] = &xPosError;//motors
+  floatPointerArray[MOTOR_CMD_2] = &yPosError;
+  floatPointerArray[MOTOR_CMD_3] = &xVelError;
+  floatPointerArray[MOTOR_CMD_4] = &yVelError;*/
+  floatPointerArray[MOTOR_CMD_5] = &wpTiltY;
+  floatPointerArray[MOTOR_CMD_6] = &headingToWayPoint;
+  floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
+  floatPointerArray[MOTOR_CMD_8] = &angleDiffOutput;
 
   floatPointerArray[PRESSURE_] = &pressure;//sensors
   floatPointerArray[CTRL_BEARING] = &controlBearing;//flight control
@@ -224,10 +236,10 @@ void AssignPointerArray() {
   floatPointerArray[GPS_ALT] = &gpsAlt;//gps
 
 
-  floatPointerArray[LAT_] = &floatLat;//gps
-  floatPointerArray[LON_] = &floatLon;
-  floatPointerArray[HB_LAT] = &homeLatFloat;
-  floatPointerArray[HB_LON] = &homeLonFloat;
+  floatPointerArray[LAT_] = &homeBaseXOffset;//gps
+  floatPointerArray[LON_] = &homeBaseYOffset;
+  floatPointerArray[HB_LAT] = &xFromTO;
+  floatPointerArray[HB_LON] = &yFromTO;
   floatPointerArray[H_ACC] = &hAcc;
   floatPointerArray[S_ACC] = &sAcc;
 
@@ -685,7 +697,6 @@ void LoadDEC() {
   outFloat.buffer[2] = EEPROMRead(j++);
   outFloat.buffer[3] = EEPROMRead(j++);
   *floatPointerArray[MAG_DEC_] = outFloat.val;
-
   cosDec = cos(declination);
   sinDec = sin(declination);
 }
@@ -704,6 +715,7 @@ void LoadROM() {
   LoadPROff();
   LoadPWMLimits();
   LoadModes();
+  LoadDEC();
 }
 
 

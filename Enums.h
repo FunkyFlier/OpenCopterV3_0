@@ -297,9 +297,10 @@ enum BYTES {
 
 };
 enum RTBStates {
-  CLIMB,
-  TRAVEL,
-  DESCEND
+  RTB_CLIMB,
+  RTB_TRAVEL,
+  RTB_LOITER,
+  RTB_LAND
 };
 
 enum CalibrationFlags {

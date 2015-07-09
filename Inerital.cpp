@@ -15,7 +15,7 @@ float distToCraft,headingToCraft;
 float prevBaro;
 float inertialXBiased,inertialYBiased,inertialZBiased;
 
-
+float xPosError,yPosError,xVelError,yVelError;
 //-------------------
 float inertialZGrav;
 int16_t currentEstIndex,lagIndex,currentEstIndex_z,lagIndex_z;  
@@ -26,9 +26,9 @@ float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
 
 void GetInertial(){
 
-  inertialX = ((R11 * (filtAccX)) + (R21 * (filtAccY))) + (R31 * (filtAccZ));
-  inertialY = R12 * filtAccX + R22 * filtAccY + R32 * filtAccZ;
-  inertialZGrav = R13 * filtAccX + R23 * filtAccY + R33 * filtAccZ;
+  inertialX = ((R11_ * (filtAccX)) + (R21_ * (filtAccY))) + (R31_ * (filtAccZ));
+  inertialY = R12_ * filtAccX + R22_ * filtAccY + R32_ * filtAccZ;
+  inertialZGrav = R13_ * filtAccX + R23_ * filtAccY + R33_ * filtAccZ;
   inertialZ = inertialZGrav + initialAccMagnitude;
 
 }
@@ -64,13 +64,13 @@ void Predict(float dt){
   //float accelBiasX,accelBiasY,accelBiasZ;
   //float inertialXBiased,inertialYBiased,inertialZBiased;
 
-  biasedX = (scaledAccX - accelBiasX);
-  biasedY = (scaledAccY - accelBiasY);
-  biasedZ = (scaledAccZ - accelBiasZ);
+  biasedX = (filtAccX - accelBiasX);
+  biasedY = (filtAccY - accelBiasY);
+  biasedZ = (filtAccZ - accelBiasZ);
 
-  inertialXBiased = R11 * biasedX + R21 * biasedY + R31 * biasedZ;
-  inertialYBiased = R12 * biasedX + R22 * biasedY + R32 * biasedZ;
-  inertialZBiased = R13 * biasedX + R23 * biasedY + R33 * biasedZ + initialAccMagnitude;
+  inertialXBiased = R11_ * biasedX + R21_ * biasedY + R31_ * biasedZ;
+  inertialYBiased = R12_ * biasedX + R22_ * biasedY + R32_ * biasedZ;
+  inertialZBiased = R13_ * biasedX + R23_ * biasedY + R33_ * biasedZ + initialAccMagnitude;
 
 
 
@@ -132,7 +132,7 @@ void GetBaroZ(){
 }
 
 void CorrectXY(){
-  float xPosError,yPosError,xVelError,yVelError;
+  //float xPosError,yPosError,xVelError,yVelError;
   float accelBiasXEF,accelBiasYEF,accelBiasZEF;
 
   GetGPSXY();
@@ -149,17 +149,17 @@ void CorrectXY(){
   velX = velX - K_V_GPS * xVelError;
   velY = velY - K_V_GPS * yVelError;
 
-  accelBiasXEF = R11 * accelBiasX + R21 * accelBiasY + R31 * accelBiasZ;
-  accelBiasYEF = R12 * accelBiasX + R22 * accelBiasY + R32 * accelBiasZ;
-  accelBiasZEF = R13 * accelBiasX + R23 * accelBiasY + R33 * accelBiasZ;
+  accelBiasXEF = R11_ * accelBiasX + R21_ * accelBiasY + R31_ * accelBiasZ;
+  accelBiasYEF = R12_ * accelBiasX + R22_ * accelBiasY + R32_ * accelBiasZ;
+  accelBiasZEF = R13_ * accelBiasX + R23_ * accelBiasY + R33_ * accelBiasZ;
 
 
   accelBiasXEF = accelBiasXEF + K_B_GPS * xVelError;
   accelBiasYEF = accelBiasYEF + K_B_GPS * yVelError;
 
-  accelBiasX = R11*accelBiasXEF + R12*accelBiasYEF + R13*accelBiasZEF;
-  accelBiasY = R21*accelBiasXEF + R22*accelBiasYEF + R23*accelBiasZEF;
-  accelBiasZ = R31*accelBiasXEF + R32*accelBiasYEF + R33*accelBiasZEF;
+  accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
+  accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
+  accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
 
 }
 
@@ -176,16 +176,16 @@ void CorrectZ(){
   ZEst = ZEst - K_P_BARO * zPosError;
   velZ = velZ - K_V_BARO * zVelError;
 
-  accelBiasXEF = R11*accelBiasX + R21*accelBiasY + R31*accelBiasZ;
-  accelBiasYEF = R12*accelBiasX + R22*accelBiasY + R32*accelBiasZ;
-  accelBiasZEF = R13*accelBiasX + R23*accelBiasY + R33*accelBiasZ;
+  accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
+  accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
+  accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
 
 
   accelBiasZEF = accelBiasZEF + K_B_BARO * zVelError;
 
-  accelBiasX = R11*accelBiasXEF + R12*accelBiasYEF + R13*accelBiasZEF;
-  accelBiasY = R21*accelBiasXEF + R22*accelBiasYEF + R23*accelBiasZEF;
-  accelBiasZ = R31*accelBiasXEF + R32*accelBiasYEF + R33*accelBiasZEF;
+  accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
+  accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
+  accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
 
   ZEstUp = -1.0 * ZEst;
   velZUp = -1.0 * velZ;

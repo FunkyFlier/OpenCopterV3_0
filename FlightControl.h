@@ -29,6 +29,7 @@ extern float controlBearing;
 extern boolean telemFailSafe,txFailSafe,tuningTrasnmitOK;
 
 extern boolean enterState;
+extern float xFromTO,yFromTO;
 
 extern uint8_t modeArray[9];
 
@@ -119,6 +120,9 @@ extern float adjustmentX;
 extern float adjustmentY;
 extern float adjustmentZ;
 
+extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
+extern float angleDiffOutput;
+
 extern PID PitchRate;
 extern PID RollRate;
 extern PID YawRate;
@@ -135,6 +139,11 @@ extern PID LoiterYVelocity;
 
 extern PID AltHoldPosition;
 extern PID AltHoldVelocity;
+
+extern PID WPPosition;
+extern PID WPVelocity;
+
+extern PID WPCrossTrack;
 
 
 #endif
