@@ -140,7 +140,6 @@ float rateSetPointZ;
 
 float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
 float xFromTO,yFromTO;
-float angleDiffOutput;
 PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
 PID YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
@@ -837,11 +836,12 @@ void LoiterSM(){
 }
 
 void Rotate2dVector(float *currentBearing, float *initialBearing, float *xStart, float *yStart, float *xEnd, float *yEnd){
+  //uses counter clockwise rotation
+  //that is why for rotating the velocity for way points the start and end bearings must be switched
   float angleDifference;
   float sinDiff;
   float cosDiff;
   angleDifference = *currentBearing - *initialBearing;
-  angleDiffOutput = angleDifference;
   sinDiff = sin(ToRad(angleDifference));
   cosDiff = cos(ToRad(angleDifference));
   *xEnd = *xStart * cosDiff + -1.0 * *yStart * sinDiff;

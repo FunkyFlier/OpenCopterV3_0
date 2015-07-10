@@ -228,7 +228,7 @@ void AssignPointerArray() {
   floatPointerArray[MOTOR_CMD_5] = &wpTiltY;
   floatPointerArray[MOTOR_CMD_6] = &headingToWayPoint;
   floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
-  floatPointerArray[MOTOR_CMD_8] = &angleDiffOutput;
+  floatPointerArray[MOTOR_CMD_8] = &motorCommand8;
 
   floatPointerArray[PRESSURE_] = &pressure;//sensors
   floatPointerArray[CTRL_BEARING] = &controlBearing;//flight control
