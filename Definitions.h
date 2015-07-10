@@ -191,6 +191,9 @@
 #define PKT_LOCAL_UN_L 4
 #define PKT_LOCAL_UN_M 5
 
+#define PROTOCOL_VER_NUM 1
+#define PROTOCOL_VER_SUB_NUM 1
+
 //V1 defines
 #ifdef V1
 //acc defines - Analog Devices ADXL345

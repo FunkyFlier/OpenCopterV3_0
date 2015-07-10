@@ -1307,10 +1307,10 @@ void SendHandShakeResponse() {
     RadioWrite(0xF7);//cmd byte
     txSum += 0xF7;
     txDoubleSum += txSum;
-    RadioWrite(1);//version number
+    RadioWrite(PROTOCOL_VER_NUM);//version number
     txSum += 1;
     txDoubleSum += txSum;
-    RadioWrite(1);//sub version number
+    RadioWrite(PROTOCOL_VER_SUB_NUM);//sub version number
     txSum += 1;
     txDoubleSum += txSum;
     RadioWrite(NUM_WAY_POINTS);
