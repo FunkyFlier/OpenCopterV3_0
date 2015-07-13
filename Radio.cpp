@@ -747,6 +747,9 @@ void WriteCalibrationDataToRom() {
   case 7:
     EEPROMWrite(ESC_CAL_FLAG,0xBB);
     break;
+
+  case 8://motor mix
+    break;
   }
 
 
@@ -1571,6 +1574,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 

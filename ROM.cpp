@@ -21,12 +21,11 @@ void LoadModes();
 void LoadDEC();
 void LoadPROff();
 void LoadGains();
-//void LoadMAG();
-//void LoadACC();
 void LoadRC();
 void LoadPWMLimits();
 void LoadCeilingFloor();
 void SetDefaultGains();
+void LoadMotorMix();
 
 float* floatPointerArray[172];
 
@@ -762,6 +761,9 @@ void LoadCeilingFloor(){
   floorLimit = outInt16.val;
 
 }
+void LoadMotorMix(){
+  
+}
 void LoadROM() {
   LoadRC();
   LoadACC();
@@ -771,6 +773,7 @@ void LoadROM() {
   LoadPWMLimits();
   LoadModes();
   LoadDEC();
+  LoadCeilingFloor();
 }
 
 
