@@ -191,7 +191,7 @@ void Radio() {
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
-      if (typeNum == GS_PING){
+      if (typeNum == GS_PING || typeNum == RESET_PR_OFFSET){
         radioState = REL_SET_SUM1;
         break;
       }
@@ -238,6 +238,21 @@ void Radio() {
           SendOrdMis();
           radioState = SB_CHECK;
           break;
+        }
+        if (typeNum == RESET_PR_OFFSET){
+          pitchOffset = 0;
+          rollOffset = 0;
+          j = 0;
+          outFloat.val = pitchOffset;
+          for (uint16_t i = PITCH_OFFSET_START; i <= PITCH_OFFSET_END; i++) {
+            EEPROMWrite(i, outFloat.buffer[j++]);
+          }
+          j = 0;
+          outFloat.val = rawRoll;
+          for (uint16_t i = ROLL_OFFSET_START; i <= ROLL_OFFSET_END; i++) {
+            EEPROMWrite(i, outFloat.buffer[j++]);
+          }
+          EEPROMWrite(PR_FLAG, 0xAA);
         }
         if (calibrationMode == true) {
           if (typeNum == START_CAL_DATA) {
@@ -1544,6 +1559,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 

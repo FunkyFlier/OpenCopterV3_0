@@ -50,7 +50,8 @@ enum TypeNums{
   WP_QUERY,
   GS_CONTROL,
   ESC_CAL,
-  GS_PING
+  GS_PING,
+  RESET_PR_OFFSET
 };
 enum HandShakeStates{
   START_BYTE,

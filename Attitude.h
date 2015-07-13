@@ -14,9 +14,10 @@
 #define FEEDBACK_LIMIT 0.1
 #define SAMPLES_FOR_ACC_MAGNITUDE 200
 
-void SetInitialQuaternion();
+
 
 void AHRSupdate(float);
+void SetInitialQuaternion();
 void GenerateRotationMatrix();
 
 void GetEuler();

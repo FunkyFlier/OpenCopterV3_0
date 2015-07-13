@@ -3,11 +3,14 @@
 #include <EEPROM.h>
 #include "Streaming_.h"
 
+void SetInitialAccelerometerMagnitude();
+
 void SetVariables();
+void GetEuler();
 void GetPitch();
 void GetRoll();
 void GetYaw();
-void SetInitialAccelerometerMagnitude();
+
 
 float yawInDegrees,pitchInDegrees,rollInDegrees;
 float yawInRadians,pitchInRadians,rollInRadians;
