@@ -28,7 +28,7 @@ void LoadPWMLimits();
 void LoadCeilingFloor();
 void SetDefaultGains();
 
-float* floatPointerArray[148];
+float* floatPointerArray[172];
 
 int16_t* int16PointerArray[14];
 
@@ -208,24 +208,24 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
-//float xPosError,yPosError,xVelError,yVelError;
+  //float xPosError,yPosError,xVelError,yVelError;
 
   /*floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
-  floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
-  floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
-  floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
-  floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
-  floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
-  floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
-  floatPointerArray[MOTOR_CMD_8] = &motorCommand8;*/
-    floatPointerArray[MOTOR_CMD_1] = &wpVelSetPoint;//motors
+   floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
+   floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
+   floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
+   floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
+   floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
+   floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
+   floatPointerArray[MOTOR_CMD_8] = &motorCommand8;*/
+  floatPointerArray[MOTOR_CMD_1] = &wpVelSetPoint;//motors
   floatPointerArray[MOTOR_CMD_2] = &wpPathVelocity;
   floatPointerArray[MOTOR_CMD_3] = &wpCrossTrackVelocity;
   floatPointerArray[MOTOR_CMD_4] = &wpTilX;/*
   floatPointerArray[MOTOR_CMD_1] = &xPosError;//motors
-  floatPointerArray[MOTOR_CMD_2] = &yPosError;
-  floatPointerArray[MOTOR_CMD_3] = &xVelError;
-  floatPointerArray[MOTOR_CMD_4] = &yVelError;*/
+   floatPointerArray[MOTOR_CMD_2] = &yPosError;
+   floatPointerArray[MOTOR_CMD_3] = &xVelError;
+   floatPointerArray[MOTOR_CMD_4] = &yVelError;*/
   floatPointerArray[MOTOR_CMD_5] = &wpTiltY;
   floatPointerArray[MOTOR_CMD_6] = &headingToWayPoint;
   floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
@@ -245,6 +245,37 @@ void AssignPointerArray() {
   floatPointerArray[S_ACC] = &sAcc;
 
 
+  floatPointerArray[M1_X] = &m1X;
+  floatPointerArray[M1_Y] = &m1Y;
+  floatPointerArray[M1_Z] = &m1Z;
+
+  floatPointerArray[M2_X] = &m2X;
+  floatPointerArray[M2_Y] = &m2Y;
+  floatPointerArray[M2_Z] = &m2Z;
+
+  floatPointerArray[M3_X] = &m3X;
+  floatPointerArray[M3_Y] = &m3Y;
+  floatPointerArray[M3_Z] = &m3Z;
+
+  floatPointerArray[M4_X] = &m4X;
+  floatPointerArray[M4_Y] = &m4Y;
+  floatPointerArray[M4_Z] = &m4Z;
+
+  floatPointerArray[M5_X] = &m5X;
+  floatPointerArray[M5_Y] = &m5Y;
+  floatPointerArray[M5_Z] = &m5Z;
+
+  floatPointerArray[M6_X] = &m6X;
+  floatPointerArray[M6_Y] = &m6Y;
+  floatPointerArray[M6_Z] = &m6Z;
+
+  floatPointerArray[M7_X] = &m7X;
+  floatPointerArray[M7_Y] = &m7Y;
+  floatPointerArray[M7_Z] = &m7Z;
+
+  floatPointerArray[M8_X] = &m8X;
+  floatPointerArray[M8_Y] = &m8Y;
+  floatPointerArray[M8_Z] = &m8Z;
 
   int16PointerArray[GYRO_X] = &gyroX.val;//sensors
   int16PointerArray[GYRO_Y] = &gyroY.val;
@@ -255,7 +286,7 @@ void AssignPointerArray() {
   int16PointerArray[MAG_X] = &magX.val;
   int16PointerArray[MAG_Y] = &magY.val;
   int16PointerArray[MAG_Z] = &magZ.val;
-  
+
   int16PointerArray[THRO_CMD] = &throttleCommand;//motors
 
   int16PointerArray[PWM_HIGH] = &pwmHigh;//mtors
@@ -263,8 +294,8 @@ void AssignPointerArray() {
 
   int16PointerArray[CEILING_LIMIT] = &ceilingLimit;//mtors
   int16PointerArray[FLOOR_LIMIT] = &floorLimit;
-  
-  
+
+
   bytePointerArray[F_MODE_] = &flightMode;//flight control
   bytePointerArray[GPS_FIX] = &GPSData.vars.gpsFix;//GPS
   bytePointerArray[XY_LOIT_STATE] = &XYLoiterState;//flight control
@@ -725,11 +756,11 @@ void LoadCeilingFloor(){
   outInt16.buffer[0] = EEPROMRead(CEILING_START);
   outInt16.buffer[1] = EEPROMRead(CEILING_END);
   ceilingLimit = outInt16.val;
-  
+
   outInt16.buffer[0] = EEPROMRead(FLOOR_START);
   outInt16.buffer[1] = EEPROMRead(FLOOR_END);
   floorLimit = outInt16.val;
-  
+
 }
 void LoadROM() {
   LoadRC();
@@ -741,6 +772,7 @@ void LoadROM() {
   LoadModes();
   LoadDEC();
 }
+
 
 
 
