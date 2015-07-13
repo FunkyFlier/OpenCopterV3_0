@@ -30,7 +30,7 @@ void SetDefaultGains();
 
 float* floatPointerArray[148];
 
-int16_t* int16PointerArray[12];
+int16_t* int16PointerArray[14];
 
 uint8_t* bytePointerArray[14];
 

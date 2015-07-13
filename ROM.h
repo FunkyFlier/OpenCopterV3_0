@@ -10,7 +10,7 @@ void LoadMAG();
 void LoadACC();
 
 extern float* floatPointerArray[148];
-extern int16_t* int16PointerArray[12];
+extern int16_t* int16PointerArray[14];
 extern uint8_t* bytePointerArray[14];
 
 #endif
