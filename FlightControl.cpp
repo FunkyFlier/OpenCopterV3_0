@@ -140,6 +140,9 @@ float rateSetPointZ;
 
 float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
 float xFromTO,yFromTO;
+
+int16_t floorLimit,ceilingLimit;
+
 PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
 PID YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
@@ -486,11 +489,11 @@ void FlightSM() {
           yawSetPoint += 360.0;
         }
       }
-      if (zTarget > CEILING) {
-        zTarget = CEILING;
+      if (zTarget > ceilingLimit) {
+        zTarget = ceilingLimit;
       }
-      if (zTarget < FLOOR) {
-        zTarget = FLOOR;
+      if (zTarget < floorLimit) {
+        zTarget = floorLimit;
       }
       RTBState = RTB_CLIMB;
 
@@ -534,11 +537,11 @@ void InitLoiter() {
     }
     else{
       zTarget = ZEstUp;
-      if (zTarget < FLOOR) {
-        zTarget = FLOOR;
+      if (zTarget < floorLimit) {
+        zTarget = floorLimit;
       }
-      if (zTarget > CEILING) {
-        zTarget = CEILING;
+      if (zTarget > ceilingLimit) {
+        zTarget = ceilingLimit;
       }
     }
     throttleCheckFlag = true;
@@ -737,11 +740,11 @@ void LoiterSM(){
     if (abs(rcDifference) < 200){
       ZLoiterState = LOITERING;
       zTarget = ZEstUp;
-      if (zTarget <= FLOOR){
-        zTarget = FLOOR;
+      if (zTarget <= floorLimit){
+        zTarget = floorLimit;
       } 
-      if (zTarget >= CEILING){
-        zTarget = CEILING;
+      if (zTarget >= ceilingLimit){
+        zTarget = ceilingLimit;
       }
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
@@ -762,14 +765,14 @@ void LoiterSM(){
     }
 
 
-    if (ZEstUp >= CEILING && velSetPointZ > 0){
-      zTarget = CEILING;
+    if (ZEstUp >= ceilingLimit && velSetPointZ > 0){
+      zTarget = ceilingLimit;
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
       break;
     }
-    if (ZEstUp <= FLOOR && velSetPointZ < 0){
-      zTarget = FLOOR;
+    if (ZEstUp <= floorLimit && velSetPointZ < 0){
+      zTarget = floorLimit;
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
       break;
@@ -786,11 +789,11 @@ void LoiterSM(){
       ZLoiterState = LOITERING;
       motorState = FLIGHT;
       zTarget = ZEstUp;
-      if (zTarget <= FLOOR){
-        zTarget = FLOOR;
+      if (zTarget <= floorLimit){
+        zTarget = floorLimit;
       } 
-      if (zTarget >= CEILING){
-        zTarget = CEILING;
+      if (zTarget >= ceilingLimit){
+        zTarget = ceilingLimit;
       }
       throttleCheckFlag = true;
 

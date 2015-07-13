@@ -9,9 +9,6 @@ void _100HzTask(uint32_t);
 void ProcessChannels();
 void Arm();
 
-
-//extern PID WayPointPosition;
-//extern PID WayPointRate;
 extern uint8_t flightMode;
 extern uint32_t _100HzTimer,_400HzTimer;
 extern volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount;
@@ -30,6 +27,7 @@ extern boolean telemFailSafe,txFailSafe,tuningTrasnmitOK;
 
 extern boolean enterState;
 extern float xFromTO,yFromTO;
+extern int16_t floorLimit,ceilingLimit;
 
 extern uint8_t modeArray[9];
 

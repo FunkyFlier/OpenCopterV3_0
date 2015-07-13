@@ -276,7 +276,11 @@ enum Int16s {
   MAG_Z,
   THRO_CMD,
   PWM_HIGH,
-  PWM_LOW
+  PWM_LOW,
+  CEILING_LIMIT,
+  FLOOR_LIMIT
+  
+  
 
 };
 

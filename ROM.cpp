@@ -25,6 +25,7 @@ void LoadGains();
 //void LoadACC();
 void LoadRC();
 void LoadPWMLimits();
+void LoadCeilingFloor();
 void SetDefaultGains();
 
 float* floatPointerArray[148];
@@ -254,13 +255,16 @@ void AssignPointerArray() {
   int16PointerArray[MAG_X] = &magX.val;
   int16PointerArray[MAG_Y] = &magY.val;
   int16PointerArray[MAG_Z] = &magZ.val;
-
+  
   int16PointerArray[THRO_CMD] = &throttleCommand;//motors
 
   int16PointerArray[PWM_HIGH] = &pwmHigh;//mtors
   int16PointerArray[PWM_LOW] = &pwmLow;
 
-
+  int16PointerArray[CEILING_LIMIT] = &ceilingLimit;//mtors
+  int16PointerArray[FLOOR_LIMIT] = &floorLimit;
+  
+  
   bytePointerArray[F_MODE_] = &flightMode;//flight control
   bytePointerArray[GPS_FIX] = &GPSData.vars.gpsFix;//GPS
   bytePointerArray[XY_LOIT_STATE] = &XYLoiterState;//flight control
@@ -291,6 +295,15 @@ void ROMFlagsCheck() {
     }
     EEPROMWrite(VER_FLAG_1, VER_NUM_1);
     EEPROMWrite(VER_FLAG_2, VER_NUM_2);
+  }
+  if (EEPROMRead(CEILING_FLOOR_FLAG) != 0xAA){
+    EEPROMWrite(CEILING_FLOOR_FLAG,0xAA);
+    outInt16.val = (int16_t)CEILING;
+    EEPROMWrite(CEILING_START, outInt16.buffer[0]);
+    EEPROMWrite(CEILING_END, outInt16.buffer[1]);
+    outInt16.val = (int16_t)FLOOR;
+    EEPROMWrite(FLOOR_START, outInt16.buffer[0]);
+    EEPROMWrite(FLOOR_END, outInt16.buffer[1]);
   }
 
   if (EEPROMRead(TX_FS_FLAG) != 0xAA) {
@@ -706,6 +719,17 @@ void LoadModes(){
   for(uint16_t i = MODE_START; i <= MODE_END; i++){
     modeArray[j++] = EEPROMRead(i);
   }
+}
+void LoadCeilingFloor(){
+  int16_u outInt16;
+  outInt16.buffer[0] = EEPROMRead(CEILING_START);
+  outInt16.buffer[1] = EEPROMRead(CEILING_END);
+  ceilingLimit = outInt16.val;
+  
+  outInt16.buffer[0] = EEPROMRead(FLOOR_START);
+  outInt16.buffer[1] = EEPROMRead(FLOOR_END);
+  floorLimit = outInt16.val;
+  
 }
 void LoadROM() {
   LoadRC();

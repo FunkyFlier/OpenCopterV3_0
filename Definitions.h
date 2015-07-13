@@ -338,7 +338,7 @@
 #define VER_FLAG_2 429
 
 #define VER_NUM_1 0x01
-#define VER_NUM_2 0x01
+#define VER_NUM_2 0x02
 
 
 #define PWM_LIM_HIGH_START 430
@@ -367,6 +367,13 @@
 #define GAINS_END 327
 
 #define GS_ID_INDEX 451
+
+#define CEILING_FLOOR_FLAG 452
+#define CEILING_START 453
+#define CEILING_END 454
+#define FLOOR_START 455
+#define FLOOR_END 456
+
 
 #endif//#ifndef Definitions.h
 

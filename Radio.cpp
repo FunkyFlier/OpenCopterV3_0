@@ -757,6 +757,7 @@ void WriteCalibrationDataToRom() {
 
 void OrderedSet() {
   float_u outFloat;
+  int16_u outInt16;
   switch (typeNum) {
   case FLOAT:
     if (cmdNum >= KP_PITCH_RATE_ && cmdNum <= MAG_DEC_) {
@@ -774,10 +775,21 @@ void OrderedSet() {
     }
     break;
   case INT16:
-    /*
+    if (cmdNum == CEILING_LIMIT || cmdNum == FLOOR_LIMIT ){
       for (uint8_t i = 0; i < 2; i++){
-     (*int16PointerArray[cmdNum]).buffer[i] =  itemBuffer[i];
-     }*/
+        outInt16.buffer[i] =  itemBuffer[i];
+
+      }
+      *int16PointerArray[cmdNum] =  outInt16.val;
+      if (cmdNum == CEILING_LIMIT){
+        EEPROMWrite(CEILING_START, outInt16.buffer[0]);
+        EEPROMWrite(CEILING_END, outInt16.buffer[1]);
+      }
+      if (cmdNum == FLOOR_LIMIT){
+        EEPROMWrite(FLOOR_START, outInt16.buffer[0]);
+        EEPROMWrite(FLOOR_END, outInt16.buffer[1]);
+      }
+    }
     break;
   case INT32:
     /*
@@ -1559,6 +1571,9 @@ void SendCalData() {
     break;
   }
 }
+
+
+
 
 
 
