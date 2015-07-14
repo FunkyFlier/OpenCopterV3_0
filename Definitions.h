@@ -374,6 +374,10 @@
 #define FLOOR_START 455
 #define FLOOR_END 456
 
+#define MIX_FLAG 457
+#define MIX_START 458
+#define MIX_END 553
+
 
 #endif//#ifndef Definitions.h
 

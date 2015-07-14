@@ -27,6 +27,7 @@ void LoadCeilingFloor();
 void SetDefaultGains();
 void LoadMotorMix();
 
+
 float* floatPointerArray[172];
 
 int16_t* int16PointerArray[14];
@@ -335,7 +336,19 @@ void ROMFlagsCheck() {
     EEPROMWrite(FLOOR_START, outInt16.buffer[0]);
     EEPROMWrite(FLOOR_END, outInt16.buffer[1]);
   }
-
+  if (EEPROMRead(MIX_FLAG) != 0xAA){
+    EEPROMWrite(MIX_FLAG,0xAA);
+    m1X = m1Y = m2Y = m2Z = m4X = m4Z = m5X = m5Y = m6Y = m6Z = m8X = m8Z =  1.0;
+    m1Z = m2X = m3X = m3Y = m3Z = m4Y = m5Z = m6X = m7X = m7Y = m7Z = m8Y = -1.0;
+    j = MIX_START;
+    for(uint16_t i = M1_X; i <= M8_Z; i++){
+      outFloat.val = *floatPointerArray[i];
+      EEPROMWrite(j++, outFloat.buffer[0]);
+      EEPROMWrite(j++, outFloat.buffer[1]);
+      EEPROMWrite(j++, outFloat.buffer[2]);
+      EEPROMWrite(j++, outFloat.buffer[3]);
+    }
+  }
   if (EEPROMRead(TX_FS_FLAG) != 0xAA) {
     EEPROMWrite(TX_FS, 0);
     EEPROMWrite(TX_FS_FLAG, 0xAA);
@@ -762,7 +775,15 @@ void LoadCeilingFloor(){
 
 }
 void LoadMotorMix(){
-  
+  float_u outFloat;
+  uint16_t j = MIX_START;
+  for (uint16_t i = M1_X; i <= M8_Z; i++) { //pitch and roll offsets
+    outFloat.buffer[0] = EEPROMRead(j++);
+    outFloat.buffer[1] = EEPROMRead(j++);
+    outFloat.buffer[2] = EEPROMRead(j++);
+    outFloat.buffer[3] = EEPROMRead(j++);
+    *floatPointerArray[i] = outFloat.val;
+  }
 }
 void LoadROM() {
   LoadRC();
@@ -774,7 +795,9 @@ void LoadROM() {
   LoadModes();
   LoadDEC();
   LoadCeilingFloor();
+  LoadMotorMix();
 }
+
 
 
 

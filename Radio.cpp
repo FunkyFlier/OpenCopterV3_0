@@ -749,6 +749,10 @@ void WriteCalibrationDataToRom() {
     break;
 
   case 8://motor mix
+    EEPROMWrite(MIX_FLAG,0xAA);
+    for (uint16_t i = MIX_START; i <= MIX_END; i++) {
+      EEPROMWrite(i, itemBuffer[itemIndex++]);
+    }
     break;
   }
 
