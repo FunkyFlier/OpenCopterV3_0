@@ -21,9 +21,6 @@ void SetInitialQuaternion();
 void GenerateRotationMatrix();
 
 void GetEuler();
-void GetPitch();
-void GetRoll();
-void GetYaw();
 
 extern float declination;
 extern float cosDec,sinDec;
