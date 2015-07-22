@@ -191,8 +191,7 @@
 #define PKT_LOCAL_UN_L 4
 #define PKT_LOCAL_UN_M 5
 
-#define PROTOCOL_VER_NUM 1
-#define PROTOCOL_VER_SUB_NUM 1
+
 
 //V1 defines
 #ifdef V1
@@ -337,8 +336,11 @@
 #define VER_FLAG_1 428
 #define VER_FLAG_2 429
 
+#define PROTOCOL_VER_NUM 1
+#define PROTOCOL_VER_SUB_NUM 1
+
 #define VER_NUM_1 0x01
-#define VER_NUM_2 0x02
+#define VER_NUM_2 0x01
 
 
 #define PWM_LIM_HIGH_START 430
@@ -377,6 +379,10 @@
 #define MIX_FLAG 457
 #define MIX_START 458
 #define MIX_END 553
+
+#define EST_FLAG 554
+#define EST_GAIN_START 555
+#define EST_GAIN_END 598
 
 
 #endif//#ifndef Definitions.h

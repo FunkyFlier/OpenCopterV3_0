@@ -26,6 +26,9 @@ float q0q0,q1q1,q2q2,q3q3,q0q1,q0q2,q0q3,q1q2,q1q3,q2q3;
 float acc_x,acc_y,acc_z,mag_x,mag_y,mag_z,gro_x,gro_y,gro_z;
 float initialAccMagnitude;
 
+float kpAcc,kiAcc,kpMag,kiMag,feedbackLimit;
+
+
 
 void SetInitialAccelerometerMagnitude(){
   float accSumX = 0,accSumY = 0,accSumZ = 0;
@@ -69,7 +72,7 @@ void AHRSupdate(float dt) {
 
   magnitude =  sqrt(acc_x * acc_x + acc_y * acc_y + acc_z * acc_z);
   magnitudeDifference = fabs(initialAccMagnitude -  magnitude);
-  if (magnitudeDifference < FEEDBACK_LIMIT ){
+  if (magnitudeDifference < feedbackLimit ){
 
     recipNorm = 1/magnitude;
     acc_x *= recipNorm;
@@ -116,9 +119,9 @@ void AHRSupdate(float dt) {
     eya = (acc_z * vx - acc_x * vz);
     eza = (acc_x * vy - acc_y * vx);
 
-    kiDTAcc = KI_ACC * dt;
-    kiDTMag = KI_MAG * dt;
-    if (KI_ACC > 0){
+    kiDTAcc = kiAcc * dt;
+    kiDTMag = kiMag * dt;
+    if (kiAcc > 0){
       integralFBX += exa * kiDTAcc+ exm * kiDTMag;
       integralFBY += eya * kiDTAcc+ eym * kiDTMag;
       integralFBZ += eza * kiDTAcc+ ezm * kiDTMag;
@@ -131,9 +134,9 @@ void AHRSupdate(float dt) {
       integralFBY = 0;
       integralFBZ = 0;  
     }
-    gro_x += exa * KP_ACC + exm * KP_MAG;
-    gro_y += eya * KP_ACC + eym * KP_MAG;
-    gro_z += eza * KP_ACC + ezm * KP_MAG;
+    gro_x += exa * kpAcc + exm * kpMag;
+    gro_y += eya * kpAcc + eym * kpMag;
+    gro_z += eza * kpAcc + ezm * kpMag;
   }
 
 

@@ -26,9 +26,9 @@ void LoadPWMLimits();
 void LoadCeilingFloor();
 void SetDefaultGains();
 void LoadMotorMix();
+void LoadEstimatorGains();
 
-
-float* floatPointerArray[172];
+float* floatPointerArray[183];
 
 int16_t* int16PointerArray[14];
 
@@ -276,6 +276,19 @@ void AssignPointerArray() {
   floatPointerArray[M8_X] = &m8X;
   floatPointerArray[M8_Y] = &m8Y;
   floatPointerArray[M8_Z] = &m8Z;
+  
+  floatPointerArray[KP_ACC] = &kpAcc;
+  floatPointerArray[KI_ACC] = &kiAcc;
+  floatPointerArray[KP_MAG] = &kpMag;
+  floatPointerArray[KI_MAG] = &kiMag;
+  floatPointerArray[FEEDBACK_LIMIT] = &feedbackLimit;
+  floatPointerArray[K_P_GPS] = &kPosGPS;
+  floatPointerArray[K_V_GPS] = &kVelGPS;
+  floatPointerArray[K_B_GPS] = &kBiasGPS;
+  floatPointerArray[K_P_BARO] = &kPosBaro;
+  floatPointerArray[K_V_BARO] = &kVelBaro;
+  floatPointerArray[K_B_BARO] = &kBiasBaro;
+  
 
   int16PointerArray[GYRO_X] = &gyroX.val;//sensors
   int16PointerArray[GYRO_Y] = &gyroY.val;
@@ -326,6 +339,29 @@ void ROMFlagsCheck() {
     }
     EEPROMWrite(VER_FLAG_1, VER_NUM_1);
     EEPROMWrite(VER_FLAG_2, VER_NUM_2);
+  }
+  if (EEPROMRead(EST_FLAG) != 0xAA){
+    EEPROMWrite(EST_FLAG,0xAA);
+    kpAcc = 1.0;
+    kiAcc = 0;
+    kpMag = 1.0;
+    kiMag = 0;
+    feedbackLimit = 0.1;
+    
+    kPosGPS = 0.1;
+    kVelGPS = 0.22;
+    kBiasGPS = 0.03;
+    kPosBaro = 0.07;
+    kVelBaro = 0.1;
+    kBiasBaro = 0.01;
+    j = EST_GAIN_START;
+    for(uint16_t i = KP_ACC; i <= K_B_BARO; i++){
+      outFloat.val = *floatPointerArray[i];
+      EEPROMWrite(j++, outFloat.buffer[0]);
+      EEPROMWrite(j++, outFloat.buffer[1]);
+      EEPROMWrite(j++, outFloat.buffer[2]);
+      EEPROMWrite(j++, outFloat.buffer[3]);
+    }
   }
   if (EEPROMRead(CEILING_FLOOR_FLAG) != 0xAA){
     EEPROMWrite(CEILING_FLOOR_FLAG,0xAA);
@@ -785,6 +821,17 @@ void LoadMotorMix(){
     *floatPointerArray[i] = outFloat.val;
   }
 }
+void LoadEstimatorGains(){
+  float_u outFloat;
+  uint16_t j = EST_GAIN_START;
+  for (uint16_t i = KP_ACC; i <= K_B_BARO; i++) { //pitch and roll offsets
+    outFloat.buffer[0] = EEPROMRead(j++);
+    outFloat.buffer[1] = EEPROMRead(j++);
+    outFloat.buffer[2] = EEPROMRead(j++);
+    outFloat.buffer[3] = EEPROMRead(j++);
+    *floatPointerArray[i] = outFloat.val;
+  }
+}
 void LoadROM() {
   LoadRC();
   LoadACC();
@@ -796,6 +843,7 @@ void LoadROM() {
   LoadDEC();
   LoadCeilingFloor();
   LoadMotorMix();
+  LoadEstimatorGains();
 }
 
 

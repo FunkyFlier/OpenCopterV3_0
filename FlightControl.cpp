@@ -184,6 +184,15 @@ void _100HzTask(uint32_t loopTime){
     while(_100HzState < LAST_100HZ_TASK){
       switch (_100HzState){
       case GET_GYRO:
+        /*K_P_GPS = kp_waypoint_position;
+        K_V_GPS = ki_waypoint_position;
+        K_B_GPS = kd_waypoint_position;
+        K_P_BARO = kp_waypoint_velocity;
+        K_V_BARO = ki_waypoint_velocity;
+        K_B_BARO = kd_waypoint_velocity;
+        KP_ACC = kp_cross_track;
+        KP_MAG = ki_cross_track;
+        FEEDBACK_LIMIT = kd_cross_track;*/
         PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
@@ -216,13 +225,13 @@ void _100HzTask(uint32_t loopTime){
         Predict(_100HzDt);
         _100HzState = UPDATE_LAG_INDEX;
         /*xFromTO = XEst - homeBaseXOffset;
-        yFromTO = YEst - homeBaseYOffset;
-        distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
-        headingToWayPoint = ToDeg(atan2(-1.0 * yFromTO , -1.0 * xFromTO));
-        if (headingToWayPoint < 0.0){
-          headingToWayPoint += 360.0;
-        }
-        Rotate2dVector(&headingToWayPoint,&zero,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);*/
+         yFromTO = YEst - homeBaseYOffset;
+         distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
+         headingToWayPoint = ToDeg(atan2(-1.0 * yFromTO , -1.0 * xFromTO));
+         if (headingToWayPoint < 0.0){
+         headingToWayPoint += 360.0;
+         }
+         Rotate2dVector(&headingToWayPoint,&zero,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);*/
         break;
       case UPDATE_LAG_INDEX:
         UpdateLagIndex();
@@ -1273,6 +1282,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 

@@ -8,6 +8,7 @@ void _400HzTask();
 void _100HzTask(uint32_t);
 void ProcessChannels();
 void Arm();
+void Rotate2dVector(float*, float*, float*, float*, float*, float*);
 
 extern uint8_t flightMode;
 extern uint32_t _100HzTimer,_400HzTimer;

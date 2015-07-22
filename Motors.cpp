@@ -20,6 +20,7 @@ void ResetPIDs();
 void CompleteESCCalibration();
 void CalculateMotorMixing();
 void WriteMotorPWM();
+void SaveEstiamtorGains();
 
 uint32_t romWriteDelayTimer;
 float motorCommand1, motorCommand2, motorCommand3, motorCommand4,motorCommand5, motorCommand6, motorCommand7, motorCommand8;
@@ -35,6 +36,7 @@ float m1X,m1Y,m1Z,m2X,m2Y,m2Z,m3X,m3Y,m3Z,m4X,m4Y,m4Z,m5X,m5Y,m5Z,m6X,m6Y,m6Z,m7
 
 
 boolean saveGainsFlag = false;
+boolean saveEstimatorGainsFlag = false;
 boolean throttleCheckFlag = false;
 boolean calibrateESCs = false;
 boolean calibrationModeESCs = false;
@@ -268,6 +270,17 @@ void SaveGains(){
   calibrationFlags &= ~(1<<GAINS_FLAG);
   EEPROMWrite(CAL_FLAGS,calibrationFlags);
 }
+void SaveEstiamtorGains(){
+  float_u outFloat;
+  uint16_t j = EST_GAIN_START;
+  for (uint16_t i = KP_ACC; i <= K_B_BARO; i++) {
+    outFloat.val = *floatPointerArray[i];
+    EEPROMWrite(j++, outFloat.buffer[0]);
+    EEPROMWrite(j++, outFloat.buffer[1]);
+    EEPROMWrite(j++, outFloat.buffer[2]);
+    EEPROMWrite(j++, outFloat.buffer[3]);
+  }  
+}
 void ResetPIDs(){
   PitchAngle.reset();
   RollAngle.reset();
@@ -297,11 +310,18 @@ void MotorHandler(){
   static boolean rudderFlag = false;
   switch(motorState){
   case HOLD:
-
     if (saveGainsFlag == true && (millis() - romWriteDelayTimer) > 2000){
       SaveGains();
 
       saveGainsFlag = false;
+      _100HzTimer = micros();
+      baroPollTimer = millis();
+      _400HzTimer = _100HzTimer;
+    }
+    if (saveEstimatorGainsFlag == true && (millis() - romWriteDelayTimer) > 2000){
+      SaveEstiamtorGains();
+
+      saveEstimatorGainsFlag = false;
       _100HzTimer = micros();
       baroPollTimer = millis();
       _400HzTimer = _100HzTimer;

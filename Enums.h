@@ -255,7 +255,19 @@ enum Floats {
   M7_Z,
   M8_X,
   M8_Y,
-  M8_Z
+  M8_Z,
+  KP_ACC,
+  KI_ACC,
+  KP_MAG,
+  KI_MAG,
+  FEEDBACK_LIMIT,
+  K_P_GPS,
+  K_V_GPS,
+  K_B_GPS,
+  K_P_BARO,
+  K_V_BARO,
+  K_B_BARO
+
 
 };
 enum motorControlStates {
@@ -347,6 +359,7 @@ enum RC_Types {
 enum RC_Chan {
   THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 #endif
+
 
 
 

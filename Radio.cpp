@@ -780,6 +780,15 @@ void OrderedSet() {
       romWriteDelayTimer = millis();
 
     }
+    if (cmdNum >= KP_ACC && cmdNum <= K_B_BARO) {
+      for (uint8_t i = 0; i < 4; i++) {
+        outFloat.buffer[i] =  itemBuffer[i];
+      }
+      *floatPointerArray[cmdNum] = outFloat.val;
+       saveEstimatorGainsFlag = true;
+      romWriteDelayTimer = millis();
+
+    }
     break;
   case INT16:
     if (cmdNum == CEILING_LIMIT || cmdNum == FLOOR_LIMIT ){
