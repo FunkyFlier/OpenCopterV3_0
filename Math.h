@@ -10,8 +10,9 @@
 
 void MapVar (volatile int16_t*, float*, float, float, float, float);
 void MapVar ( float* , float* , int16_t,int16_t, int16_t , int16_t );
-
+void MapVar ( uint16_t*, float*, uint16_t, uint16_t, uint16_t , uint16_t);
 void LPF(float*, float*, float*, float);
+void LPF(float*, uint16_t* ,float*,float);
 
 #endif 
 

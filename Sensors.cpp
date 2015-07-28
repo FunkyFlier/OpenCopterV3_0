@@ -1,8 +1,31 @@
 #include "Sensors.h"
+#include "Math.h"
 
+float batteryPercent,cellVoltage,mAh;
 
-
-
+void ReadBatteryInfo(float *dt){
+  uint16_t ampCount;
+  uint16_t voltCount;
+  static float smoothAmpCount = 0.0;
+  static float smoothVoltCount = 0.0;
+  float amps;
+  ampCount = analogRead(7);
+  voltCount = analogRead(6);
+  LPF(&smoothAmpCount,&ampCount,dt,RC_CONST_ADC);
+  LPF(&smoothVoltCount,&voltCount,dt,RC_CONST_ADC);
+  amps = smoothAmpCount * COUNTS_TO_AMPS;
+  mAh += amps * 0.001 * *dt;
+  cellVoltage = VOLT_COUNTS_TO_CELL_VOLTAGE * smoothVoltCount;
+  if (voltCount >= _3_V_PER_CELL){
+    MapVar(&smoothVoltCount,&batteryPercent,LOW_VOLTAGE_COUNT,HIGH_VOLTAGE_COUNT,0,100);
+    if(batteryPercent > 100.0){
+      batteryPercent = 100;
+    }
+  }
+  else{
+    batteryPercent = 0.0;
+  }
+}
 
 #ifdef ROT_45
 int16_t tempX, tempY;
@@ -745,6 +768,8 @@ void GetMag() {
 }
 
 //end mag------------------------------
+
+
 
 
 

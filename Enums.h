@@ -79,6 +79,7 @@ enum _100HzStates{
   HANDLE_FAILSAFES,
   ATTITUDE_PID_LOOPS,
   RATE_PID_LOOPS,
+  READ_BATTERY,
   MOTOR_HANDLER,
   LAST_100HZ_TASK
 };
@@ -266,7 +267,10 @@ enum Floats {
   K_B_GPS,
   K_P_BARO,
   K_V_BARO,
-  K_B_BARO
+  K_B_BARO,
+  M_AH,
+  BATT_PERCENT,
+  CELL_VOLT
 
 
 };
@@ -359,6 +363,7 @@ enum RC_Types {
 enum RC_Chan {
   THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 #endif
+
 
 
 

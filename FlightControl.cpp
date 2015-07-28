@@ -181,18 +181,20 @@ void _100HzTask(uint32_t loopTime){
   if (loopTime - _100HzTimer >= 10000){
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
+    D22High();
     while(_100HzState < LAST_100HZ_TASK){
+      
       switch (_100HzState){
       case GET_GYRO:
         /*K_P_GPS = kp_waypoint_position;
-        K_V_GPS = ki_waypoint_position;
-        K_B_GPS = kd_waypoint_position;
-        K_P_BARO = kp_waypoint_velocity;
-        K_V_BARO = ki_waypoint_velocity;
-        K_B_BARO = kd_waypoint_velocity;
-        KP_ACC = kp_cross_track;
-        KP_MAG = ki_cross_track;
-        FEEDBACK_LIMIT = kd_cross_track;*/
+         K_V_GPS = ki_waypoint_position;
+         K_B_GPS = kd_waypoint_position;
+         K_P_BARO = kp_waypoint_velocity;
+         K_V_BARO = ki_waypoint_velocity;
+         K_B_BARO = kd_waypoint_velocity;
+         KP_ACC = kp_cross_track;
+         KP_MAG = ki_cross_track;
+         FEEDBACK_LIMIT = kd_cross_track;*/
         PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
@@ -311,6 +313,12 @@ void _100HzTask(uint32_t loopTime){
         PitchRate.calculate();
         RollRate.calculate();
         YawRate.calculate();
+        _100HzState = READ_BATTERY;
+        break;
+      case READ_BATTERY:
+        D23High();
+        ReadBatteryInfo(&_100HzDt);
+        D23Low();
         _100HzState = MOTOR_HANDLER;
         break;
       case MOTOR_HANDLER:
@@ -325,6 +333,7 @@ void _100HzTask(uint32_t loopTime){
       _400HzTask();
 
     }
+    D22Low();
     _100HzState = GET_GYRO;
   }
 
@@ -1282,6 +1291,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 

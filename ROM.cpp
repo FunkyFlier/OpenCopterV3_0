@@ -28,7 +28,7 @@ void SetDefaultGains();
 void LoadMotorMix();
 void LoadEstimatorGains();
 
-float* floatPointerArray[183];
+float* floatPointerArray[186];
 
 int16_t* int16PointerArray[14];
 
@@ -288,7 +288,9 @@ void AssignPointerArray() {
   floatPointerArray[K_P_BARO] = &kPosBaro;
   floatPointerArray[K_V_BARO] = &kVelBaro;
   floatPointerArray[K_B_BARO] = &kBiasBaro;
-  
+    floatPointerArray[K_P_BARO] = &kPosBaro;
+  floatPointerArray[K_V_BARO] = &kVelBaro;
+  floatPointerArray[K_B_BARO] = &kBiasBaro;
 
   int16PointerArray[GYRO_X] = &gyroX.val;//sensors
   int16PointerArray[GYRO_Y] = &gyroY.val;
