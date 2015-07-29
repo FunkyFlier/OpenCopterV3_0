@@ -14,7 +14,7 @@ void ReadBatteryInfo(float *dt){
   LPF(&smoothAmpCount,&ampCount,dt,RC_CONST_ADC);
   LPF(&smoothVoltCount,&voltCount,dt,RC_CONST_ADC);
   amps = smoothAmpCount * COUNTS_TO_AMPS;
-  mAh += amps * 0.001 * *dt;
+  mAh += amps * 0.2778 * dt;
   cellVoltage = VOLT_COUNTS_TO_CELL_VOLTAGE * smoothVoltCount;
   if (voltCount >= _3_V_PER_CELL){
     MapVar(&smoothVoltCount,&batteryPercent,LOW_VOLTAGE_COUNT,HIGH_VOLTAGE_COUNT,0,100);

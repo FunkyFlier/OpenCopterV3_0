@@ -49,7 +49,7 @@
 #endif//#ifdef QUAD_CAMP
 
 
-#define COUNTS_TO_AMPS 0.17755681
+#define COUNTS_TO_AMPS 0.23339658
 #define _3_V_PER_CELL 750
 #define LOW_VOLTAGE_COUNT 750
 #define HIGH_VOLTAGE_COUNT 1024
@@ -273,8 +273,8 @@
 //end V2 defines
 
 
-#define FC_ADC 1.5
-#define RC_CONST_ADC 1.0/(2.0 * 3.14 * FC_ADC)
+#define FC_ADC 1
+#define RC_CONST_ADC 1/(2.0 * 3.14 * FC_ADC)
 
 #define FC_ACC 5.0
 #define RC_CONST_ACC 1.0/(2.0 * 3.14 * FC_ACC)
