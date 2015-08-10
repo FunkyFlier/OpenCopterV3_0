@@ -71,7 +71,7 @@ void GPSStart() {
       switch (gpsStartState){
       case GPS_START_FIX:
         memcpy(LEDPattern, (uint8_t[]){
-          0x00, 0x0F, 0x00,0x0F                                    } 
+          0x04, 0x01, 0x02,0x03                                    } 
         , 4);
         while (GPSData.vars.gpsFix != 0x3) {
           GPSMonitor();

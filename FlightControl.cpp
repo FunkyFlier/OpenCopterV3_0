@@ -839,7 +839,7 @@ void LoiterSM(){
         XYLoiterState = RCINPUT;
         break;
       }
-      if (millis() - waitTimer > 1000){
+      if (millis() - waitTimer > 250){
         XYLoiterState = LOITERING;
         xTarget = XEst;
         yTarget = YEst;
