@@ -9,7 +9,7 @@
 #include <Arduino.h>
 
 
-#define NUMBER_GYRO_SAMPLES_FOR_AVG 200
+#define NUMBER_GYRO_SAMPLES_FOR_AVG 100
 void ACCScale();
 void MAGScale();
 void GROScale();

@@ -4,6 +4,7 @@
 #include "GPS.h"
 #include "Sensors.h"
 #include "Streaming_.h"
+#include "FlightControl.h"
 
 float inertialX,inertialY,inertialZ;
 float velX,velY,velZ,velZUp;
@@ -22,6 +23,7 @@ int16_t currentEstIndex,lagIndex,currentEstIndex_z,lagIndex_z;
 float XEstHist[LAG_SIZE],YEstHist[LAG_SIZE],ZEstHist[LAG_SIZE_BARO];
 float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
 
+float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 
 
 void GetInertial(){
@@ -51,10 +53,10 @@ void InertialInit(){
   XEst = 0;
   YEst = 0;
   ZEst = 0;
-  
   accelBiasX = 0;
   accelBiasY = 0;
   accelBiasZ = 0;
+
 
 }
 
@@ -143,19 +145,19 @@ void CorrectXY(){
   xVelError = XVelHist[lagIndex] - gpsVelX;
   yVelError = YVelHist[lagIndex] - gpsVelY;
 
-  XEst = XEst - K_P_GPS * xPosError;
-  YEst = YEst - K_P_GPS * yPosError;
+  XEst = XEst - kPosGPS * xPosError;
+  YEst = YEst - kPosGPS * yPosError;
 
-  velX = velX - K_V_GPS * xVelError;
-  velY = velY - K_V_GPS * yVelError;
+  velX = velX - kVelGPS * xVelError;
+  velY = velY - kVelGPS * yVelError;
 
   accelBiasXEF = R11_ * accelBiasX + R21_ * accelBiasY + R31_ * accelBiasZ;
   accelBiasYEF = R12_ * accelBiasX + R22_ * accelBiasY + R32_ * accelBiasZ;
   accelBiasZEF = R13_ * accelBiasX + R23_ * accelBiasY + R33_ * accelBiasZ;
 
 
-  accelBiasXEF = accelBiasXEF + K_B_GPS * xVelError;
-  accelBiasYEF = accelBiasYEF + K_B_GPS * yVelError;
+  accelBiasXEF = accelBiasXEF + kBiasGPS * xVelError;
+  accelBiasYEF = accelBiasYEF + kBiasGPS * yVelError;
 
   accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
   accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
@@ -173,15 +175,15 @@ void CorrectZ(){
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
 
-  ZEst = ZEst - K_P_BARO * zPosError;
-  velZ = velZ - K_V_BARO * zVelError;
+  ZEst = ZEst - kPosBaro * zPosError;
+  velZ = velZ - kVelBaro * zVelError;
 
   accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
   accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
   accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
 
 
-  accelBiasZEF = accelBiasZEF + K_B_BARO * zVelError;
+  accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
 
   accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
   accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;

@@ -21,15 +21,16 @@ void LoadModes();
 void LoadDEC();
 void LoadPROff();
 void LoadGains();
-//void LoadMAG();
-//void LoadACC();
 void LoadRC();
 void LoadPWMLimits();
+void LoadCeilingFloor();
 void SetDefaultGains();
+void LoadMotorMix();
+void LoadEstimatorGains();
 
-float* floatPointerArray[148];
+float* floatPointerArray[186];
 
-int16_t* int16PointerArray[12];
+int16_t* int16PointerArray[14];
 
 uint8_t* bytePointerArray[14];
 
@@ -207,24 +208,24 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
-//float xPosError,yPosError,xVelError,yVelError;
+  //float xPosError,yPosError,xVelError,yVelError;
 
   /*floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
-  floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
-  floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
-  floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
-  floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
-  floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
-  floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
-  floatPointerArray[MOTOR_CMD_8] = &motorCommand8;*/
-    floatPointerArray[MOTOR_CMD_1] = &wpVelSetPoint;//motors
+   floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
+   floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
+   floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
+   floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
+   floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
+   floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
+   floatPointerArray[MOTOR_CMD_8] = &motorCommand8;*/
+  /*floatPointerArray[MOTOR_CMD_1] = &wpVelSetPoint;//motors
   floatPointerArray[MOTOR_CMD_2] = &wpPathVelocity;
   floatPointerArray[MOTOR_CMD_3] = &wpCrossTrackVelocity;
-  floatPointerArray[MOTOR_CMD_4] = &wpTilX;/*
+  floatPointerArray[MOTOR_CMD_4] = &wpTilX;*/
   floatPointerArray[MOTOR_CMD_1] = &xPosError;//motors
-  floatPointerArray[MOTOR_CMD_2] = &yPosError;
-  floatPointerArray[MOTOR_CMD_3] = &xVelError;
-  floatPointerArray[MOTOR_CMD_4] = &yVelError;*/
+   floatPointerArray[MOTOR_CMD_2] = &yPosError;
+   floatPointerArray[MOTOR_CMD_3] = &xVelError;
+   floatPointerArray[MOTOR_CMD_4] = &yVelError;
   floatPointerArray[MOTOR_CMD_5] = &wpTiltY;
   floatPointerArray[MOTOR_CMD_6] = &headingToWayPoint;
   floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
@@ -244,6 +245,52 @@ void AssignPointerArray() {
   floatPointerArray[S_ACC] = &sAcc;
 
 
+  floatPointerArray[M1_X] = &m1X;
+  floatPointerArray[M1_Y] = &m1Y;
+  floatPointerArray[M1_Z] = &m1Z;
+
+  floatPointerArray[M2_X] = &m2X;
+  floatPointerArray[M2_Y] = &m2Y;
+  floatPointerArray[M2_Z] = &m2Z;
+
+  floatPointerArray[M3_X] = &m3X;
+  floatPointerArray[M3_Y] = &m3Y;
+  floatPointerArray[M3_Z] = &m3Z;
+
+  floatPointerArray[M4_X] = &m4X;
+  floatPointerArray[M4_Y] = &m4Y;
+  floatPointerArray[M4_Z] = &m4Z;
+
+  floatPointerArray[M5_X] = &m5X;
+  floatPointerArray[M5_Y] = &m5Y;
+  floatPointerArray[M5_Z] = &m5Z;
+
+  floatPointerArray[M6_X] = &m6X;
+  floatPointerArray[M6_Y] = &m6Y;
+  floatPointerArray[M6_Z] = &m6Z;
+
+  floatPointerArray[M7_X] = &m7X;
+  floatPointerArray[M7_Y] = &m7Y;
+  floatPointerArray[M7_Z] = &m7Z;
+
+  floatPointerArray[M8_X] = &m8X;
+  floatPointerArray[M8_Y] = &m8Y;
+  floatPointerArray[M8_Z] = &m8Z;
+  
+  floatPointerArray[KP_ACC] = &kpAcc;
+  floatPointerArray[KI_ACC] = &kiAcc;
+  floatPointerArray[KP_MAG] = &kpMag;
+  floatPointerArray[KI_MAG] = &kiMag;
+  floatPointerArray[FEEDBACK_LIMIT] = &feedbackLimit;
+  floatPointerArray[K_P_GPS] = &kPosGPS;
+  floatPointerArray[K_V_GPS] = &kVelGPS;
+  floatPointerArray[K_B_GPS] = &kBiasGPS;
+  floatPointerArray[K_P_BARO] = &kPosBaro;
+  floatPointerArray[K_V_BARO] = &kVelBaro;
+  floatPointerArray[K_B_BARO] = &kBiasBaro;
+    floatPointerArray[K_P_BARO] = &kPosBaro;
+  floatPointerArray[K_V_BARO] = &kVelBaro;
+  floatPointerArray[K_B_BARO] = &kBiasBaro;
 
   int16PointerArray[GYRO_X] = &gyroX.val;//sensors
   int16PointerArray[GYRO_Y] = &gyroY.val;
@@ -259,6 +306,9 @@ void AssignPointerArray() {
 
   int16PointerArray[PWM_HIGH] = &pwmHigh;//mtors
   int16PointerArray[PWM_LOW] = &pwmLow;
+
+  int16PointerArray[CEILING_LIMIT] = &ceilingLimit;//mtors
+  int16PointerArray[FLOOR_LIMIT] = &floorLimit;
 
 
   bytePointerArray[F_MODE_] = &flightMode;//flight control
@@ -292,7 +342,51 @@ void ROMFlagsCheck() {
     EEPROMWrite(VER_FLAG_1, VER_NUM_1);
     EEPROMWrite(VER_FLAG_2, VER_NUM_2);
   }
-
+  if (EEPROMRead(EST_FLAG) != 0xAA){
+    EEPROMWrite(EST_FLAG,0xAA);
+    kpAcc = 1.0;
+    kiAcc = 0;
+    kpMag = 1.0;
+    kiMag = 0;
+    feedbackLimit = 0.1;
+    
+    kPosGPS = 0.1;
+    kVelGPS = 0.22;
+    kBiasGPS = 0.03;
+    kPosBaro = 0.07;
+    kVelBaro = 0.1;
+    kBiasBaro = 0.01;
+    j = EST_GAIN_START;
+    for(uint16_t i = KP_ACC; i <= K_B_BARO; i++){
+      outFloat.val = *floatPointerArray[i];
+      EEPROMWrite(j++, outFloat.buffer[0]);
+      EEPROMWrite(j++, outFloat.buffer[1]);
+      EEPROMWrite(j++, outFloat.buffer[2]);
+      EEPROMWrite(j++, outFloat.buffer[3]);
+    }
+  }
+  if (EEPROMRead(CEILING_FLOOR_FLAG) != 0xAA){
+    EEPROMWrite(CEILING_FLOOR_FLAG,0xAA);
+    outInt16.val = (int16_t)CEILING;
+    EEPROMWrite(CEILING_START, outInt16.buffer[0]);
+    EEPROMWrite(CEILING_END, outInt16.buffer[1]);
+    outInt16.val = (int16_t)FLOOR;
+    EEPROMWrite(FLOOR_START, outInt16.buffer[0]);
+    EEPROMWrite(FLOOR_END, outInt16.buffer[1]);
+  }
+  if (EEPROMRead(MIX_FLAG) != 0xAA){
+    EEPROMWrite(MIX_FLAG,0xAA);
+    m1X = m1Y = m2Y = m2Z = m4X = m4Z = m5X = m5Y = m6Y = m6Z = m8X = m8Z =  1.0;
+    m1Z = m2X = m3X = m3Y = m3Z = m4Y = m5Z = m6X = m7X = m7Y = m7Z = m8Y = -1.0;
+    j = MIX_START;
+    for(uint16_t i = M1_X; i <= M8_Z; i++){
+      outFloat.val = *floatPointerArray[i];
+      EEPROMWrite(j++, outFloat.buffer[0]);
+      EEPROMWrite(j++, outFloat.buffer[1]);
+      EEPROMWrite(j++, outFloat.buffer[2]);
+      EEPROMWrite(j++, outFloat.buffer[3]);
+    }
+  }
   if (EEPROMRead(TX_FS_FLAG) != 0xAA) {
     EEPROMWrite(TX_FS, 0);
     EEPROMWrite(TX_FS_FLAG, 0xAA);
@@ -707,6 +801,39 @@ void LoadModes(){
     modeArray[j++] = EEPROMRead(i);
   }
 }
+void LoadCeilingFloor(){
+  int16_u outInt16;
+  outInt16.buffer[0] = EEPROMRead(CEILING_START);
+  outInt16.buffer[1] = EEPROMRead(CEILING_END);
+  ceilingLimit = outInt16.val;
+
+  outInt16.buffer[0] = EEPROMRead(FLOOR_START);
+  outInt16.buffer[1] = EEPROMRead(FLOOR_END);
+  floorLimit = outInt16.val;
+
+}
+void LoadMotorMix(){
+  float_u outFloat;
+  uint16_t j = MIX_START;
+  for (uint16_t i = M1_X; i <= M8_Z; i++) { //pitch and roll offsets
+    outFloat.buffer[0] = EEPROMRead(j++);
+    outFloat.buffer[1] = EEPROMRead(j++);
+    outFloat.buffer[2] = EEPROMRead(j++);
+    outFloat.buffer[3] = EEPROMRead(j++);
+    *floatPointerArray[i] = outFloat.val;
+  }
+}
+void LoadEstimatorGains(){
+  float_u outFloat;
+  uint16_t j = EST_GAIN_START;
+  for (uint16_t i = KP_ACC; i <= K_B_BARO; i++) { //pitch and roll offsets
+    outFloat.buffer[0] = EEPROMRead(j++);
+    outFloat.buffer[1] = EEPROMRead(j++);
+    outFloat.buffer[2] = EEPROMRead(j++);
+    outFloat.buffer[3] = EEPROMRead(j++);
+    *floatPointerArray[i] = outFloat.val;
+  }
+}
 void LoadROM() {
   LoadRC();
   LoadACC();
@@ -716,7 +843,12 @@ void LoadROM() {
   LoadPWMLimits();
   LoadModes();
   LoadDEC();
+  LoadCeilingFloor();
+  LoadMotorMix();
+  LoadEstimatorGains();
 }
+
+
 
 
 

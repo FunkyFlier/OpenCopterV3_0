@@ -8,10 +8,8 @@ void _400HzTask();
 void _100HzTask(uint32_t);
 void ProcessChannels();
 void Arm();
+void Rotate2dVector(float*, float*, float*, float*, float*, float*);
 
-
-//extern PID WayPointPosition;
-//extern PID WayPointRate;
 extern uint8_t flightMode;
 extern uint32_t _100HzTimer,_400HzTimer;
 extern volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount;
@@ -30,85 +28,85 @@ extern boolean telemFailSafe,txFailSafe,tuningTrasnmitOK;
 
 extern boolean enterState;
 extern float xFromTO,yFromTO;
+extern int16_t floorLimit,ceilingLimit;
 
 extern uint8_t modeArray[9];
 
 
-extern float kp_pitch_rate;//52
-extern float ki_pitch_rate;//56
-extern float kd_pitch_rate;//60
-extern float fc_pitch_rate;//64
+extern float kp_pitch_rate;
+extern float ki_pitch_rate;
+extern float kd_pitch_rate;
+extern float fc_pitch_rate;
 
-extern float kp_roll_rate;//68
-extern float ki_roll_rate;//72
-extern float kd_roll_rate;//76
-extern float fc_roll_rate;//80
+extern float kp_roll_rate;
+extern float ki_roll_rate;
+extern float kd_roll_rate;
+extern float fc_roll_rate;
 
-extern float kp_yaw_rate;//84
-extern float ki_yaw_rate;//88
-extern float kd_yaw_rate;//92
-extern float fc_yaw_rate;//96
+extern float kp_yaw_rate;
+extern float ki_yaw_rate;
+extern float kd_yaw_rate;
+extern float fc_yaw_rate;
 
-extern float kp_pitch_attitude;//100
-extern float ki_pitch_attitude;//104
-extern float kd_pitch_attitude;//108
-extern float fc_pitch_attitude;//112
+extern float kp_pitch_attitude;
+extern float ki_pitch_attitude;
+extern float kd_pitch_attitude;
+extern float fc_pitch_attitude;
 
-extern float kp_roll_attitude;//116
-extern float ki_roll_attitude;//120
-extern float kd_roll_attitude;//124
-extern float fc_roll_attitude;//128
+extern float kp_roll_attitude;
+extern float ki_roll_attitude;
+extern float kd_roll_attitude;
+extern float fc_roll_attitude;
 
-extern float kp_yaw_attitude;//132
-extern float ki_yaw_attitude;//136
-extern float kd_yaw_attitude;//140
-extern float fc_yaw_attitude;//144
+extern float kp_yaw_attitude;
+extern float ki_yaw_attitude;
+extern float kd_yaw_attitude;
+extern float fc_yaw_attitude;
 
-extern float kp_altitude_position;//148
-extern float ki_altitude_position;//152
-extern float kd_altitude_position;//156
-extern float fc_altitude_position;//160
+extern float kp_altitude_position;
+extern float ki_altitude_position;
+extern float kd_altitude_position;
+extern float fc_altitude_position;
 
-extern float kp_altitude_velocity;//164
-extern float ki_altitude_velocity;//168
-extern float kd_altitude_velocity;//172
-extern float fc_altitude_velocity;///176
-//extern float mul_altitude_velocity;
+extern float kp_altitude_velocity;
+extern float ki_altitude_velocity;
+extern float kd_altitude_velocity;
+extern float fc_altitude_velocity;
 
-extern float kp_loiter_pos_x;//180
-extern float ki_loiter_pos_x;//184
-extern float kd_loiter_pos_x;//188
-extern float fc_loiter_pos_x;//192
+extern float kp_loiter_pos_x;
+extern float ki_loiter_pos_x;
+extern float kd_loiter_pos_x;
+extern float fc_loiter_pos_x;
 
-extern float kp_loiter_velocity_x;//196
-extern float ki_loiter_velocity_x;//200
-extern float kd_loiter_velocity_x;//204
-extern float fc_loiter_velocity_x;//208
+extern float kp_loiter_velocity_x;
+extern float ki_loiter_velocity_x;
+extern float kd_loiter_velocity_x;
+extern float fc_loiter_velocity_x;
 
-extern float kp_loiter_pos_y;//212
-extern float ki_loiter_pos_y;//216
-extern float kd_loiter_pos_y;//220
-extern float fc_loiter_pos_y;//224
+extern float kp_loiter_pos_y;
+extern float ki_loiter_pos_y;
+extern float kd_loiter_pos_y;
+extern float fc_loiter_pos_y;
 
-extern float kp_loiter_velocity_y;//228
-extern float ki_loiter_velocity_y;//232
-extern float kd_loiter_velocity_y;//236
-extern float fc_loiter_velocity_y;//240
+extern float kp_loiter_velocity_y;
+extern float ki_loiter_velocity_y;
+extern float kd_loiter_velocity_y;
+extern float fc_loiter_velocity_y;
 
-extern float kp_waypoint_position;//244
-extern float ki_waypoint_position;//248
-extern float kd_waypoint_position;//252
-extern float fc_waypoint_position;//256
+extern float kp_waypoint_position;
+extern float ki_waypoint_position;
+extern float kd_waypoint_position;
+extern float fc_waypoint_position;
 
-extern float kp_waypoint_velocity;//260
-extern float ki_waypoint_velocity;//264
-extern float kd_waypoint_velocity;//268
-extern float fc_waypoint_velocity;//272
+extern float kp_waypoint_velocity;
+extern float ki_waypoint_velocity;
+extern float kd_waypoint_velocity;
+extern float fc_waypoint_velocity;
 
-extern float kp_cross_track;//276
-extern float ki_cross_track;//280
-extern float kd_cross_track;//284
-extern float fc_cross_track;//288
+extern float kp_cross_track;
+extern float ki_cross_track;
+extern float kd_cross_track;
+extern float fc_cross_track;
 
 extern float pitchSetPoint;
 extern float rollSetPoint;
@@ -121,7 +119,6 @@ extern float adjustmentY;
 extern float adjustmentZ;
 
 extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
-extern float angleDiffOutput;
 
 extern PID PitchRate;
 extern PID RollRate;

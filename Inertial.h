@@ -4,15 +4,13 @@
 #define LAG_SIZE 56
 #define LAG_SIZE_BARO 27
 
-#define FC_BARO 3.0
-#define RC_CONST_BARO 1/(2.0 * 3.14 * FC_BARO)
-
-#define K_P_GPS 0.1
-#define K_V_GPS 0.2
-#define K_B_GPS 0.03
+/*#define K_P_GPS 0.1
+#define K_V_GPS 0.22
+#define K_B_GPS 0.003
 #define K_P_BARO 0.07
-#define K_V_BARO 0.1
-#define K_B_BARO 0.01
+#define K_V_BARO 0.12
+#define K_B_BARO 0.003*/
+
 
 void GetInertial();
 void Predict(float);
@@ -30,5 +28,8 @@ extern float distToCraft,headingToCraft;
 extern float gpsX,gpsY,baroZ,baroVel;
 extern float prevBaro;
 extern float xPosError,yPosError,xVelError,yVelError;
+
+extern float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
+
 
 #endif

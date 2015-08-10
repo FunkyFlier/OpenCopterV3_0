@@ -8,6 +8,8 @@
 #include <SPI.h>
 #include "I2C_.h"
 
+void ReadBatteryInfo(float*);
+
 void VerifyMag();
 
 void GetGro();

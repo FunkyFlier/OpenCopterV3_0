@@ -48,6 +48,14 @@
 
 #endif//#ifdef QUAD_CAMP
 
+
+#define COUNTS_TO_AMPS 0.23339658
+#define _3_V_PER_CELL 750
+#define LOW_VOLTAGE_COUNT 750
+#define HIGH_VOLTAGE_COUNT 1024
+#define VOLT_COUNTS_TO_CELL_VOLTAGE 0.0041015625 //   4.2/1024
+
+
 #define CEILING 6.0
 #define FLOOR 2.0
 #define TAKE_OFF_ALT 3.0
@@ -191,8 +199,7 @@
 #define PKT_LOCAL_UN_L 4
 #define PKT_LOCAL_UN_M 5
 
-#define PROTOCOL_VER_NUM 1
-#define PROTOCOL_VER_SUB_NUM 1
+
 
 //V1 defines
 #ifdef V1
@@ -266,12 +273,14 @@
 //end V2 defines
 
 
+#define FC_ADC 1
+#define RC_CONST_ADC 1/(2.0 * 3.14 * FC_ADC)
 
-#define FC_ACC 5
-#define RC_CONST_ACC 1/(2.0 * 3.14 * FC_ACC)
+#define FC_ACC 5.0
+#define RC_CONST_ACC 1.0/(2.0 * 3.14 * FC_ACC)
 
 #define FC_BARO 3.0
-#define RC_CONST_BARO 1/(2.0 * 3.14 * FC_BARO)
+#define RC_CONST_BARO 1.0/(2.0 * 3.14 * FC_BARO)
 
 #define DEC_START 328
 #define DEC_END 331
@@ -337,6 +346,9 @@
 #define VER_FLAG_1 428
 #define VER_FLAG_2 429
 
+#define PROTOCOL_VER_NUM 1
+#define PROTOCOL_VER_SUB_NUM 1
+
 #define VER_NUM_1 0x01
 #define VER_NUM_2 0x01
 
@@ -367,6 +379,21 @@
 #define GAINS_END 327
 
 #define GS_ID_INDEX 451
+
+#define CEILING_FLOOR_FLAG 452
+#define CEILING_START 453
+#define CEILING_END 454
+#define FLOOR_START 455
+#define FLOOR_END 456
+
+#define MIX_FLAG 457
+#define MIX_START 458
+#define MIX_END 553
+
+#define EST_FLAG 554
+#define EST_GAIN_START 555
+#define EST_GAIN_END 598
+
 
 #endif//#ifndef Definitions.h
 

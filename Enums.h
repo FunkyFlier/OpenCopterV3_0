@@ -79,6 +79,7 @@ enum _100HzStates{
   HANDLE_FAILSAFES,
   ATTITUDE_PID_LOOPS,
   RATE_PID_LOOPS,
+  READ_BATTERY,
   MOTOR_HANDLER,
   LAST_100HZ_TASK
 };
@@ -231,7 +232,46 @@ enum Floats {
   HB_LAT,
   HB_LON,
   H_ACC,
-  S_ACC
+  S_ACC,
+  M1_X,
+  M1_Y,
+  M1_Z,
+  M2_X,
+  M2_Y,
+  M2_Z,
+  M3_X,
+  M3_Y,
+  M3_Z,
+  M4_X,
+  M4_Y,
+  M4_Z,
+  M5_X,
+  M5_Y,
+  M5_Z,
+  M6_X,
+  M6_Y,
+  M6_Z,
+  M7_X,
+  M7_Y,
+  M7_Z,
+  M8_X,
+  M8_Y,
+  M8_Z,
+  KP_ACC,
+  KI_ACC,
+  KP_MAG,
+  KI_MAG,
+  FEEDBACK_LIMIT,
+  K_P_GPS,
+  K_V_GPS,
+  K_B_GPS,
+  K_P_BARO,
+  K_V_BARO,
+  K_B_BARO,
+  M_AH,
+  BATT_PERCENT,
+  CELL_VOLT
+
 
 };
 enum motorControlStates {
@@ -276,7 +316,11 @@ enum Int16s {
   MAG_Z,
   THRO_CMD,
   PWM_HIGH,
-  PWM_LOW
+  PWM_LOW,
+  CEILING_LIMIT,
+  FLOOR_LIMIT
+
+
 
 };
 
@@ -319,6 +363,9 @@ enum RC_Types {
 enum RC_Chan {
   THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 #endif
+
+
+
 
 
 

@@ -140,6 +140,9 @@ float rateSetPointZ;
 
 float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
 float xFromTO,yFromTO;
+
+int16_t floorLimit,ceilingLimit;
+
 PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
 PID YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
@@ -178,9 +181,20 @@ void _100HzTask(uint32_t loopTime){
   if (loopTime - _100HzTimer >= 10000){
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
+    D22High();
     while(_100HzState < LAST_100HZ_TASK){
+      
       switch (_100HzState){
       case GET_GYRO:
+        /*K_P_GPS = kp_waypoint_position;
+         K_V_GPS = ki_waypoint_position;
+         K_B_GPS = kd_waypoint_position;
+         K_P_BARO = kp_waypoint_velocity;
+         K_V_BARO = ki_waypoint_velocity;
+         K_B_BARO = kd_waypoint_velocity;
+         KP_ACC = kp_cross_track;
+         KP_MAG = ki_cross_track;
+         FEEDBACK_LIMIT = kd_cross_track;*/
         PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
@@ -213,13 +227,13 @@ void _100HzTask(uint32_t loopTime){
         Predict(_100HzDt);
         _100HzState = UPDATE_LAG_INDEX;
         /*xFromTO = XEst - homeBaseXOffset;
-        yFromTO = YEst - homeBaseYOffset;
-        distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
-        headingToWayPoint = ToDeg(atan2(-1.0 * yFromTO , -1.0 * xFromTO));
-        if (headingToWayPoint < 0.0){
-          headingToWayPoint += 360.0;
-        }
-        Rotate2dVector(&headingToWayPoint,&zero,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);*/
+         yFromTO = YEst - homeBaseYOffset;
+         distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
+         headingToWayPoint = ToDeg(atan2(-1.0 * yFromTO , -1.0 * xFromTO));
+         if (headingToWayPoint < 0.0){
+         headingToWayPoint += 360.0;
+         }
+         Rotate2dVector(&headingToWayPoint,&zero,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);*/
         break;
       case UPDATE_LAG_INDEX:
         UpdateLagIndex();
@@ -299,6 +313,12 @@ void _100HzTask(uint32_t loopTime){
         PitchRate.calculate();
         RollRate.calculate();
         YawRate.calculate();
+        _100HzState = READ_BATTERY;
+        break;
+      case READ_BATTERY:
+        D23High();
+        ReadBatteryInfo(&_100HzDt);
+        D23Low();
         _100HzState = MOTOR_HANDLER;
         break;
       case MOTOR_HANDLER:
@@ -313,6 +333,7 @@ void _100HzTask(uint32_t loopTime){
       _400HzTask();
 
     }
+    D22Low();
     _100HzState = GET_GYRO;
   }
 
@@ -486,11 +507,11 @@ void FlightSM() {
           yawSetPoint += 360.0;
         }
       }
-      if (zTarget > CEILING) {
-        zTarget = CEILING;
+      if (zTarget > ceilingLimit) {
+        zTarget = ceilingLimit;
       }
-      if (zTarget < FLOOR) {
-        zTarget = FLOOR;
+      if (zTarget < floorLimit) {
+        zTarget = floorLimit;
       }
       RTBState = RTB_CLIMB;
 
@@ -534,11 +555,11 @@ void InitLoiter() {
     }
     else{
       zTarget = ZEstUp;
-      if (zTarget < FLOOR) {
-        zTarget = FLOOR;
+      if (zTarget < floorLimit) {
+        zTarget = floorLimit;
       }
-      if (zTarget > CEILING) {
-        zTarget = CEILING;
+      if (zTarget > ceilingLimit) {
+        zTarget = ceilingLimit;
       }
     }
     throttleCheckFlag = true;
@@ -737,11 +758,11 @@ void LoiterSM(){
     if (abs(rcDifference) < 200){
       ZLoiterState = LOITERING;
       zTarget = ZEstUp;
-      if (zTarget <= FLOOR){
-        zTarget = FLOOR;
+      if (zTarget <= floorLimit){
+        zTarget = floorLimit;
       } 
-      if (zTarget >= CEILING){
-        zTarget = CEILING;
+      if (zTarget >= ceilingLimit){
+        zTarget = ceilingLimit;
       }
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
@@ -762,14 +783,14 @@ void LoiterSM(){
     }
 
 
-    if (ZEstUp >= CEILING && velSetPointZ > 0){
-      zTarget = CEILING;
+    if (ZEstUp >= ceilingLimit && velSetPointZ > 0){
+      zTarget = ceilingLimit;
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
       break;
     }
-    if (ZEstUp <= FLOOR && velSetPointZ < 0){
-      zTarget = FLOOR;
+    if (ZEstUp <= floorLimit && velSetPointZ < 0){
+      zTarget = floorLimit;
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
       break;
@@ -786,11 +807,11 @@ void LoiterSM(){
       ZLoiterState = LOITERING;
       motorState = FLIGHT;
       zTarget = ZEstUp;
-      if (zTarget <= FLOOR){
-        zTarget = FLOOR;
+      if (zTarget <= floorLimit){
+        zTarget = floorLimit;
       } 
-      if (zTarget >= CEILING){
-        zTarget = CEILING;
+      if (zTarget >= ceilingLimit){
+        zTarget = ceilingLimit;
       }
       throttleCheckFlag = true;
 
@@ -818,7 +839,7 @@ void LoiterSM(){
         XYLoiterState = RCINPUT;
         break;
       }
-      if (millis() - waitTimer > 1000){
+      if (millis() - waitTimer > 250){
         XYLoiterState = LOITERING;
         xTarget = XEst;
         yTarget = YEst;
@@ -1270,6 +1291,9 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
 
 
 
