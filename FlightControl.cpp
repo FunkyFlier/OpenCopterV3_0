@@ -183,7 +183,7 @@ void _100HzTask(uint32_t loopTime){
     _100HzTimer = loopTime;
     D22High();
     while(_100HzState < LAST_100HZ_TASK){
-      
+
       switch (_100HzState){
       case GET_GYRO:
         /*K_P_GPS = kp_waypoint_position;
@@ -310,6 +310,14 @@ void _100HzTask(uint32_t loopTime){
         _100HzState = RATE_PID_LOOPS;
         break;
       case RATE_PID_LOOPS:
+        if (flightMode == RTB){
+          if (rateSetPointZ > 10.0){
+            rateSetPointZ = 10.0;
+          }
+          if (rateSetPointZ < -10.0){
+            rateSetPointZ = -10.0;
+          }
+        }
         PitchRate.calculate();
         RollRate.calculate();
         YawRate.calculate();
@@ -597,6 +605,7 @@ void RTBStateMachine() {
     }
 
     break;
+
   case RTB_TRAVEL:
     AltHoldPosition.calculate();
     AltHoldVelocity.calculate();
@@ -628,6 +637,11 @@ void RTBStateMachine() {
     WPPosition.calculate(); 
     wpVelSetPoint *= -1.0;
     //wp vel PID
+    if (distToWayPoint < LOW_SPEED_RADIUS){
+      if (wpVelSetPoint > 1.0){
+        wpVelSetPoint = 1.0;
+      }
+    }
     WPVelocity.calculate(); 
     wpTilX *= -1.0;
     //cross track vel PID
@@ -747,6 +761,16 @@ void LoiterSM(){
       ZLoiterState = LAND;
       motorState = LANDING;
       velSetPointZ = LAND_VEL;
+    }
+    if (motorState == LANDING){
+      zTarget = ZEstUp;
+      if (zTarget <= floorLimit){
+        zTarget = floorLimit;
+      } 
+      if (zTarget >= ceilingLimit){
+        zTarget = ceilingLimit;
+      }
+      motorState = FLIGHT;
     }
     break;
   case RCINPUT:
@@ -1291,6 +1315,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 

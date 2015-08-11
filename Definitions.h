@@ -181,6 +181,7 @@
 #define FlashSSHigh() PORTL |= 1<<4
 #define FlashSSLow() PORTL &= ~(1<<4)
 
+#define LOW_SPEED_RADIUS 30
 
 #define Port0 Serial
 #define RC_SERIAL_PORT Serial1

@@ -894,7 +894,7 @@ void OrderedQuery() {
 void SendUnAck() {
   uint8_t txSum = 0,txDoubleSum = 0,temp;
   float_u outFloat;
-  float_u outInt16;
+  int16_u outInt16;
   RadioWrite(0XAA);
   RadioWrite(groundStationID);
   switch (typeNum) {
