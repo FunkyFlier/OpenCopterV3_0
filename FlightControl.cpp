@@ -310,14 +310,14 @@ void _100HzTask(uint32_t loopTime){
         _100HzState = RATE_PID_LOOPS;
         break;
       case RATE_PID_LOOPS:
-        if (flightMode == RTB){
+        /*if (flightMode == RTB){
           if (rateSetPointZ > 10.0){
             rateSetPointZ = 10.0;
           }
           if (rateSetPointZ < -10.0){
             rateSetPointZ = -10.0;
           }
-        }
+        }*/
         PitchRate.calculate();
         RollRate.calculate();
         YawRate.calculate();
