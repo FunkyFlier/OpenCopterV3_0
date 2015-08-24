@@ -28,6 +28,7 @@ extern float distToCraft,headingToCraft;
 extern float gpsX,gpsY,baroZ,baroVel;
 extern float prevBaro;
 extern float xPosError,yPosError,xVelError,yVelError;
+extern float baroAlt,baroRate;
 
 extern float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 

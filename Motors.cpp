@@ -364,7 +364,7 @@ void MotorHandler(){
       if (abs(cmdRudd - 1500) < 50){
         rudderFlag = false;
         motorState = TO;
-
+        initialPressure = pressure;
 
         homeBaseXOffset = XEst;
         homeBaseYOffset = YEst;
@@ -383,6 +383,7 @@ void MotorHandler(){
     motorCommand6 = pwmLow;
     motorCommand7 = pwmLow;
     motorCommand8 = pwmLow;
+    
     throttleCheckFlag = false;
     break;
   case TO:
@@ -395,7 +396,7 @@ void MotorHandler(){
     motorCommand7 = propIdleCommand;
     motorCommand8 = propIdleCommand;
     throttleCheckFlag = false;
-    initialPressure = pressure;
+    //initialPressure = pressure;
     ZEst = 0;
     ZEstUp = 0;
     velZ = 0;
@@ -553,9 +554,7 @@ void MotorHandler(){
       motorState = HOLD;
       break;
     }
-    if (throttleAdjustment > 0){
-      throttleAdjustment = 0;
-    }
+
 
     landingThroAdjustment = 0.997 * landingThroAdjustment + 0.003 * throttleAdjustment;
     throAdjToMotors = landingThroAdjustment;

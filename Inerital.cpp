@@ -17,6 +17,7 @@ float prevBaro;
 float inertialXBiased,inertialYBiased,inertialZBiased;
 
 float xPosError,yPosError,xVelError,yVelError;
+float baroAlt,baroRate;
 //-------------------
 float inertialZGrav;
 int16_t currentEstIndex,lagIndex,currentEstIndex_z,lagIndex_z;  
@@ -116,7 +117,7 @@ void GetBaroZ(){
   static uint32_t baroTimer = 0;
   
   float baroDT;
-  float baroAlt,baroRate;
+  //float baroAlt,baroRate;
 
   baroDT = (millis() - baroTimer) * 0.001;
   baroTimer = millis();
