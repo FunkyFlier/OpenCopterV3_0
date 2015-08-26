@@ -218,8 +218,8 @@ void AssignPointerArray() {
    floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
    floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
    floatPointerArray[MOTOR_CMD_8] = &motorCommand8;*/
-  floatPointerArray[MOTOR_CMD_1] = &baroAlt;//motors
-  floatPointerArray[MOTOR_CMD_2] = &baroRate;
+  floatPointerArray[MOTOR_CMD_1] = &zPosError;//motors
+  floatPointerArray[MOTOR_CMD_2] = &zVelError;
   floatPointerArray[MOTOR_CMD_3] = &wpCrossTrackVelocity;
   floatPointerArray[MOTOR_CMD_4] = &wpTilX;
  /* floatPointerArray[MOTOR_CMD_1] = &xPosError;//motors

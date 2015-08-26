@@ -31,6 +31,6 @@ extern float xPosError,yPosError,xVelError,yVelError;
 extern float baroAlt,baroRate;
 
 extern float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
-
+extern float zPosError,zVelError;
 
 #endif
