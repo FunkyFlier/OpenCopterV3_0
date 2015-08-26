@@ -227,9 +227,9 @@ void AssignPointerArray() {
    floatPointerArray[MOTOR_CMD_3] = &xVelError;
    floatPointerArray[MOTOR_CMD_4] = &yVelError;*/
   floatPointerArray[MOTOR_CMD_5] = &wpTiltY;
-  floatPointerArray[MOTOR_CMD_6] = &headingToWayPoint;
-  floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
-  floatPointerArray[MOTOR_CMD_8] = &motorCommand8;
+  floatPointerArray[MOTOR_CMD_6] = &AltHoldVelocity.error;
+  floatPointerArray[MOTOR_CMD_7] = &AltHoldVelocity.iError;
+  floatPointerArray[MOTOR_CMD_8] = &AltHoldVelocity.dError;
 
   floatPointerArray[PRESSURE_] = &pressure;//sensors
   floatPointerArray[CTRL_BEARING] = &controlBearing;//flight control

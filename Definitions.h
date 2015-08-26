@@ -1,7 +1,7 @@
 #ifndef Definitions_h
 #define Definitions_h
 
-#define ROT_45
+//#define ROT_45
 
 //#define QUAD_CAMP
 
