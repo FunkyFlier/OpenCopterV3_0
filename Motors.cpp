@@ -517,7 +517,7 @@ void MotorHandler(){
       }
     }
     throttleCommand = hoverCommand;
-    if ( (hoverCommand + throttleAdjustment) < 1350){
+    if ( AltHoldVelocity.iError < -275){
       motorCommand1 = pwmLow;
       motorCommand2 = pwmLow;
       motorCommand3 = pwmLow;
@@ -542,7 +542,7 @@ void MotorHandler(){
       motorState = HOLD;
       break;
     }
-    if (fabs(inertialZ) > 5.0){
+   /* if (fabs(inertialZ) > 5.0){
       motorCommand1 = pwmLow;
       motorCommand2 = pwmLow;
       motorCommand3 = pwmLow;
@@ -553,7 +553,7 @@ void MotorHandler(){
       motorCommand8 = pwmLow;
       motorState = HOLD;
       break;
-    }
+    }*/
 
 
     landingThroAdjustment = 0.997 * landingThroAdjustment + 0.003 * throttleAdjustment;
@@ -597,14 +597,20 @@ void MotorHandler(){
 }
 
 void CalculateMotorMixing(){
-  motorCommand1 = constrain((throttleCommand + throAdjToMotors + m1X * adjustmentX + m1Y * adjustmentY + m1Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand2 = constrain((throttleCommand + throAdjToMotors + m2X * adjustmentX + m2Y * adjustmentY + m2Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand3 = constrain((throttleCommand + throAdjToMotors + m3X * adjustmentX + m3Y * adjustmentY + m3Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand4 = constrain((throttleCommand + throAdjToMotors + m4X * adjustmentX + m4Y * adjustmentY + m4Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand5 = constrain((throttleCommand + throAdjToMotors + m5X * adjustmentX + m5Y * adjustmentY + m5Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand6 = constrain((throttleCommand + throAdjToMotors + m6X * adjustmentX + m6Y * adjustmentY + m6Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand7 = constrain((throttleCommand + throAdjToMotors + m7X * adjustmentX + m7Y * adjustmentY + m7Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand8 = constrain((throttleCommand + throAdjToMotors + m8X * adjustmentX + m8Y * adjustmentY + m8Z * adjustmentZ),pwmLow,pwmHigh);
+  float totalThrottle;
+  totalThrottle = throttleCommand + throAdjToMotors;
+  if (totalThrottle > pwmHigh - 100){
+    totalThrottle = pwmHigh - 100;
+  }
+
+  motorCommand1 = constrain((totalThrottle + m1X * adjustmentX + m1Y * adjustmentY + m1Z * adjustmentZ),pwmLow,pwmHigh);
+  motorCommand2 = constrain((totalThrottle + m2X * adjustmentX + m2Y * adjustmentY + m2Z * adjustmentZ),pwmLow,pwmHigh);
+  motorCommand3 = constrain((totalThrottle + m3X * adjustmentX + m3Y * adjustmentY + m3Z * adjustmentZ),pwmLow,pwmHigh);
+  motorCommand4 = constrain((totalThrottle + m4X * adjustmentX + m4Y * adjustmentY + m4Z * adjustmentZ),pwmLow,pwmHigh);
+  motorCommand5 = constrain((totalThrottle + m5X * adjustmentX + m5Y * adjustmentY + m5Z * adjustmentZ),pwmLow,pwmHigh);
+  motorCommand6 = constrain((totalThrottle + m6X * adjustmentX + m6Y * adjustmentY + m6Z * adjustmentZ),pwmLow,pwmHigh);
+  motorCommand7 = constrain((totalThrottle + m7X * adjustmentX + m7Y * adjustmentY + m7Z * adjustmentZ),pwmLow,pwmHigh);
+  motorCommand8 = constrain((totalThrottle + m8X * adjustmentX + m8Y * adjustmentY + m8Z * adjustmentZ),pwmLow,pwmHigh);
 }
 
 void WriteMotorPWM(){
