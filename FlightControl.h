@@ -128,19 +128,19 @@ extern PID PitchAngle;
 extern PID RollAngle;
 extern YAW YawAngle;
 
-extern PID LoiterXPosition;
-extern PID LoiterXVelocity;
+extern PID_2 LoiterXPosition;
+extern PID_2 LoiterXVelocity;
 
-extern PID LoiterYPosition;
-extern PID LoiterYVelocity;
+extern PID_2 LoiterYPosition;
+extern PID_2 LoiterYVelocity;
 
-extern PID AltHoldPosition;
-extern PID AltHoldVelocity;
+extern PID_2 AltHoldPosition;
+extern PID_2 AltHoldVelocity;
 
-extern PID WPPosition;
-extern PID WPVelocity;
+extern PID_2 WPPosition;
+extern PID_2 WPVelocity;
 
-extern PID WPCrossTrack;
+extern PID_2 WPCrossTrack;
 
 
 #endif

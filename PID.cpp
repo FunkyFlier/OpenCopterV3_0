@@ -34,7 +34,7 @@ void PID::calculate(){
   }
 
   dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (error - prevError);
-
+  //dError =  (dErrorPrev + *kd * *fc * (error - prevError)) / (1.0 + *fc * *dt);
   *adjustment = *kp * error  + iError +  dError;
 
   if (*adjustment > outputLimitHigh){
@@ -49,6 +49,70 @@ void PID::calculate(){
 }
 
 void PID::reset(){
+  error = 0;
+  iError = 0;
+  dError = 0;
+  *adjustment = 0;
+  prevActual = *actual;
+  prevError =0;
+  dErrorPrev = 0;
+}
+//PID_2 prevents deravitive kick on changing set point
+
+PID_2::PID_2(float *set,float *act, float *adj,boolean *intToggle,float *p, float *i, float *d,float *n,float *delta,float iLim,float lim){
+  setPoint = set;
+  actual = act;
+  adjustment = adj;
+  integrate = intToggle;
+  kp = p;
+  ki = i;
+  kd = d;
+  fc = n;
+  integralLimitHigh = iLim;
+  integralLimitLow = -1*iLim;
+  outputLimitHigh = lim;
+  outputLimitLow = -1*lim;
+  dt = delta;
+  prevActual = 0;
+  dErrorPrev = 0;
+
+}
+
+void PID_2::calculate(){
+  error = *setPoint - *actual;
+
+
+  if (*integrate == true){
+    iError += *ki * *dt * error;
+  }
+  if (iError > integralLimitHigh){
+    iError = integralLimitHigh;
+  }
+  if (iError < integralLimitLow){
+    iError = integralLimitLow;
+  }
+  
+  /*if (*setPoint == previousSetPoint){
+    dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (error - prevError);
+  }else{
+    dError = 0;
+  }*/
+  dError = dErrorPrev - *fc * *dt * dErrorPrev - *kd * *fc * (*actual - previousActual);
+  *adjustment = *kp * error  + iError +  dError;
+
+  if (*adjustment > outputLimitHigh){
+    *adjustment  = outputLimitHigh;
+  }
+  if (*adjustment < outputLimitLow){
+    *adjustment = outputLimitLow;
+  }
+
+  prevError = error;
+  dErrorPrev = dError;
+  previousActual = *actual;
+}
+
+void PID_2::reset(){
   error = 0;
   iError = 0;
   dError = 0;

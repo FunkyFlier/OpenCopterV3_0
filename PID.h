@@ -33,6 +33,35 @@ private:
 
 
 };
+class PID_2{
+public:
+  PID_2(float*, float*, float*,boolean*,float*, float*, float*, float*,float*,float,float);
+  void calculate();
+  void reset();
+  float integralLimitHigh;
+  float integralLimitLow;
+  float outputLimitHigh;
+  float outputLimitLow;
+  float *dt;
+  float *setPoint;
+  float *actual;
+  float *adjustment;
+  boolean *integrate;
+  float *kp;
+  float *ki;
+  float *kd;
+  float *fc;
+  float prevError;
+  float prevActual;
+  float error;
+  float iError;
+  float dError;
+  float dErrorPrev;
+  float previousActual;
+private:
+
+
+};
 class ALT{
 public:
   ALT(float*, float*, float*,boolean*,float*, float*, float*, float*,float*,float,float,float*);
