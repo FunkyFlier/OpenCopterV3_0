@@ -156,6 +156,8 @@ uint16_u C1, C2, C3, C4, C5, C6, promSetup, promCRC;
 uint32_u D_rcvd;
 float D1, D2;
 float pres, temperature, dT, TEMP, OFF, SENS, P;
+int baroCount;
+float baroSum;
 uint8_t baroState;
 uint32_t baroPollTimer, baroDelayTimer;
 
@@ -164,7 +166,7 @@ uint32_t baroPollTimer, baroDelayTimer;
 //end barometer
 
 //end v2 vars
-
+void GetInitialPressure();
 #ifdef V2
 void PollPressure() {
   if (millis() - baroPollTimer >= BARO_CONV_TIME) {
@@ -299,14 +301,19 @@ void BaroInit() {
   //CheckCRC(); //no need to call as it will pass the check if there is no sensor attached
 
 
-  baroPollTimer = millis();
-  while (newBaro == false) {
-    PollPressure();
-  }
-  if (newBaro == true) {
-    newBaro = false;
-    initialPressure = pressure;
-  }
+  /*baroPollTimer = millis();
+   baroCount = 0;
+   baroSum = 0;
+   while (baroCount < 10) { //use a while instead of a for loop because the for loop runs too fast
+   PollPressure();
+   if (newBaro == true) {
+   newBaro = false;
+   baroCount++;
+   baroSum += pressure;
+   }
+   }
+   initialPressure = baroSum / 10;*/
+  GetInitialPressure();
 
 }
 
@@ -545,18 +552,19 @@ void BaroInit(void) {
   //this is to get the ground pressure for relative altitude
   //lower pressure than this means positive altitude
   //higher pressure than this means negative altitude
-  baroCount = 0;
-  baroSum = 0;
-  while (baroCount < 10) { //use a while instead of a for loop because the for loop runs too fast
-    PollPressure();
-    if (newBaro == true) {
-      newBaro = false;
-      baroCount++;
-      baroSum += pressure;
-    }
-  }
-  initialPressure = baroSum / 10;
-
+  /* baroPollTimer = millis();
+   baroCount = 0;
+   baroSum = 0;
+   while (baroCount < 10) { //use a while instead of a for loop because the for loop runs too fast
+   PollPressure();
+   if (newBaro == true) {
+   newBaro = false;
+   baroCount++;
+   baroSum += pressure;
+   }
+   }
+   initialPressure = baroSum / 10;*/
+  GetInitialPressure();
 
 
 }
@@ -572,6 +580,21 @@ boolean GetAltitude(float *press, float *pressInit, float *alti) {
   float pressureRatio =  *press /  *pressInit;
   *alti = (1.0f - pow(pressureRatio, 0.190295f)) * 44330.0f;
   return true;
+}
+
+void GetInitialPressure(){
+  baroPollTimer = millis();
+  baroCount = 0;
+  baroSum = 0;
+  while (baroCount < 50.0) {
+    PollPressure();
+    if (newBaro == true) {
+      newBaro = false;
+      baroCount++;
+      baroSum += pressure;
+    }
+  }
+  initialPressure = baroSum / 50.0;
 }
 
 //end baro-----------------------------
@@ -768,6 +791,8 @@ void GetMag() {
 }
 
 //end mag------------------------------
+
+
 
 
 

@@ -69,7 +69,8 @@ void setup() {
 
   ControlLED(0x00);  
   SetGyroOffsets();
-  hoverCommand = propIdleCommand;
+  GetInitialPressure();
+  //hoverCommand = propIdleCommand;
   watchDogStartCount = true;
   _400HzTimer = micros();
   _100HzTimer = _400HzTimer;

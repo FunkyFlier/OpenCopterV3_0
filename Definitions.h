@@ -1,7 +1,7 @@
 #ifndef Definitions_h
 #define Definitions_h
 
-#define ROT_45
+//#define ROT_45
 
 //#define QUAD_CAMP
 
@@ -62,7 +62,7 @@
 
 #define MIN_RTB_DIST 1.5
 
-#define LAND_VEL -0.28
+#define LAND_VEL -0.5
 #define RTB_VEL 1
 
 #define HH_ON 0
