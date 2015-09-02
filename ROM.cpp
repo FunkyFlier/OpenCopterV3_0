@@ -227,7 +227,7 @@ void AssignPointerArray() {
    floatPointerArray[MOTOR_CMD_3] = &xVelError;
    floatPointerArray[MOTOR_CMD_4] = &yVelError;*/
   floatPointerArray[MOTOR_CMD_5] = &zVelError;
-  floatPointerArray[MOTOR_CMD_6] = &AltHoldVelocity.error;
+  floatPointerArray[MOTOR_CMD_6] = &initialPressure;
   floatPointerArray[MOTOR_CMD_7] = &AltHoldVelocity.iError;
   floatPointerArray[MOTOR_CMD_8] = &AltHoldVelocity.dError;
 

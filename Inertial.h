@@ -2,7 +2,7 @@
 #define INERTIAL_H
 
 #define LAG_SIZE 56
-#define LAG_SIZE_BARO 27
+#define LAG_SIZE_BARO 14
 
 /*#define K_P_GPS 0.1
 #define K_V_GPS 0.22

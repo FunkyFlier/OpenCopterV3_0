@@ -113,27 +113,6 @@ void GetGPSXY(){
 }
 
 
-void GetBaroZ(){
-  static uint32_t baroTimer = 0;
-
-  float baroDT;
-  //float baroAlt,baroRate;
-
-  baroDT = (millis() - baroTimer) * 0.001;
-  baroTimer = millis();
-
-  if (baroDT >= 0.1 || baroDT <= 0) {
-    baroDT = 0.1;
-  }
-  GetAltitude(&pressure, &initialPressure, &baroAlt);
-  LPF(&baroZ,&baroAlt,&baroDT,RC_CONST_BARO);
-  baroRate = (baroZ - prevBaro) / baroDT;
-  LPF(&baroVel,&baroRate,&baroDT,RC_CONST_BARO);
-  prevBaro = baroZ;
-
-
-}
-
 void CorrectXY(){
   //float xPosError,yPosError,xVelError,yVelError;
   float accelBiasXEF,accelBiasYEF,accelBiasZEF;
@@ -166,8 +145,30 @@ void CorrectXY(){
 
 }
 
-void CorrectZ(){
+void GetBaroZ(){
+  static uint32_t baroTimer = 0;
 
+  float baroDT;
+  //float baroAlt,baroRate;
+
+  baroDT = (millis() - baroTimer) * 0.001;
+  baroTimer = millis();
+
+  if (baroDT >= 0.1 || baroDT <= 0) {
+    baroDT = 0.1;
+  }
+  GetAltitude(&pressure, &initialPressure, &baroAlt);
+  LPF(&baroZ,&baroAlt,&baroDT,RC_CONST_BARO);
+  baroRate = (baroZ - prevBaro) / baroDT;
+  LPF(&baroVel,&baroRate,&baroDT,RC_CONST_BARO);
+  prevBaro = baroZ;
+
+
+}
+
+void CorrectZ(){
+  static float pressurePrevious;
+  static uint8_t errorCorrectCount;
   //float zPosError,zVelError;
   float accelBiasXEF,accelBiasYEF,accelBiasZEF;
 
@@ -176,28 +177,35 @@ void CorrectZ(){
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
 
-  //if (fabs(zPosError) < 1){
+  if (fabs(zPosError) < 0.75 || errorCorrectCount > 5){
+    if(errorCorrectCount > 5){
+      errorCorrectCount++;
+      if (errorCorrectCount >10){
+        errorCorrectCount = 0;
+      }
+    }
+    ZEst = ZEst - kPosBaro * zPosError;
+    velZ = velZ - kVelBaro * zVelError;
 
-  ZEst = ZEst - kPosBaro * zPosError;
-  velZ = velZ - kVelBaro * zVelError;
-
-  accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
-  accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
-  accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
+    accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
+    accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
+    accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
 
 
-  accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
+    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
 
-  accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
-  accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
-  accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
+    accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
+    accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
+    accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
 
-  ZEstUp = -1.0 * ZEst;
-  velZUp = -1.0 * velZ;
-  //}
-  //else{
-
-  //}
+    ZEstUp = -1.0 * ZEst;
+    velZUp = -1.0 * velZ;
+  }
+  else{
+    errorCorrectCount++;
+    initialPressure += pressure - pressurePrevious;
+  }
+  pressurePrevious = pressure;
 }
 
 
@@ -228,6 +236,7 @@ void UpdateLagIndex(){
     lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
   }
 }
+
 
 
 
