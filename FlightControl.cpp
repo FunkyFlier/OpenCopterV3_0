@@ -147,9 +147,9 @@ PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
 PID YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
 
-PID PitchAngle(&pitchSetPoint, &pitchInDegrees, &rateSetPointY, &integrate, &kp_pitch_attitude, &ki_pitch_attitude, &kd_pitch_attitude, &fc_pitch_attitude, &_100HzDt, 360, 360);
-PID RollAngle(&rollSetPoint, &rollInDegrees, &rateSetPointX, &integrate, &kp_roll_attitude, &ki_roll_attitude, &kd_roll_attitude, &fc_roll_attitude, &_100HzDt, 360, 360);
-YAW YawAngle(&yawSetPoint, &yawInDegrees, &rateSetPointZ, &integrate, &kp_yaw_attitude, &ki_yaw_attitude, &kd_yaw_attitude, &fc_yaw_attitude, &_100HzDt, 360, 360);
+PID_2 PitchAngle(&pitchSetPoint, &pitchInDegrees, &rateSetPointY, &integrate, &kp_pitch_attitude, &ki_pitch_attitude, &kd_pitch_attitude, &fc_pitch_attitude, &_100HzDt, 360, 360);
+PID_2 RollAngle(&rollSetPoint, &rollInDegrees, &rateSetPointX, &integrate, &kp_roll_attitude, &ki_roll_attitude, &kd_roll_attitude, &fc_roll_attitude, &_100HzDt, 360, 360);
+YAW_2 YawAngle(&yawSetPoint, &yawInDegrees, &rateSetPointZ, &integrate, &kp_yaw_attitude, &ki_yaw_attitude, &kd_yaw_attitude, &fc_yaw_attitude, &_100HzDt, 360, 360);
 
 PID_2 LoiterXPosition(&xTarget, &XEst, &velSetPointX, &integrate, &kp_loiter_pos_x, &ki_loiter_pos_x, &kd_loiter_pos_x, &fc_loiter_pos_x, &_100HzDt, 1, 1);
 PID_2 LoiterXVelocity(&velSetPointX, &velX, &tiltAngleX, &integrate, &kp_loiter_velocity_x, &ki_loiter_velocity_x, &kd_loiter_velocity_x, &fc_loiter_velocity_x, &_100HzDt, 15, 15);

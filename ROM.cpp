@@ -221,12 +221,12 @@ void AssignPointerArray() {
   floatPointerArray[MOTOR_CMD_1] = &RollRate.error;//motors
   floatPointerArray[MOTOR_CMD_2] = &RollRate.iError;
   floatPointerArray[MOTOR_CMD_3] = &RollRate.dError;
-  floatPointerArray[MOTOR_CMD_4] = &wpTilX;
+  floatPointerArray[MOTOR_CMD_4] = &zPosError;
  /* floatPointerArray[MOTOR_CMD_1] = &xPosError;//motors
    floatPointerArray[MOTOR_CMD_2] = &yPosError;
    floatPointerArray[MOTOR_CMD_3] = &xVelError;
    floatPointerArray[MOTOR_CMD_4] = &yVelError;*/
-  floatPointerArray[MOTOR_CMD_5] = &wpTiltY;
+  floatPointerArray[MOTOR_CMD_5] = &zVelError;
   floatPointerArray[MOTOR_CMD_6] = &AltHoldVelocity.error;
   floatPointerArray[MOTOR_CMD_7] = &AltHoldVelocity.iError;
   floatPointerArray[MOTOR_CMD_8] = &AltHoldVelocity.dError;

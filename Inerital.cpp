@@ -115,7 +115,7 @@ void GetGPSXY(){
 
 void GetBaroZ(){
   static uint32_t baroTimer = 0;
-  
+
   float baroDT;
   //float baroAlt,baroRate;
 
@@ -167,14 +167,16 @@ void CorrectXY(){
 }
 
 void CorrectZ(){
-  
+
   //float zPosError,zVelError;
   float accelBiasXEF,accelBiasYEF,accelBiasZEF;
-   
+
   GetBaroZ();
- 
+
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
+
+  //if (fabs(zPosError) < 1){
 
   ZEst = ZEst - kPosBaro * zPosError;
   velZ = velZ - kVelBaro * zVelError;
@@ -192,6 +194,10 @@ void CorrectZ(){
 
   ZEstUp = -1.0 * ZEst;
   velZUp = -1.0 * velZ;
+  //}
+  //else{
+
+  //}
 }
 
 
@@ -222,6 +228,8 @@ void UpdateLagIndex(){
     lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
   }
 }
+
+
 
 
 

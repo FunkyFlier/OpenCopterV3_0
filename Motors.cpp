@@ -425,13 +425,14 @@ void MotorHandler(){
         motorState = FLIGHT;
         ResetPIDs();
         integrate = true;
+        //integrateRate = true;
       }
     }
     if (flightMode <= L2 && flightMode >= L0){
       if (throCommand <= 1600 && throCommand >= 1450){
         motorState = FLIGHT;
         ResetPIDs();
-        zTarget = TAKE_OFF_ALT;//floorLimit;//TAKE_OFF_ALT;
+        zTarget = 1.0;//TAKE_OFF_ALT;//floorLimit;//TAKE_OFF_ALT;
         enterState = true;
         throttleAdjustment = 0;
         xTarget = XEst;
@@ -530,17 +531,18 @@ void CalculateMotorMixing(){
   if (throToMotors > pwmHigh - 150){
     throToMotors = pwmHigh - 150;
   }
-  if (throToMotors < pwmLow){
-    throToMotors = pwmLow;
+  if (throToMotors < propIdleCommand){
+    throToMotors = propIdleCommand;
   }
-  motorCommand1 = constrain((throToMotors + m1X * adjustmentX + m1Y * adjustmentY + m1Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand2 = constrain((throToMotors + m2X * adjustmentX + m2Y * adjustmentY + m2Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand3 = constrain((throToMotors + m3X * adjustmentX + m3Y * adjustmentY + m3Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand4 = constrain((throToMotors + m4X * adjustmentX + m4Y * adjustmentY + m4Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand5 = constrain((throToMotors + m5X * adjustmentX + m5Y * adjustmentY + m5Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand6 = constrain((throToMotors + m6X * adjustmentX + m6Y * adjustmentY + m6Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand7 = constrain((throToMotors + m7X * adjustmentX + m7Y * adjustmentY + m7Z * adjustmentZ),pwmLow,pwmHigh);
-  motorCommand8 = constrain((throToMotors + m8X * adjustmentX + m8Y * adjustmentY + m8Z * adjustmentZ),pwmLow,pwmHigh);
+  motorCommand1 = constrain((throToMotors + m1X * adjustmentX + m1Y * adjustmentY + m1Z * adjustmentZ),propIdleCommand,pwmHigh);
+  motorCommand2 = constrain((throToMotors + m2X * adjustmentX + m2Y * adjustmentY + m2Z * adjustmentZ),propIdleCommand,pwmHigh);
+  motorCommand3 = constrain((throToMotors + m3X * adjustmentX + m3Y * adjustmentY + m3Z * adjustmentZ),propIdleCommand,pwmHigh);
+  motorCommand4 = constrain((throToMotors + m4X * adjustmentX + m4Y * adjustmentY + m4Z * adjustmentZ),propIdleCommand,pwmHigh);
+  motorCommand5 = constrain((throToMotors + m5X * adjustmentX + m5Y * adjustmentY + m5Z * adjustmentZ),propIdleCommand,pwmHigh);
+  motorCommand6 = constrain((throToMotors + m6X * adjustmentX + m6Y * adjustmentY + m6Z * adjustmentZ),propIdleCommand,pwmHigh);
+  motorCommand7 = constrain((throToMotors + m7X * adjustmentX + m7Y * adjustmentY + m7Z * adjustmentZ),propIdleCommand,pwmHigh);
+  motorCommand8 = constrain((throToMotors + m8X * adjustmentX + m8Y * adjustmentY + m8Z * adjustmentZ),propIdleCommand,pwmHigh);
+
 }
 
 void WriteMotorPWM(){

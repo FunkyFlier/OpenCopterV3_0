@@ -24,7 +24,7 @@ uint32_t loopTime;
 
 
 void setup() {
-  
+
   RadioSerialBegin();
   AssignPointerArray();
   SetPinModes();
@@ -61,10 +61,10 @@ void setup() {
 
   Arm();
   GPSStart();
-  
+
   SetInitialQuaternion();
   InertialInit();
-  
+
   CheckTXPositions();
 
   ControlLED(0x00);  
@@ -79,13 +79,13 @@ void setup() {
 
 
 void loop() {
-  
+
   _400HzTask();
   loopTime = micros();
   _100HzTask(loopTime);
   Telemetry();
   watchDogFailSafeCounter = 0;
-  
+
 }
 
 void Telemetry(){
@@ -95,7 +95,7 @@ void Telemetry(){
       TuningTransmitter(); 
       tuningTrasnmitOK = false;
     }
-    
+
   }
 
 }
@@ -103,7 +103,7 @@ void Telemetry(){
 void NoControlIndicatior(){
   uint8_t LEDIndex = 0;
   uint8_t LEDArray[8] = {
-    0x00,0x01,0x03,0x02,0x06,0x04,0x0C,0x08      };
+    0x00,0x01,0x03,0x02,0x06,0x04,0x0C,0x08        };
   while(1){
     ControlLED(LEDArray[LEDIndex++]);
     if(LEDIndex == 8){
@@ -164,6 +164,7 @@ void SetPinModes(){
   LEDInit();
 
 }
+
 
 
 

@@ -124,9 +124,9 @@ extern PID PitchRate;
 extern PID RollRate;
 extern PID YawRate;
 
-extern PID PitchAngle;
-extern PID RollAngle;
-extern YAW YawAngle;
+extern PID_2 PitchAngle;
+extern PID_2 RollAngle;
+extern YAW_2 YawAngle;
 
 extern PID_2 LoiterXPosition;
 extern PID_2 LoiterXVelocity;
