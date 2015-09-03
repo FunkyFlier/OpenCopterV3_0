@@ -140,6 +140,7 @@ float rateSetPointZ;
 
 float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
 float xFromTO,yFromTO;
+float alhpaForPressure;
 
 int16_t floorLimit,ceilingLimit;
 
@@ -189,6 +190,7 @@ void _100HzTask(uint32_t loopTime){
         errorLimit = kp_waypoint_position;
         offlineMax = ki_waypoint_position;
         onlineReq = kd_waypoint_position;
+        alhpaForPressure = fc_waypoint_position;
         /*K_P_GPS = kp_waypoint_position;
          K_V_GPS = ki_waypoint_position;
          K_B_GPS = kd_waypoint_position;

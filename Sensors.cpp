@@ -95,7 +95,7 @@ void GetGro() {
 
 //baro---------------------------------
 
-float initialPressure, pressure, alti;
+float initialPressure, pressure, alti,takeOffPressure;
 boolean newBaro = false;
 
 #ifdef V1
@@ -595,6 +595,7 @@ void GetInitialPressure(){
     }
   }
   initialPressure = baroSum / 50.0;
+  takeOffPressure = initialPressure;
 }
 
 //end baro-----------------------------

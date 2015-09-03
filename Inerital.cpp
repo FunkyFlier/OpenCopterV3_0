@@ -5,7 +5,9 @@
 #include "Sensors.h"
 #include "Streaming_.h"
 #include "FlightControl.h"
-
+#include "Motors.h"
+#include "Definitions.h"
+#include "Enums.h"
 float inertialX,inertialY,inertialZ;
 float velX,velY,velZ,velZUp;
 float XEst,YEst,ZEst,ZEstUp;
@@ -27,6 +29,7 @@ float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
 float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 float zPosError,zVelError;
 float errorLimit,offlineMax,onlineReq;
+
 
 void GetInertial(){
 
@@ -177,7 +180,22 @@ void CorrectZ(){
 
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
-
+  /*ZEst = ZEst - kPosBaro * zPosError;
+   velZ = velZ - kVelBaro * zVelError;
+   
+   accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
+   accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
+   accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
+   
+   
+   accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
+   
+   accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
+   accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
+   accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
+   
+   ZEstUp = -1.0 * ZEst;
+   velZUp = -1.0 * velZ;*/
   if (fabs(zPosError) < errorLimit || errorCorrectCount > offlineMax){
     if(errorCorrectCount > offlineMax){
       errorCorrectCount++;
@@ -185,7 +203,7 @@ void CorrectZ(){
         errorCorrectCount = 0;
       }
     }
-    if (errorCorrectCount < 5){
+    if (errorCorrectCount < offlineMax){
       errorCorrectCount = 0;
     }
     ZEst = ZEst - kPosBaro * zPosError;
@@ -208,6 +226,9 @@ void CorrectZ(){
   else{
     errorCorrectCount++;
     initialPressure += pressure - pressurePrevious;
+  }
+  if(motorState > TO){
+    initialPressure = initialPressure * alhpaForPressure + takeOffPressure * (1- alhpaForPressure);
   }
   pressurePrevious = pressure;
 }
@@ -240,6 +261,10 @@ void UpdateLagIndex(){
     lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
   }
 }
+
+
+
+
 
 
 

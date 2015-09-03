@@ -365,6 +365,7 @@ void MotorHandler(){
       if (abs(cmdRudd - 1500) < 50){
         rudderFlag = false;
         motorState = TO;
+        takeOffPressure = pressure;
         initialPressure = pressure;
 
         homeBaseXOffset = XEst;
