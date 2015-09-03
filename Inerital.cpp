@@ -26,6 +26,7 @@ float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
 
 float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 float zPosError,zVelError;
+float errorLimit,offlineMax,onlineReq;
 
 void GetInertial(){
 
@@ -177,12 +178,15 @@ void CorrectZ(){
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
 
-  if (fabs(zPosError) < 0.75 || errorCorrectCount > 5){
-    if(errorCorrectCount > 5){
+  if (fabs(zPosError) < errorLimit || errorCorrectCount > offlineMax){
+    if(errorCorrectCount > offlineMax){
       errorCorrectCount++;
-      if (errorCorrectCount >10){
+      if (errorCorrectCount > onlineReq){
         errorCorrectCount = 0;
       }
+    }
+    if (errorCorrectCount < 5){
+      errorCorrectCount = 0;
     }
     ZEst = ZEst - kPosBaro * zPosError;
     velZ = velZ - kVelBaro * zVelError;

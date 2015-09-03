@@ -445,6 +445,7 @@ void MotorHandler(){
         LoiterYVelocity.reset();
         AltHoldPosition.reset();
         AltHoldVelocity.reset();
+        //AltHoldVelocity.iError = 150.0;
         integrate = true;
       }
     }
@@ -462,7 +463,7 @@ void MotorHandler(){
       if (throttleCommand > 1900){
         throttleCommand = 1900;
       }
-      if (throttleCommand < 1050){
+      if (throttleCommand < (int16_t)propIdleCommand){
         throttleCommand = propIdleCommand;
         if (cmdRudd > 1700){
           motorState = HOLD;
@@ -528,14 +529,14 @@ void MotorHandler(){
       landDetected = true;
     }
     if (landDetected == true){
-      motorCommand1 = propIdleCommand;
-      motorCommand2 = propIdleCommand;
-      motorCommand3 = propIdleCommand;
-      motorCommand4 = propIdleCommand;
-      motorCommand5 = propIdleCommand;
-      motorCommand6 = propIdleCommand;
-      motorCommand7 = propIdleCommand;
-      motorCommand8 = propIdleCommand;
+      motorCommand1 = propIdleCommand + 150;
+      motorCommand2 = propIdleCommand + 150;
+      motorCommand3 = propIdleCommand + 150;
+      motorCommand4 = propIdleCommand + 150;
+      motorCommand5 = propIdleCommand + 150;
+      motorCommand6 = propIdleCommand + 150;
+      motorCommand7 = propIdleCommand + 150;
+      motorCommand8 = propIdleCommand + 150;
     }
     break;
   }

@@ -186,6 +186,9 @@ void _100HzTask(uint32_t loopTime){
 
       switch (_100HzState){
       case GET_GYRO:
+        errorLimit = kp_waypoint_position;
+        offlineMax = ki_waypoint_position;
+        onlineReq = kd_waypoint_position;
         /*K_P_GPS = kp_waypoint_position;
          K_V_GPS = ki_waypoint_position;
          K_B_GPS = kd_waypoint_position;
@@ -447,8 +450,10 @@ void FlightSM() {
     break;
   case L0:
     if (enterState == true) {
+
       enterState = false;
       InitLoiter();
+
       yawSetPoint = yawInDegrees;
       ControlLED(flightMode);
     }
@@ -498,7 +503,7 @@ void FlightSM() {
     ControlLED(0x0B);
     if (enterState == true) {
       enterState = false;
-
+      InitLoiter();
 
       xTarget = XEst;
       yTarget = YEst;
@@ -570,7 +575,7 @@ void InitLoiter() {
       }
     }
     throttleCheckFlag = true;
-    throttleAdjustment = 0;
+
     xTarget = XEst;
     yTarget = YEst;
 
@@ -580,6 +585,9 @@ void InitLoiter() {
     LoiterYVelocity.reset();
     AltHoldPosition.reset();
     AltHoldVelocity.reset();
+    if (motorState >= FLIGHT){
+      AltHoldVelocity.iError = throCommand - propIdleCommand;
+    }
   }
 
 }
@@ -590,6 +598,9 @@ void RTBStateMachine() {
   }
   switch (RTBState) {
   case RTB_CLIMB:
+    if(motorState == LANDING){
+      motorState = FLIGHT;
+    }
     LoiterCalculations();
     Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
     AltHoldPosition.calculate();
@@ -654,6 +665,7 @@ void RTBStateMachine() {
     }
     break;
   case RTB_LOITER:
+
     LoiterXPosition.calculate();
     LoiterYPosition.calculate();
     /*if (velSetPointX > RTB_VEL) {
@@ -694,6 +706,9 @@ void RTBStateMachine() {
     else {
       LoiterCalculations();
       Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
+    }
+    if (motorState == FLIGHT){
+      motorState = LAND;
     }
     AltHoldVelocity.calculate();
     break;
@@ -756,11 +771,6 @@ void LoiterSM(){
     if (abs(throCommand - 1500) > 200 && throttleCheckFlag == false){
       ZLoiterState = RCINPUT;
     }
-    if (throCommand < 1050 && motorState == FLIGHT){
-      ZLoiterState = LAND;
-      motorState = LANDING;
-      velSetPointZ = LAND_VEL;
-    }
     if (motorState == LANDING){
       zTarget = ZEstUp;
       if (zTarget <= floorLimit){
@@ -771,6 +781,13 @@ void LoiterSM(){
       }
       motorState = FLIGHT;
     }
+    if (throCommand < (int16_t)propIdleCommand && motorState == FLIGHT){
+      ZLoiterState = LAND;
+      motorState = LANDING;
+      velSetPointZ = LAND_VEL;
+      //break;
+    }
+
     break;
   case RCINPUT:
     if (throttleCheckFlag == true){
@@ -824,6 +841,9 @@ void LoiterSM(){
 
 
   case LAND:
+    if (motorState == FLIGHT){
+      motorState = LAND;
+    }
     AltHoldVelocity.calculate();
 
     if (throCommand > 1200 && motorState == LANDING){
@@ -1314,6 +1334,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 
