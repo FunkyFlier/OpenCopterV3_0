@@ -34,7 +34,6 @@ void PID::calculate(){
   }
 
   dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (error - prevError);
-  //dError =  (dErrorPrev + *kd * *fc * (error - prevError)) / (1.0 + *fc * *dt);
   *adjustment = *kp * error  + iError +  dError;
 
   if (*adjustment > outputLimitHigh){
@@ -92,11 +91,6 @@ void PID_2::calculate(){
     iError = integralLimitLow;
   }
   
-  /*if (*setPoint == previousSetPoint){
-    dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (error - prevError);
-  }else{
-    dError = 0;
-  }*/
   dError = dErrorPrev - *fc * *dt * dErrorPrev - *kd * *fc * (*actual - previousActual);
   *adjustment = *kp * error  + iError +  dError;
 
@@ -224,8 +218,6 @@ void YAW::calculate(){
 
   dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (error - prevError);
 
-
-
   if (*integrate == true){
     iError += *ki * *dt * error;
   }
@@ -297,10 +289,7 @@ void YAW_2::calculate(){
     error = *setPoint - PIDAngle;
   }
 
-
   dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (*actual - previousActual);
-
-
 
   if (*integrate == true){
     iError += *ki * *dt * error;

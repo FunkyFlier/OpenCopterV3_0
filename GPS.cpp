@@ -156,10 +156,7 @@ void GPSStart() {
     homeLon = GPSData.vars.lon;
     homeLatFloat = homeLat * 0.0000001;
     homeLonFloat = homeLon * 0.0000001;
-
   }
-
-
 
 }
 

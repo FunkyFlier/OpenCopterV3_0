@@ -144,9 +144,9 @@ float alhpaForPressure;
 
 int16_t floorLimit,ceilingLimit;
 
-PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
-PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
-PID YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
+PID_2 PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
+PID_2 RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
+PID_2 YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
 
 PID_2 PitchAngle(&pitchSetPoint, &pitchInDegrees, &rateSetPointY, &integrate, &kp_pitch_attitude, &ki_pitch_attitude, &kd_pitch_attitude, &fc_pitch_attitude, &_100HzDt, 360, 360);
 PID_2 RollAngle(&rollSetPoint, &rollInDegrees, &rateSetPointX, &integrate, &kp_roll_attitude, &ki_roll_attitude, &kd_roll_attitude, &fc_roll_attitude, &_100HzDt, 360, 360);
@@ -182,24 +182,14 @@ void _100HzTask(uint32_t loopTime){
   if (loopTime - _100HzTimer >= 10000){
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
-    D22High();
     while(_100HzState < LAST_100HZ_TASK){
 
       switch (_100HzState){
       case GET_GYRO:
-        errorLimit = kp_waypoint_position;
+        /*errorLimit = kp_waypoint_position;
         offlineMax = ki_waypoint_position;
         onlineReq = kd_waypoint_position;
-        alhpaForPressure = fc_waypoint_position;
-        /*K_P_GPS = kp_waypoint_position;
-         K_V_GPS = ki_waypoint_position;
-         K_B_GPS = kd_waypoint_position;
-         K_P_BARO = kp_waypoint_velocity;
-         K_V_BARO = ki_waypoint_velocity;
-         K_B_BARO = kd_waypoint_velocity;
-         KP_ACC = kp_cross_track;
-         KP_MAG = ki_cross_track;
-         FEEDBACK_LIMIT = kd_cross_track;*/
+        alhpaForPressure = fc_waypoint_position;*/
         PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
@@ -231,14 +221,6 @@ void _100HzTask(uint32_t loopTime){
       case POS_VEL_PREDICTION:
         Predict(_100HzDt);
         _100HzState = UPDATE_LAG_INDEX;
-        /*xFromTO = XEst - homeBaseXOffset;
-         yFromTO = YEst - homeBaseYOffset;
-         distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
-         headingToWayPoint = ToDeg(atan2(-1.0 * yFromTO , -1.0 * xFromTO));
-         if (headingToWayPoint < 0.0){
-         headingToWayPoint += 360.0;
-         }
-         Rotate2dVector(&headingToWayPoint,&zero,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);*/
         break;
       case UPDATE_LAG_INDEX:
         UpdateLagIndex();
@@ -283,7 +265,6 @@ void _100HzTask(uint32_t loopTime){
         break;
       case PROCESS_GS_CONTROL_SIGNALS:
         if (newGSRC == true) {
-
           groundFSCount = 0;
           newGSRC = false;
           telemFailSafe = false;
@@ -329,9 +310,7 @@ void _100HzTask(uint32_t loopTime){
         _100HzState = READ_BATTERY;
         break;
       case READ_BATTERY:
-        D23High();
         ReadBatteryInfo(&_100HzDt);
-        D23Low();
         _100HzState = MOTOR_HANDLER;
         break;
       case MOTOR_HANDLER:
@@ -346,7 +325,6 @@ void _100HzTask(uint32_t loopTime){
       _400HzTask();
 
     }
-    D22Low();
     _100HzState = GET_GYRO;
   }
 
@@ -435,13 +413,11 @@ void FlightSM() {
       ControlLED(0x0F); 
     }
     TrimCheck();
-
     break;
   case ATT:
     if (enterState == true) {
       if (previousFlightMode != RATE && previousFlightMode != ATT) {
         throttleCheckFlag = true;
-
       }
       yawSetPoint = yawInDegrees;
       enterState = false;
@@ -452,10 +428,8 @@ void FlightSM() {
     break;
   case L0:
     if (enterState == true) {
-
       enterState = false;
       InitLoiter();
-
       yawSetPoint = yawInDegrees;
       ControlLED(flightMode);
     }
@@ -470,7 +444,6 @@ void FlightSM() {
       yawSetPoint = yawInDegrees;
       ControlLED(flightMode);
       controlBearing = initialYaw;
-
     }
     HeadingHold();
     LoiterSM();
@@ -480,7 +453,6 @@ void FlightSM() {
       InitLoiter();
       yawSetPoint = yawInDegrees;
       ControlLED(flightMode);
-
       enterState = false;
     }
     HeadingHold();
@@ -506,7 +478,6 @@ void FlightSM() {
     if (enterState == true) {
       enterState = false;
       InitLoiter();
-
       xTarget = XEst;
       yTarget = YEst;
       zTarget = ZEstUp + 1;
@@ -528,14 +499,11 @@ void FlightSM() {
         zTarget = floorLimit;
       }
       RTBState = RTB_CLIMB;
-
     }
     HeadingHold();
     RTBStateMachine();
     break;
-
   }
-
 }
 
 void TrimCheck() {
@@ -562,7 +530,6 @@ void TrimCheck() {
 }
 
 void InitLoiter() {
-
   if (previousFlightMode != L1 && previousFlightMode != L2 && previousFlightMode != L0) {
     if (motorState == LANDING) {
       velSetPointZ = LAND_VEL;
@@ -643,7 +610,6 @@ void RTBStateMachine() {
       yawSetPoint +=360;
     }
     //rotate EF velocity to path frame
-    //Rotate2dVector(&headingToWayPoint,&zero,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);
     Rotate2dVector(&zero,&headingToWayPoint,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);
     //wp pos PID
     WPPosition.calculate(); 
@@ -670,18 +636,6 @@ void RTBStateMachine() {
 
     LoiterXPosition.calculate();
     LoiterYPosition.calculate();
-    /*if (velSetPointX > RTB_VEL) {
-     velSetPointX = RTB_VEL;
-     }
-     if (velSetPointX < -RTB_VEL) {
-     velSetPointX = -RTB_VEL;
-     }
-     if (velSetPointY > RTB_VEL) {
-     velSetPointY = RTB_VEL;
-     }
-     if (velSetPointY < -RTB_VEL) {
-     velSetPointY = -RTB_VEL;
-     }*/
     LoiterXVelocity.calculate();
     tiltAngleX *= -1.0;
     LoiterYVelocity.calculate();
@@ -748,10 +702,7 @@ void Arm(){
     } 
   }
   else{
-
     while (RCValue[RUDD] < 1750){
-
-
       if (newRC == true){
         ProcessChannels();
         newRC = false;

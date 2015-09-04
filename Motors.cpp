@@ -21,6 +21,7 @@ void CompleteESCCalibration();
 void CalculateMotorMixing();
 void WriteMotorPWM();
 void SaveEstiamtorGains();
+void CommandAllMotors(float);
 
 uint32_t romWriteDelayTimer;
 float motorCommand1, motorCommand2, motorCommand3, motorCommand4,motorCommand5, motorCommand6, motorCommand7, motorCommand8;
@@ -28,11 +29,8 @@ int16_t pwmHigh, pwmLow;
 int16_t throttleCommand;
 uint8_t motorState;
 uint16_t propIdleCommand, hoverCommand;
-//float throAdjToMotors;
 
 float m1X,m1Y,m1Z,m2X,m2Y,m2Z,m3X,m3Y,m3Z,m4X,m4Y,m4Z,m5X,m5Y,m5Z,m6X,m6Y,m6Z,m7X,m7Y,m7Z,m8X,m8Y,m8Z;
-
-
 
 
 boolean saveGainsFlag = false;
@@ -121,7 +119,7 @@ void CheckESCFlag(){
     if (handShake == false || calibrationModeESCs == false){
       EEPROMWrite(ESC_CAL_FLAG,0xFF);
       while(1){
-      }//add lights
+      }
     }
     while(calibrateESCs == false){
       if (millis() - LEDTimer > 250){
@@ -293,9 +291,6 @@ void ResetPIDs(){
   AltHoldPosition.reset();
   AltHoldVelocity.reset();
 
-  //WayPointPosition.reset();
-  //WayPointRate.reset();
-
   LoiterXPosition.reset();
   LoiterXVelocity.reset();
 
@@ -334,25 +329,11 @@ void MotorHandler(){
     ZLoiterState = LOITERING;
     XYLoiterState = LOITERING;
     if (throCommand > 1100){
-      motorCommand1 = pwmLow;
-      motorCommand2 = pwmLow;
-      motorCommand3 = pwmLow;
-      motorCommand4 = pwmLow;
-      motorCommand5 = pwmLow;
-      motorCommand6 = pwmLow;
-      motorCommand7 = pwmLow;
-      motorCommand8 = pwmLow;
+      CommandAllMotors((float)pwmLow);
       break;
     }
     if (flightMode == RTB){
-      motorCommand1 = pwmLow;
-      motorCommand2 = pwmLow;
-      motorCommand3 = pwmLow;
-      motorCommand4 = pwmLow;
-      motorCommand5 = pwmLow;
-      motorCommand6 = pwmLow;
-      motorCommand7 = pwmLow;
-      motorCommand8 = pwmLow;
+      CommandAllMotors((float)pwmLow);
       break;
     }
 
@@ -377,27 +358,12 @@ void MotorHandler(){
       }
     }
     throttleAdjustment = 0;
-    motorCommand1 = pwmLow;
-    motorCommand2 = pwmLow;
-    motorCommand3 = pwmLow;
-    motorCommand4 = pwmLow;
-    motorCommand5 = pwmLow;
-    motorCommand6 = pwmLow;
-    motorCommand7 = pwmLow;
-    motorCommand8 = pwmLow;
-
+    CommandAllMotors((float)pwmLow);
     throttleCheckFlag = false;
     break;
   case TO:
     landDetected = false;
-    motorCommand1 = propIdleCommand;
-    motorCommand2 = propIdleCommand;
-    motorCommand3 = propIdleCommand;
-    motorCommand4 = propIdleCommand;
-    motorCommand5 = propIdleCommand;
-    motorCommand6 = propIdleCommand;
-    motorCommand7 = propIdleCommand;
-    motorCommand8 = propIdleCommand;
+    CommandAllMotors((float)propIdleCommand);
     throttleCheckFlag = false;
     initialPressure = pressure;
 
@@ -405,15 +371,7 @@ void MotorHandler(){
     ZEstUp = baroZ;
     velZ = 0;
     velZUp = 0;
-    //prevBaro = 0;
-    //baroZ = 0;
 
-    /*ZEst = 0;
-     ZEstUp = 0;
-     velZ = 0;
-     velZUp = 0;
-     prevBaro = 0;
-     baroZ = 0;*/
     initialYaw = yawInDegrees;
 
     if (cmdRudd > 1700){
@@ -428,7 +386,6 @@ void MotorHandler(){
         motorState = FLIGHT;
         ResetPIDs();
         integrate = true;
-        //integrateRate = true;
       }
     }
     if (flightMode <= L2 && flightMode >= L0){
@@ -446,7 +403,6 @@ void MotorHandler(){
         LoiterYVelocity.reset();
         AltHoldPosition.reset();
         AltHoldVelocity.reset();
-        //AltHoldVelocity.iError = 150.0;
         integrate = true;
       }
     }
@@ -498,28 +454,13 @@ void MotorHandler(){
     }
     throttleCommand = hoverCommand;
     if ( (throttleAdjustment + throttleCommand) < (propIdleCommand + 100) ){
-      motorCommand1 = pwmLow;
-      motorCommand2 = pwmLow;
-      motorCommand3 = pwmLow;
-      motorCommand4 = pwmLow;
-
-      motorCommand5 = pwmLow;
-      motorCommand6 = pwmLow;
-      motorCommand7 = pwmLow;
-      motorCommand8 = pwmLow;
+      CommandAllMotors((float)pwmLow);
       landDetected = false;
       motorState = HOLD;
       break;
     }
     if (cmdRudd > 1700){
-      motorCommand1 = pwmLow;
-      motorCommand2 = pwmLow;
-      motorCommand3 = pwmLow;
-      motorCommand4 = pwmLow;
-      motorCommand5 = pwmLow;
-      motorCommand6 = pwmLow;
-      motorCommand7 = pwmLow;
-      motorCommand8 = pwmLow;
+      CommandAllMotors((float)pwmLow);
       landDetected = false;
       motorState = HOLD;
       break;
@@ -530,14 +471,7 @@ void MotorHandler(){
       landDetected = true;
     }
     if (landDetected == true){
-      motorCommand1 = propIdleCommand + 150;
-      motorCommand2 = propIdleCommand + 150;
-      motorCommand3 = propIdleCommand + 150;
-      motorCommand4 = propIdleCommand + 150;
-      motorCommand5 = propIdleCommand + 150;
-      motorCommand6 = propIdleCommand + 150;
-      motorCommand7 = propIdleCommand + 150;
-      motorCommand8 = propIdleCommand + 150;
+      CommandAllMotors((float)(propIdleCommand + 150));
     }
     break;
   }
@@ -545,6 +479,16 @@ void MotorHandler(){
   WriteMotorPWM();
 }
 
+void CommandAllMotors(float command){
+  motorCommand1 = command;
+  motorCommand2 = command;
+  motorCommand3 = command;
+  motorCommand4 = command;
+  motorCommand5 = command;
+  motorCommand6 = command;
+  motorCommand7 = command;
+  motorCommand8 = command;
+}
 void CalculateMotorMixing(){
   float throToMotors;
   throToMotors = throttleCommand + throttleAdjustment;
