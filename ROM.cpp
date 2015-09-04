@@ -208,28 +208,16 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
-  //float xPosError,yPosError,xVelError,yVelError;
 
-  /*floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
-   floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
-   floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
-   floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
-   floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
-   floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
-   floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
-   floatPointerArray[MOTOR_CMD_8] = &motorCommand8;*/
-  floatPointerArray[MOTOR_CMD_1] = &baroAlt;//motors
-  floatPointerArray[MOTOR_CMD_2] = &baroRate;
-  floatPointerArray[MOTOR_CMD_3] = &wpCrossTrackVelocity;
-  floatPointerArray[MOTOR_CMD_4] = &wpTilX;
- /* floatPointerArray[MOTOR_CMD_1] = &xPosError;//motors
-   floatPointerArray[MOTOR_CMD_2] = &yPosError;
-   floatPointerArray[MOTOR_CMD_3] = &xVelError;
-   floatPointerArray[MOTOR_CMD_4] = &yVelError;*/
-  floatPointerArray[MOTOR_CMD_5] = &wpTiltY;
-  floatPointerArray[MOTOR_CMD_6] = &AltHoldVelocity.error;
-  floatPointerArray[MOTOR_CMD_7] = &AltHoldVelocity.iError;
-  floatPointerArray[MOTOR_CMD_8] = &AltHoldVelocity.dError;
+  floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
+  floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
+  floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
+  floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
+  floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
+  floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
+  floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
+  floatPointerArray[MOTOR_CMD_8] = &motorCommand8;
+
 
   floatPointerArray[PRESSURE_] = &pressure;//sensors
   floatPointerArray[CTRL_BEARING] = &controlBearing;//flight control
@@ -276,7 +264,7 @@ void AssignPointerArray() {
   floatPointerArray[M8_X] = &m8X;
   floatPointerArray[M8_Y] = &m8Y;
   floatPointerArray[M8_Z] = &m8Z;
-  
+
   floatPointerArray[KP_ACC] = &kpAcc;
   floatPointerArray[KI_ACC] = &kiAcc;
   floatPointerArray[KP_MAG] = &kpMag;
@@ -288,7 +276,7 @@ void AssignPointerArray() {
   floatPointerArray[K_P_BARO] = &kPosBaro;
   floatPointerArray[K_V_BARO] = &kVelBaro;
   floatPointerArray[K_B_BARO] = &kBiasBaro;
-    floatPointerArray[K_P_BARO] = &kPosBaro;
+  floatPointerArray[K_P_BARO] = &kPosBaro;
   floatPointerArray[K_V_BARO] = &kVelBaro;
   floatPointerArray[K_B_BARO] = &kBiasBaro;
 
@@ -348,8 +336,8 @@ void ROMFlagsCheck() {
     kiAcc = 0;
     kpMag = 1.0;
     kiMag = 0;
-    feedbackLimit = 0.1;
-    
+    feedbackLimit = 0.25;
+
     kPosGPS = 0.1;
     kVelGPS = 0.22;
     kBiasGPS = 0.03;
@@ -596,7 +584,8 @@ void LoadPWMLimits() {
   else {
     propIdleCommand = pwmLow * (1 + ((float)propIdlePercent / 100.0));
   }
-  hoverPercent = EEPROMRead(HOVER_THRO);
+  hoverCommand = propIdleCommand;
+  /*hoverPercent = EEPROMRead(HOVER_THRO);
   if (hoverPercent > 75) {
     hoverCommand = 1000 * (1 + (75 / 100.0));
   }
@@ -607,7 +596,7 @@ void LoadPWMLimits() {
     else {
       hoverCommand = 1000 * (1 + ((float)hoverPercent / 100.0));
     }
-  }
+  }*/
 }
 void LoadRC() {
   uint16_t j = 0; //index for input buffers
@@ -847,6 +836,7 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
 
 
 

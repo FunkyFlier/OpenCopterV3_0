@@ -2,14 +2,7 @@
 #define INERTIAL_H
 
 #define LAG_SIZE 56
-#define LAG_SIZE_BARO 27
-
-/*#define K_P_GPS 0.1
-#define K_V_GPS 0.22
-#define K_B_GPS 0.003
-#define K_P_BARO 0.07
-#define K_V_BARO 0.12
-#define K_B_BARO 0.003*/
+#define LAG_SIZE_BARO 14
 
 
 void GetInertial();
@@ -31,6 +24,7 @@ extern float xPosError,yPosError,xVelError,yVelError;
 extern float baroAlt,baroRate;
 
 extern float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
-
+extern float zPosError,zVelError;
+extern float errorLimit,offlineMax,onlineReq;
 
 #endif

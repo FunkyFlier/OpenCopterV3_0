@@ -7,8 +7,8 @@
 #include "Types.h"
 
 #define RADIUS_EARTH 6372795
-#define SACC_MAX 5
-#define HACC_MAX 40
+#define SACC_MAX 1
+#define HACC_MAX 5
 
 void GPSInit();
 void DistBearing(int32_t*, int32_t*, int32_t*, int32_t*, float*, float*, float*, float*);
