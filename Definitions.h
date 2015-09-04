@@ -3,11 +3,8 @@
 
 #define ROT_45
 
-//#define QUAD_CAMP
 
 #define QUAD
-//#define HEX_FRAME
-//#define X_8
 
 //#define EXT_MAG
 
@@ -20,41 +17,11 @@
 #endif
 #endif
 
-#ifdef QUAD_CAMP
-
-#ifndef V1
-#define V1
-#endif//#ifndef V1
-
-#ifndef QUAD
-#define QUAD
-#endif//#ifndef QUAD
-
-#ifdef ROT_45
-#undef ROT_45
-#endif//#ifdef ROT_45
-
-#ifdef V2
-#undef V2
-#endif//#ifdef V2
-
-#ifdef HEX_FRAME
-#undef HEX_FRAME
-#endif//#ifdef HEX_FRAME
-
-#ifdef X_8
-#undef X_8
-#endif//#ifdef X_8
-
-#endif//#ifdef QUAD_CAMP
-
-
 #define COUNTS_TO_AMPS 0.23339658
 #define _3_V_PER_CELL 750
 #define LOW_VOLTAGE_COUNT 750
 #define HIGH_VOLTAGE_COUNT 1024
 #define VOLT_COUNTS_TO_CELL_VOLTAGE 0.0041015625 //   4.2/1024
-
 
 #define CEILING 6.0
 #define FLOOR 2.0
@@ -62,7 +29,7 @@
 
 #define MIN_RTB_DIST 1.5
 
-#define LAND_VEL -0.28
+#define LAND_VEL -0.5
 #define RTB_VEL 1
 
 #define HH_ON 0
@@ -181,6 +148,7 @@
 #define FlashSSHigh() PORTL |= 1<<4
 #define FlashSSLow() PORTL &= ~(1<<4)
 
+#define LOW_SPEED_RADIUS 30
 
 #define Port0 Serial
 #define RC_SERIAL_PORT Serial1

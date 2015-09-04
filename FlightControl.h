@@ -119,28 +119,29 @@ extern float adjustmentY;
 extern float adjustmentZ;
 
 extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
+extern float alhpaForPressure;
 
-extern PID PitchRate;
-extern PID RollRate;
-extern PID YawRate;
+extern PID_2 PitchRate;
+extern PID_2 RollRate;
+extern PID_2 YawRate;
 
-extern PID PitchAngle;
-extern PID RollAngle;
-extern YAW YawAngle;
+extern PID_2 PitchAngle;
+extern PID_2 RollAngle;
+extern YAW_2 YawAngle;
 
-extern PID LoiterXPosition;
-extern PID LoiterXVelocity;
+extern PID_2 LoiterXPosition;
+extern PID_2 LoiterXVelocity;
 
-extern PID LoiterYPosition;
-extern PID LoiterYVelocity;
+extern PID_2 LoiterYPosition;
+extern PID_2 LoiterYVelocity;
 
-extern PID AltHoldPosition;
-extern PID AltHoldVelocity;
+extern PID_2 AltHoldPosition;
+extern PID_2 AltHoldVelocity;
 
-extern PID WPPosition;
-extern PID WPVelocity;
+extern PID_2 WPPosition;
+extern PID_2 WPVelocity;
 
-extern PID WPCrossTrack;
+extern PID_2 WPCrossTrack;
 
 
 #endif

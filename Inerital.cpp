@@ -5,7 +5,9 @@
 #include "Sensors.h"
 #include "Streaming_.h"
 #include "FlightControl.h"
-
+#include "Motors.h"
+#include "Definitions.h"
+#include "Enums.h"
 float inertialX,inertialY,inertialZ;
 float velX,velY,velZ,velZUp;
 float XEst,YEst,ZEst,ZEstUp;
@@ -17,6 +19,7 @@ float prevBaro;
 float inertialXBiased,inertialYBiased,inertialZBiased;
 
 float xPosError,yPosError,xVelError,yVelError;
+float baroAlt,baroRate;
 //-------------------
 float inertialZGrav;
 int16_t currentEstIndex,lagIndex,currentEstIndex_z,lagIndex_z;  
@@ -24,6 +27,8 @@ float XEstHist[LAG_SIZE],YEstHist[LAG_SIZE],ZEstHist[LAG_SIZE_BARO];
 float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
 
 float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
+float zPosError,zVelError;
+float errorLimit,offlineMax,onlineReq;
 
 
 void GetInertial(){
@@ -63,8 +68,6 @@ void InertialInit(){
 void Predict(float dt){
 
   float biasedX,biasedY,biasedZ;
-  //float accelBiasX,accelBiasY,accelBiasZ;
-  //float inertialXBiased,inertialYBiased,inertialZBiased;
 
   biasedX = (filtAccX - accelBiasX);
   biasedY = (filtAccY - accelBiasY);
@@ -112,29 +115,7 @@ void GetGPSXY(){
 }
 
 
-void GetBaroZ(){
-  static uint32_t baroTimer = 0;
-  
-  float baroDT;
-  float baroAlt,baroRate;
-
-  baroDT = (millis() - baroTimer) * 0.001;
-  baroTimer = millis();
-
-  if (baroDT >= 0.1 || baroDT <= 0) {
-    baroDT = 0.1;
-  }
-  GetAltitude(&pressure, &initialPressure, &baroAlt);
-  LPF(&baroZ,&baroAlt,&baroDT,RC_CONST_BARO);
-  baroRate = (baroZ - prevBaro) / baroDT;
-  LPF(&baroVel,&baroRate,&baroDT,RC_CONST_BARO);
-  prevBaro = baroZ;
-
-
-}
-
 void CorrectXY(){
-  //float xPosError,yPosError,xVelError,yVelError;
   float accelBiasXEF,accelBiasYEF,accelBiasZEF;
 
   GetGPSXY();
@@ -165,32 +146,69 @@ void CorrectXY(){
 
 }
 
+void GetBaroZ(){
+  static uint32_t baroTimer = 0;
+
+  float baroDT;
+
+  baroDT = (millis() - baroTimer) * 0.001;
+  baroTimer = millis();
+
+  if (baroDT >= 0.1 || baroDT <= 0) {
+    baroDT = 0.1;
+  }
+  GetAltitude(&pressure, &initialPressure, &baroAlt);
+  LPF(&baroZ,&baroAlt,&baroDT,RC_CONST_BARO);
+  baroRate = (baroZ - prevBaro) / baroDT;
+  LPF(&baroVel,&baroRate,&baroDT,RC_CONST_BARO);
+  prevBaro = baroZ;
+
+
+}
+
 void CorrectZ(){
-  
-  float zPosError,zVelError;
+  static float pressurePrevious;
+  static uint8_t errorCorrectCount;
   float accelBiasXEF,accelBiasYEF,accelBiasZEF;
-   
+
   GetBaroZ();
- 
+
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
+ 
+  if (fabs(zPosError) < 1.0 || errorCorrectCount > 40){
+    if(errorCorrectCount > 40){
+      errorCorrectCount++;
+      if (errorCorrectCount > 50){
+        errorCorrectCount = 0;
+      }
+    }
+    if (errorCorrectCount < 40){
+      errorCorrectCount = 0;
+    }
+    ZEst = ZEst - kPosBaro * zPosError;
+    velZ = velZ - kVelBaro * zVelError;
 
-  ZEst = ZEst - kPosBaro * zPosError;
-  velZ = velZ - kVelBaro * zVelError;
-
-  accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
-  accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
-  accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
+    accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
+    accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
+    accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
 
 
-  accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
+    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
 
-  accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
-  accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
-  accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
+    accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
+    accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
+    accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
 
-  ZEstUp = -1.0 * ZEst;
-  velZUp = -1.0 * velZ;
+    ZEstUp = -1.0 * ZEst;
+    velZUp = -1.0 * velZ;
+  }
+  else{
+    errorCorrectCount++;
+    initialPressure += pressure - pressurePrevious;
+  }
+
+  pressurePrevious = pressure;
 }
 
 
@@ -204,13 +222,11 @@ void UpdateLagIndex(){
 
   lagIndex = currentEstIndex - (LAG_SIZE - 1);
 
-
   if (lagIndex < 0){
     lagIndex = LAG_SIZE + lagIndex;
   }
 
 
-  //0.3sec lag
   currentEstIndex_z++;
   if (currentEstIndex_z >= (LAG_SIZE_BARO) || currentEstIndex_z < 0){
     currentEstIndex_z = 0;
@@ -221,6 +237,13 @@ void UpdateLagIndex(){
     lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
   }
 }
+
+
+
+
+
+
+
 
 
 

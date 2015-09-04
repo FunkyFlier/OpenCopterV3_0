@@ -111,7 +111,8 @@ class I2C
     uint8_t read(int, int, int);
     uint8_t read(uint8_t, uint8_t, uint8_t*);
     uint8_t read(uint8_t, uint8_t, uint8_t, uint8_t*);
-
+    uint8_t readStopStart(uint8_t, uint8_t, uint8_t);
+    uint8_t readStopStart(uint8_t, uint8_t, uint8_t, uint8_t*);
 
   private:
     uint8_t start();
