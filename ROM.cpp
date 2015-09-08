@@ -208,13 +208,12 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
-
-  floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
-  floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
-  floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
-  floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
-  floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
-  floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
+  floatPointerArray[MOTOR_CMD_1] = &xPosError;//motors
+  floatPointerArray[MOTOR_CMD_2] = &xVelError;
+  floatPointerArray[MOTOR_CMD_3] = &yPosError;
+  floatPointerArray[MOTOR_CMD_4] = &yVelError;
+  floatPointerArray[MOTOR_CMD_5] = &zPosError;
+  floatPointerArray[MOTOR_CMD_6] = &zVelError;
   floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
   floatPointerArray[MOTOR_CMD_8] = &motorCommand8;
 
@@ -364,7 +363,7 @@ void ROMFlagsCheck() {
   }
   if(EEPROMRead(SWIFT_X_FLAG) !=0xAA){
     EEPROMWrite(SWIFT_X_FLAG,0xAA);
-    EEPROMWrite(ROT_45,0x00);
+    EEPROMWrite(ROT_45,0x01);
   }
   if (EEPROMRead(MIX_FLAG) != 0xAA){
     EEPROMWrite(MIX_FLAG,0xAA);

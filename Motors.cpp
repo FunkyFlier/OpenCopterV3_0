@@ -303,6 +303,7 @@ void ResetPIDs(){
 }
 void MotorHandler(){
   static boolean rudderFlag = false,landDetected = false;
+  static uint16_t landRampValue;
   switch(motorState){
   case HOLD:
     landDetected = false;
@@ -469,9 +470,15 @@ void MotorHandler(){
     CalculateMotorMixing();
     if (zPosError < -0.75){
       landDetected = true;
+      landRampValue = throttleAdjustment + throttleCommand;
     }
     if (landDetected == true){
-      CommandAllMotors((float)(propIdleCommand + 150));
+      CommandAllMotors((float)(landRampValue--));
+      if (landRampValue < propIdleCommand + 100){
+        CommandAllMotors((float)pwmLow);
+        landDetected = false;
+        motorState = HOLD;
+      } 
     }
     break;
   }
@@ -521,6 +528,7 @@ void WriteMotorPWM(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
 
 
 
