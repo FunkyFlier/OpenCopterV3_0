@@ -1,11 +1,6 @@
 #ifndef Definitions_h
 #define Definitions_h
 
-#define ROT_45
-
-
-#define QUAD
-
 //#define EXT_MAG
 
 //#define V1
@@ -362,6 +357,8 @@
 #define EST_GAIN_START 555
 #define EST_GAIN_END 598
 
+#define SWIFT_X_FLAG 599
+#define ROT_45 600
 
 #endif//#ifndef Definitions.h
 

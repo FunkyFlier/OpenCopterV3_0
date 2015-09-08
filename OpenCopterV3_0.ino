@@ -29,7 +29,6 @@ void setup() {
   AssignPointerArray();
   SetPinModes();
   ControlLED(0x0F);  
-  //CheckDefines();
 
   DetectRC();
   _200HzISRConfig();
@@ -111,30 +110,7 @@ void NoControlIndicatior(){
     delay(250);
   }
 }
-void CheckDefines(){
-#ifdef V1
-  Serial<<"V1\r\n";
-#endif
-#ifdef V2
-  Serial<<"V2\r\n";
-#endif
-#ifdef ROT_45
-  Serial<<"ROT_45\r\n";
-#endif
-#ifdef QUAD_CAMP
-  Serial<<"QUAD_CAMP\r\n";
-#endif
-#ifdef QUAD
-  Serial<<"QUAD\r\n";
-#endif
-#ifdef HEX_FRAME
-  Serial<<"HEX_FRAME\r\n";
-#endif
-#ifdef X_8
-  Serial<<"X_8\r\n";
-#endif
 
-}
 
 
 

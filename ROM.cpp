@@ -339,11 +339,11 @@ void ROMFlagsCheck() {
     feedbackLimit = 0.25;
 
     kPosGPS = 0.1;
-    kVelGPS = 0.22;
-    kBiasGPS = 0.03;
+    kVelGPS = 0.35;
+    kBiasGPS = 0.001;
     kPosBaro = 0.07;
-    kVelBaro = 0.1;
-    kBiasBaro = 0.01;
+    kVelBaro = 0.08;
+    kBiasBaro = 0.001;
     j = EST_GAIN_START;
     for(uint16_t i = KP_ACC; i <= K_B_BARO; i++){
       outFloat.val = *floatPointerArray[i];
@@ -361,6 +361,10 @@ void ROMFlagsCheck() {
     outInt16.val = (int16_t)FLOOR;
     EEPROMWrite(FLOOR_START, outInt16.buffer[0]);
     EEPROMWrite(FLOOR_END, outInt16.buffer[1]);
+  }
+  if(EEPROMRead(SWIFT_X_FLAG) !=0xAA){
+    EEPROMWrite(SWIFT_X_FLAG,0xAA);
+    EEPROMWrite(ROT_45,0x00);
   }
   if (EEPROMRead(MIX_FLAG) != 0xAA){
     EEPROMWrite(MIX_FLAG,0xAA);
@@ -586,17 +590,17 @@ void LoadPWMLimits() {
   }
   hoverCommand = propIdleCommand;
   /*hoverPercent = EEPROMRead(HOVER_THRO);
-  if (hoverPercent > 75) {
-    hoverCommand = 1000 * (1 + (75 / 100.0));
-  }
-  else {
-    if (hoverPercent < 25) {
-      hoverCommand = 1000 * (1 + (25 / 100.0));
-    }
-    else {
-      hoverCommand = 1000 * (1 + ((float)hoverPercent / 100.0));
-    }
-  }*/
+   if (hoverPercent > 75) {
+   hoverCommand = 1000 * (1 + (75 / 100.0));
+   }
+   else {
+   if (hoverPercent < 25) {
+   hoverCommand = 1000 * (1 + (25 / 100.0));
+   }
+   else {
+   hoverCommand = 1000 * (1 + ((float)hoverPercent / 100.0));
+   }
+   }*/
 }
 void LoadRC() {
   uint16_t j = 0; //index for input buffers
@@ -811,6 +815,11 @@ void LoadMotorMix(){
     outFloat.buffer[3] = EEPROMRead(j++);
     *floatPointerArray[i] = outFloat.val;
   }
+  if (EEPROMRead(ROT_45) == 0x1){
+    rotateSensor45Deg = true;
+  }else{
+    rotateSensor45Deg = false;
+  }
 }
 void LoadEstimatorGains(){
   float_u outFloat;
@@ -836,6 +845,7 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
 
 
 
