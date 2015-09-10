@@ -16,7 +16,7 @@ extern uint8_t motorState;
 extern uint16_t propIdleCommand, hoverCommand;
 
 extern float m1X,m1Y,m1Z,m2X,m2Y,m2Z,m3X,m3Y,m3Z,m4X,m4Y,m4Z,m5X,m5Y,m5Z,m6X,m6Y,m6Z,m7X,m7Y,m7Z,m8X,m8Y,m8Z;
-
+extern float landRampValue;
 extern boolean saveGainsFlag;
 extern boolean saveEstimatorGainsFlag;
 extern boolean throttleCheckFlag;
