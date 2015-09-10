@@ -740,7 +740,8 @@ void LoiterSM(){
     if (zTarget > ceilingLimit) {
       zTarget = ceilingLimit;
     }
-    if (throCommand < (int16_t)propIdleCommand && motorState == FLIGHT){
+    if (throCommand < 1050 && motorState == FLIGHT){
+      throttleCheckFlag = false;
       ZLoiterState = LAND;
       motorState = LANDING;
       velSetPointZ = LAND_VEL;
@@ -775,6 +776,7 @@ void LoiterSM(){
       velSetPointZ = MIN_Z_RATE;
     }
     if (throCommand < 1050 && motorState == FLIGHT){
+      throttleCheckFlag = false;
       ZLoiterState = LAND;
       motorState = LANDING;
       velSetPointZ = LAND_VEL;
@@ -783,12 +785,14 @@ void LoiterSM(){
 
 
     if (ZEstUp >= ceilingLimit && velSetPointZ > 0){
+      throttleCheckFlag = true;
       zTarget = ceilingLimit;
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
       break;
     }
     if (ZEstUp <= floorLimit && velSetPointZ < 0){
+      throttleCheckFlag = true;
       zTarget = floorLimit;
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
