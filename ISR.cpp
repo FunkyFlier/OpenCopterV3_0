@@ -26,7 +26,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
     GPSFailSafeCounter++;
   }
   else{
-    if (handShake == true){
+    if (handShake == true && calibrationMode == false){
       Radio();
       TuningTransmitter(); 
     }

@@ -350,6 +350,7 @@ void Radio() {
 void CalibrateSensors() {
   uint32_t generalPurposeTimer = millis();
   while (1) {
+    Radio();
     if ( millis() - generalPurposeTimer >= 10) {
       generalPurposeTimer = millis();
       GetAcc();
@@ -653,7 +654,7 @@ void SetTransmissionRate() {
 }
 
 void WriteCalibrationDataToRom() {
-  
+
   uint8_t temp,calibrationFlags;
   uint8_t itemIndex = 0;
   switch (cmdNum) {
@@ -830,7 +831,7 @@ void OrderedSet() {
 }
 
 void SendOrdAck() {
-  
+
   uint8_t txSum = 0,txDoubleSum = 0,temp;
 
   RadioWrite(0xAA);
@@ -1598,6 +1599,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 
