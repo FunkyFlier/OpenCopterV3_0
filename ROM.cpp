@@ -365,6 +365,12 @@ void ROMFlagsCheck() {
     EEPROMWrite(SWIFT_X_FLAG,0xAA);
     EEPROMWrite(ROT_45,0x00);
   }
+  if (EEPROMRead(ROT_45) == 0x01){
+    rotateSensor45Deg = true;
+  }
+  else{
+    rotateSensor45Deg = false;
+  }
   if (EEPROMRead(MIX_FLAG) != 0xAA){
     EEPROMWrite(MIX_FLAG,0xAA);
     m1X = m1Y = m2Y = m2Z = m4X = m4Z = m5X = m5Y = m6Y = m6Z = m8X = m8Z =  1.0;
@@ -814,11 +820,7 @@ void LoadMotorMix(){
     outFloat.buffer[3] = EEPROMRead(j++);
     *floatPointerArray[i] = outFloat.val;
   }
-  if (EEPROMRead(ROT_45) == 0x1){
-    rotateSensor45Deg = true;
-  }else{
-    rotateSensor45Deg = false;
-  }
+
 }
 void LoadEstimatorGains(){
   float_u outFloat;
@@ -844,6 +846,7 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
 
 
 

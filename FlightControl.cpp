@@ -423,7 +423,7 @@ void FlightSM() {
       enterState = false;
       ControlLED(flightMode);
     }
-    HeadingHold();excel
+    HeadingHold();
     TrimCheck();
     break;
   case L0:

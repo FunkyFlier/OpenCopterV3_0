@@ -653,6 +653,7 @@ void SetTransmissionRate() {
 }
 
 void WriteCalibrationDataToRom() {
+  
   uint8_t temp,calibrationFlags;
   uint8_t itemIndex = 0;
   switch (cmdNum) {
@@ -757,6 +758,13 @@ void WriteCalibrationDataToRom() {
   case 9://switfx rotate by 45 flag
     EEPROMWrite(SWIFT_X_FLAG,0xAA);
     EEPROMWrite(ROT_45,itemBuffer[itemIndex]);
+    if (itemBuffer[itemIndex] == 0x01){
+      rotateSensor45Deg = true;
+    }
+    else{
+      rotateSensor45Deg = false;
+    }
+    break;
   }
 
 
@@ -788,7 +796,7 @@ void OrderedSet() {
         outFloat.buffer[i] =  itemBuffer[i];
       }
       *floatPointerArray[cmdNum] = outFloat.val;
-       saveEstimatorGainsFlag = true;
+      saveEstimatorGainsFlag = true;
       romWriteDelayTimer = millis();
 
     }
@@ -822,7 +830,7 @@ void OrderedSet() {
 }
 
 void SendOrdAck() {
-
+  
   uint8_t txSum = 0,txDoubleSum = 0,temp;
 
   RadioWrite(0xAA);
@@ -1590,6 +1598,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 
