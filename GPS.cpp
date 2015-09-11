@@ -71,7 +71,7 @@ void GPSStart() {
       switch (gpsStartState){
       case GPS_START_FIX:
         memcpy(LEDPattern, (uint8_t[]){
-          0x04, 0x01, 0x02,0x03                                    } 
+          0x0C, 0x03, 0x0C,0x03                                    } 
         , 4);
         while (GPSData.vars.gpsFix != 0x3) {
           GPSMonitor();
@@ -88,7 +88,7 @@ void GPSStart() {
       case GPS_START_H_ACC:
         LEDIndex = 0;
         memcpy(LEDPattern, (uint8_t[]){
-          0x01, 0x02, 0x04,0x08                                    }
+          0x03, 0x06, 0x0C,0x0F                                    }
         , 4);
         while (GPSData.vars.hAcc * 0.001 > HACC_MAX ) {
           GPSMonitor();
@@ -104,7 +104,7 @@ void GPSStart() {
         break;
       case GPS_START_S_ACC:
         memcpy(LEDPattern, (uint8_t[]){
-          0x08, 0x04, 0x02,0x01                                                  }
+          0x0C, 0x06, 0x03,0x00                                                  }
         , 4);
         while (GPSData.vars.sAcc * 0.001 > SACC_MAX  ) {
           GPSMonitor();
@@ -120,7 +120,7 @@ void GPSStart() {
         break;
       case GPS_START_WAIT:
         memcpy(LEDPattern, (uint8_t[]){
-          0x01, 0x03, 0x05,0x07                                                  }
+          0x0A, 0x05, 0x09,0x06                                                  }
         , 4);
         gpsStartTimer = millis();
         while(millis() - gpsStartTimer < 30000){

@@ -144,9 +144,9 @@ float alhpaForPressure;
 
 int16_t floorLimit,ceilingLimit;
 
-PID_2 PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
-PID_2 RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
-PID_2 YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
+PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
+PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
+PID YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
 
 PID_2 PitchAngle(&pitchSetPoint, &pitchInDegrees, &rateSetPointY, &integrate, &kp_pitch_attitude, &ki_pitch_attitude, &kd_pitch_attitude, &fc_pitch_attitude, &_100HzDt, 360, 360);
 PID_2 RollAngle(&rollSetPoint, &rollInDegrees, &rateSetPointX, &integrate, &kp_roll_attitude, &ki_roll_attitude, &kd_roll_attitude, &fc_roll_attitude, &_100HzDt, 360, 360);
@@ -186,10 +186,10 @@ void _100HzTask(uint32_t loopTime){
 
       switch (_100HzState){
       case GET_GYRO:
-        /*errorLimit = kp_waypoint_position;
+        errorLimit = kp_waypoint_position;
         offlineMax = ki_waypoint_position;
         onlineReq = kd_waypoint_position;
-        alhpaForPressure = fc_waypoint_position;*/
+        alhpaForPressure = fc_waypoint_position;
         PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
@@ -423,7 +423,7 @@ void FlightSM() {
       enterState = false;
       ControlLED(flightMode);
     }
-    HeadingHold();
+    HeadingHold();excel
     TrimCheck();
     break;
   case L0:
@@ -536,12 +536,12 @@ void InitLoiter() {
     }
     else{
       zTarget = ZEstUp;
-      if (zTarget < floorLimit) {
-        zTarget = floorLimit;
-      }
-      if (zTarget > ceilingLimit) {
-        zTarget = ceilingLimit;
-      }
+    }
+    if (zTarget < floorLimit) {
+      zTarget = floorLimit;
+    }
+    if (zTarget > ceilingLimit) {
+      zTarget = ceilingLimit;
     }
     throttleCheckFlag = true;
 
@@ -726,15 +726,22 @@ void LoiterSM(){
     }
     if (motorState == LANDING){
       zTarget = ZEstUp;
-      if (zTarget <= floorLimit){
-        zTarget = floorLimit;
-      } 
-      if (zTarget >= ceilingLimit){
-        zTarget = ceilingLimit;
-      }
+      /*if (zTarget <= floorLimit){
+       zTarget = floorLimit;
+       } 
+       if (zTarget >= ceilingLimit){
+       zTarget = ceilingLimit;
+       }*/
       motorState = FLIGHT;
     }
-    if (throCommand < (int16_t)propIdleCommand && motorState == FLIGHT){
+    if (zTarget < floorLimit) {
+      zTarget = floorLimit;
+    }
+    if (zTarget > ceilingLimit) {
+      zTarget = ceilingLimit;
+    }
+    if (throCommand < 1050 && motorState == FLIGHT){
+      throttleCheckFlag = false;
       ZLoiterState = LAND;
       motorState = LANDING;
       velSetPointZ = LAND_VEL;
@@ -769,6 +776,7 @@ void LoiterSM(){
       velSetPointZ = MIN_Z_RATE;
     }
     if (throCommand < 1050 && motorState == FLIGHT){
+      throttleCheckFlag = false;
       ZLoiterState = LAND;
       motorState = LANDING;
       velSetPointZ = LAND_VEL;
@@ -777,12 +785,14 @@ void LoiterSM(){
 
 
     if (ZEstUp >= ceilingLimit && velSetPointZ > 0){
+      throttleCheckFlag = true;
       zTarget = ceilingLimit;
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
       break;
     }
     if (ZEstUp <= floorLimit && velSetPointZ < 0){
+      throttleCheckFlag = true;
       zTarget = floorLimit;
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
@@ -1287,6 +1297,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 

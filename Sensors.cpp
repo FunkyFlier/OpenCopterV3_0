@@ -1,6 +1,7 @@
 #include "Sensors.h"
 #include "Math.h"
 
+boolean rotateSensor45Deg = false;
 float batteryPercent,cellVoltage,mAh;
 
 void ReadBatteryInfo(float *dt){
@@ -26,10 +27,8 @@ void ReadBatteryInfo(float *dt){
     batteryPercent = 0.0;
   }
 }
-
-#ifdef ROT_45
 int16_t tempX, tempY;
-#endif
+
 //gyro-----------------------------------
 int16_u gyroX, gyroY, gyroZ;
 void GyroInit() {
@@ -81,12 +80,13 @@ void GetGro() {
   gyroY.val *= -1;
   gyroZ.val *= -1;
 #endif
-#ifdef ROT_45
-  tempX = gyroX.val *  0.7071067 + gyroY.val * 0.7071067;
-  tempY = gyroX.val * -0.7071067 + gyroY.val * 0.7071067;
-  gyroX.val = tempX;
-  gyroY.val = tempY;
-#endif
+  if (rotateSensor45Deg == true){
+    tempX = gyroX.val *  0.7071067 + gyroY.val * 0.7071067;
+    tempY = gyroX.val * -0.7071067 + gyroY.val * 0.7071067;
+    gyroX.val = tempX;
+    gyroY.val = tempY;
+  }
+
 
 }
 
@@ -640,12 +640,14 @@ void GetAcc() {
 
   accY.val *= -1;
   accZ.val *= -1;
-#ifdef ROT_45
-  tempX = accX.val *  0.7071067 + accY.val * 0.7071067;
-  tempY = accX.val * -0.7071067 + accY.val * 0.7071067;
-  accX.val = tempX;
-  accY.val = tempY;
-#endif
+  if (rotateSensor45Deg == true){
+    tempX = accX.val *  0.7071067 + accY.val * 0.7071067;
+    tempY = accX.val * -0.7071067 + accY.val * 0.7071067;
+    accX.val = tempX;
+    accY.val = tempY;
+  }
+
+
 
 
 }
@@ -667,12 +669,13 @@ void GetAcc() {
   accZ.val = accZ.val >> 4;
 
   AccSSHigh();
-#ifdef ROT_45
-  tempX = accX.val *  0.7071067 + accY.val * 0.7071067;
-  tempY = accX.val * -0.7071067 + accY.val * 0.7071067;
-  accX.val = tempX;
-  accY.val = tempY;
-#endif
+  if (rotateSensor45Deg == true){ 
+    tempX = accX.val *  0.7071067 + accY.val * 0.7071067;
+    tempY = accX.val * -0.7071067 + accY.val * 0.7071067;
+    accX.val = tempX;
+    accY.val = tempY; 
+  }  
+
 }
 void AccInit() {
   AccSSLow();
@@ -792,6 +795,8 @@ void GetMag() {
 }
 
 //end mag------------------------------
+
+
 
 
 

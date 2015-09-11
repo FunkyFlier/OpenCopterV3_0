@@ -754,6 +754,9 @@ void WriteCalibrationDataToRom() {
       EEPROMWrite(i, itemBuffer[itemIndex++]);
     }
     break;
+  case 9://switfx rotate by 45 flag
+    EEPROMWrite(SWIFT_X_FLAG,0xAA);
+    EEPROMWrite(ROT_45,itemBuffer[itemIndex]);
   }
 
 

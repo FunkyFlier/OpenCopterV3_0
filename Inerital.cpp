@@ -175,16 +175,29 @@ void CorrectZ(){
 
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
- 
-  if (fabs(zPosError) < 1.0 || errorCorrectCount > 40){
-    if(errorCorrectCount > 40){
+  if (fabs(zPosError) < errorLimit || errorCorrectCount > offlineMax){
+    if(errorCorrectCount >= offlineMax){
       errorCorrectCount++;
-      if (errorCorrectCount > 50){
+      if (errorCorrectCount > onlineReq){
         errorCorrectCount = 0;
+        initialPressure = takeOffPressure;
+        GetAltitude(&pressure, &initialPressure, &baroAlt);
+        baroZ = baroAlt;
+        prevBaro = baroZ;
+        ZEstUp = baroZ;
+        ZEst = -1.0 * ZEstUp;
+        return;
       }
     }
-    if (errorCorrectCount < 40){
+    if (errorCorrectCount < offlineMax && errorCorrectCount > 0){
       errorCorrectCount = 0;
+      initialPressure = takeOffPressure;
+      GetAltitude(&pressure, &initialPressure, &baroAlt);
+      baroZ = baroAlt;
+      prevBaro = baroZ;
+      ZEstUp = baroZ;
+      ZEst = -1.0 * ZEstUp;
+      return;
     }
     ZEst = ZEst - kPosBaro * zPosError;
     velZ = velZ - kVelBaro * zVelError;
@@ -206,6 +219,12 @@ void CorrectZ(){
   else{
     errorCorrectCount++;
     initialPressure += pressure - pressurePrevious;
+    GetAltitude(&pressure, &initialPressure, &baroAlt);
+    baroZ = baroAlt;
+    prevBaro = baroZ;
+    ZEstUp = baroZ;
+    ZEst = -1.0 * ZEstUp;
+    //LPF(&baroZ,&baroAlt,&baroDT,RC_CONST_BARO);
   }
 
   pressurePrevious = pressure;
@@ -237,6 +256,8 @@ void UpdateLagIndex(){
     lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
   }
 }
+
+
 
 
 
