@@ -1,5 +1,6 @@
 #include "Sensors.h"
 #include "Math.h"
+#include "FlightControl.h"
 
 boolean rotateSensor45Deg = false;
 float batteryPercent,cellVoltage,mAh;
@@ -240,7 +241,9 @@ void GetBaro() {
   P = (D1 * SENS / 2097152 - OFF) / 32768;
   temperature = TEMP + 2000;
   pressure = P;
-
+  if (pressure < 30000 || pressure > 110000){ 
+    baroFS = true;
+  }
 
 }
 
@@ -355,12 +358,15 @@ void CheckCRC() {
   n_rem = (0x000F & (n_rem >> 12));
   n_prom[7] = crc_read;
 
-
+  if (C1.val == 0){
+    baroFS = true;
+  }
   if ((0x000F & crc_read) == (n_rem ^ 0x00)) {
-    Serial << "CRC passed\r\n";
+    //Serial << "CRC passed\r\n";
   }
   else {
-    Serial << "CRC failed\r\n";
+    //Serial << "CRC failed\r\n";
+    baroFS = true;
   }
 }
 
@@ -371,16 +377,19 @@ void CheckCRC() {
 #ifdef V1
 void PollPressure(void) {
   uint8_t i2cTimeOutStatus;
+  static uint8_t timeOutCount;
   float pressureTemp;
   if (millis() - baroPollTimer > POLL_RATE) {
     switch (pressureState) {
     case 0://read ut
       StartUT(&i2cTimeOutStatus);
       if (i2cTimeOutStatus == 0){
+        timeOutCount = 0;
         pressureState = 1;
         baroTimer = millis();
       }
       else{
+        timeOutCount++;
         baroPollTimer = millis();
       }
       break;
@@ -390,6 +399,7 @@ void PollPressure(void) {
         if (i2cTimeOutStatus != 0){
           pressureState = 0;
           baroPollTimer = millis();
+          timeOutCount++;
           break;
         }
         StartUP(&i2cTimeOutStatus);
@@ -398,6 +408,7 @@ void PollPressure(void) {
           baroTimer = millis();
         }
         else{
+          timeOutCount++;
           pressureState = 0;
           baroPollTimer = millis();
           break;
@@ -413,13 +424,21 @@ void PollPressure(void) {
             temperature = Temperature(ut);
             pressure = pressureTemp;
             newBaro = true;
+          }else{
+            baroFS = true;
           }
-          baroPollTimer = millis();
         }
+        else{
+          timeOutCount++;
+        }
+        baroPollTimer = millis();
         pressureState = 0;
       }
       break;
 
+    }
+    if (timeOutCount > 10){
+      baroFS = true;
     }
   }
 }
@@ -795,6 +814,7 @@ void GetMag() {
 }
 
 //end mag------------------------------
+
 
 
 

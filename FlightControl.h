@@ -12,7 +12,7 @@ void Rotate2dVector(float*, float*, float*, float*, float*, float*);
 
 extern uint8_t flightMode;
 extern uint32_t _100HzTimer,_400HzTimer;
-extern volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount;
+extern volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount,baroFSCount;
 extern float initialYaw;
 extern boolean integrate;
 extern uint8_t HHState;
@@ -24,7 +24,7 @@ extern float velSetPointX,velSetPointY,velSetPointZ;
 extern float tiltAngleX,tiltAngleY;
 extern float distToWayPoint;
 extern float controlBearing;
-extern boolean telemFailSafe,txFailSafe,tuningTrasnmitOK;
+extern boolean telemFailSafe,txFailSafe,tuningTrasnmitOK,baroFS;
 
 extern boolean enterState;
 extern float xFromTO,yFromTO;

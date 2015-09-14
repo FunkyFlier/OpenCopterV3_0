@@ -33,13 +33,13 @@ float zero = 0;
 
 uint8_t flightMode = 0;
 uint32_t _100HzTimer,_400HzTimer;
-volatile uint32_t RCFailSafeCounter=0,watchDogFailSafeCounter=0,groundFSCount=0;
+volatile uint32_t RCFailSafeCounter=0,watchDogFailSafeCounter=0,groundFSCount=0,baroFSCount=0;
 float initialYaw;
 boolean integrate;
 uint8_t HHState;
 float landingThroAdjustment,throttleAdjustment,adjustmentX,adjustmentY,adjustmentZ;
 uint8_t XYLoiterState, ZLoiterState,RTBState,txLossRTB,previousFlightMode;
-boolean telemFailSafe,txFailSafe,tuningTrasnmitOK;
+boolean telemFailSafe,txFailSafe,tuningTrasnmitOK,baroFS;
 
 float homeBaseXOffset,homeBaseYOffset;
 float xTarget,yTarget,zTarget;
@@ -241,7 +241,11 @@ void _100HzTask(uint32_t loopTime){
         break;
       case POLL_BARO:
         PollPressure();
-        if (newBaro == true) {
+        if (baroFSCount > 200){
+          baroFS = true;
+        }
+        if (newBaro == true && baroFS == false) {
+          baroFSCount = 0;
           newBaro = false;
           CorrectZ();
         }
@@ -1278,6 +1282,21 @@ void ProcessModes() {
     break;
 
   }
+  if (flightMode > ATT && baroFS == true){
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPoint < 1 && rollSetPoint > -1) {
+      rollSetPoint = 0;
+    }
+    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+      pitchSetPoint = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+
+  }
   if (flightMode > L0 && magDetected == false) {
     flightMode = L0;
     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -35, 35);
@@ -1297,6 +1316,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
