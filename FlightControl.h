@@ -123,7 +123,7 @@ extern float alhpaForPressure;
 
 extern PID PitchRate;
 extern PID RollRate;
-extern PID YawRate;
+extern PID_2 YawRate;
 
 extern PID_2 PitchAngle;
 extern PID_2 RollAngle;
