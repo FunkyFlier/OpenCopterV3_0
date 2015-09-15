@@ -310,7 +310,7 @@ void AssignPointerArray() {
   bytePointerArray[SWITCH_POS] = &switchPositions;//RC
 
 
-  bytePointerArray[IDLE_PERCENT] = &propIdlePercent;//rom
+  bytePointerArray[IDLE_PERCENT] = &baroFS;//rom
   bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
   bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors

@@ -14,6 +14,7 @@
 #include "Rom.h"
 #include "Radio.h"
 #include <EEPROM.h>
+#include "GPS.h"
 
 void SaveGains();
 void ResetPIDs();
@@ -267,6 +268,11 @@ void SaveGains(){
   calibrationFlags = EEPROMRead(CAL_FLAGS);
   calibrationFlags &= ~(1<<GAINS_FLAG);
   EEPROMWrite(CAL_FLAGS,calibrationFlags);
+  RCFailSafeCounter = 0;
+  groundFSCount = 0;
+  GPSFailSafeCounter = 0;
+  baroFSCount = 0;
+  watchDogFailSafeCounter = 0;
 }
 void SaveEstiamtorGains(){
   float_u outFloat;
@@ -277,7 +283,12 @@ void SaveEstiamtorGains(){
     EEPROMWrite(j++, outFloat.buffer[1]);
     EEPROMWrite(j++, outFloat.buffer[2]);
     EEPROMWrite(j++, outFloat.buffer[3]);
-  }  
+  } 
+  RCFailSafeCounter = 0;
+  groundFSCount = 0;
+  GPSFailSafeCounter = 0;
+  baroFSCount = 0;
+  watchDogFailSafeCounter = 0; 
 }
 void ResetPIDs(){
   PitchAngle.reset();
@@ -303,7 +314,7 @@ void ResetPIDs(){
 }
 void MotorHandler(){
   static boolean rudderFlag = false,landDetected = false;
- 
+
   switch(motorState){
   case HOLD:
     landDetected = false;
@@ -396,7 +407,8 @@ void MotorHandler(){
         zTarget = 1.5;
         if (floorLimit < 1.0){
           zTarget = 1.0;
-        }else{
+        }
+        else{
           zTarget = floorLimit;
         }
         //zTarget = 1.0;//TAKE_OFF_ALT;//floorLimit;//TAKE_OFF_ALT;
@@ -486,7 +498,7 @@ void MotorHandler(){
       /*CommandAllMotors((float)(landRampValue--));*/
       throttleAdjustment = landRampValue;
       if (landRampValue <= 0){
-      //if (landRampValue +  throttleCommand < propIdleCommand + 50){
+        //if (landRampValue +  throttleCommand < propIdleCommand + 50){
         CommandAllMotors((float)pwmLow);
         landDetected = false;
         motorState = HOLD;
@@ -541,6 +553,8 @@ void WriteMotorPWM(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
+
 
 
 

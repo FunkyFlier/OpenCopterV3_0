@@ -59,7 +59,12 @@ void setup() {
   }
 
   Arm();
-  GPSStart();
+  if (RCValue[GEAR] > 1700 && RCValue[AUX1] > 1700 && RCValue[AUX2] > 1700 && RCValue[AUX3] > 1700){
+    GPSDetected = false;
+  }
+  else{
+    GPSStart();
+  }
 
   SetInitialQuaternion();
   InertialInit();
@@ -101,7 +106,7 @@ void Telemetry(){
 void NoControlIndicatior(){
   uint8_t LEDIndex = 0;
   uint8_t LEDArray[8] = {
-    0x00,0x01,0x03,0x02,0x06,0x04,0x0C,0x08        };
+    0x00,0x01,0x03,0x02,0x06,0x04,0x0C,0x08            };
   while(1){
     ControlLED(LEDArray[LEDIndex++]);
     if(LEDIndex == 8){
@@ -139,6 +144,8 @@ void SetPinModes(){
   LEDInit();
 
 }
+
+
 
 
 

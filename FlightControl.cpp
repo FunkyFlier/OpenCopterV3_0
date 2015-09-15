@@ -189,7 +189,8 @@ void _100HzTask(uint32_t loopTime){
         errorLimit = kp_waypoint_position;
         offlineMax = ki_waypoint_position;
         onlineReq = kd_waypoint_position;
-        alhpaForPressure = fc_waypoint_position;
+        fc_waypoint_position = (float)baroFSCount;
+        //alhpaForPressure = fc_waypoint_position;
         PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
@@ -1283,6 +1284,7 @@ void ProcessModes() {
 
   }
   if (flightMode > ATT && baroFS == true){
+    flightMode = ATT;
     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
     MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
     MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
