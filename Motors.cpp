@@ -404,14 +404,7 @@ void MotorHandler(){
       if (throCommand <= 1600 && throCommand >= 1450){
         motorState = FLIGHT;
         ResetPIDs();
-        zTarget = 1.5;
-        if (floorLimit < 1.0){
-          zTarget = 1.0;
-        }
-        else{
-          zTarget = floorLimit;
-        }
-        //zTarget = 1.0;//TAKE_OFF_ALT;//floorLimit;//TAKE_OFF_ALT;
+        zTarget = TAKE_OFF_ALT;
         enterState = true;
         throttleAdjustment = 0;
         xTarget = XEst;

@@ -25,6 +25,5 @@ extern float baroAlt,baroRate;
 
 extern float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 extern float zPosError,zVelError;
-extern float errorLimit,offlineMax,onlineReq;
 
 #endif

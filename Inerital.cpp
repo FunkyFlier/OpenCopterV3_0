@@ -28,7 +28,6 @@ float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
 
 float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 float zPosError,zVelError;
-float errorLimit,offlineMax,onlineReq;
 
 
 void GetInertial(){
@@ -175,10 +174,10 @@ void CorrectZ(){
 
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
-  if (fabs(zPosError) < errorLimit || errorCorrectCount > offlineMax){
-    if(errorCorrectCount >= offlineMax){
+  if (fabs(zPosError) < 0.5 || errorCorrectCount > 25){
+    if(errorCorrectCount >= 25){
       errorCorrectCount++;
-      if (errorCorrectCount > onlineReq){
+      if (errorCorrectCount > 35){
         errorCorrectCount = 0;
         initialPressure = takeOffPressure;
         GetAltitude(&pressure, &initialPressure, &baroAlt);
@@ -189,7 +188,7 @@ void CorrectZ(){
         return;
       }
     }
-    if (errorCorrectCount < offlineMax && errorCorrectCount > 0){
+    if (errorCorrectCount < 25 && errorCorrectCount > 0){
       errorCorrectCount = 0;
       initialPressure = takeOffPressure;
       GetAltitude(&pressure, &initialPressure, &baroAlt);

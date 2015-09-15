@@ -20,7 +20,7 @@
 
 #define CEILING 6.0
 #define FLOOR 1.0
-//#define TAKE_OFF_ALT 3.0
+#define TAKE_OFF_ALT 1.0
 
 #define MIN_RTB_DIST 1.5
 

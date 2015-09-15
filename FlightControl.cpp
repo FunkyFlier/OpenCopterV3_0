@@ -183,14 +183,8 @@ void _100HzTask(uint32_t loopTime){
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
     while(_100HzState < LAST_100HZ_TASK){
-
       switch (_100HzState){
       case GET_GYRO:
-        errorLimit = kp_waypoint_position;
-        offlineMax = ki_waypoint_position;
-        onlineReq = kd_waypoint_position;
-        fc_waypoint_position = (float)baroFSCount;
-        //alhpaForPressure = fc_waypoint_position;
         PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
@@ -731,12 +725,6 @@ void LoiterSM(){
     }
     if (motorState == LANDING){
       zTarget = ZEstUp;
-      /*if (zTarget <= floorLimit){
-       zTarget = floorLimit;
-       } 
-       if (zTarget >= ceilingLimit){
-       zTarget = ceilingLimit;
-       }*/
       motorState = FLIGHT;
     }
     if (zTarget < floorLimit) {
