@@ -119,6 +119,7 @@ void AHRSupdate(float dt) {
     eya = (acc_z * vx - acc_x * vz);
     eza = (acc_x * vy - acc_y * vx);
     if (fabs(exa) > ATT_ERR_MAX || fabs(eya) > ATT_ERR_MAX || fabs(eza) > ATT_ERR_MAX){
+      float pitchBy2,yawBy2,rollBy2;
       pitchInRadians = atan2(-acc_x,sqrt(acc_y * acc_y + acc_z * acc_z));
       rollInRadians = atan2(acc_y,acc_z);
       if (magDetected == true){
@@ -129,11 +130,13 @@ void AHRSupdate(float dt) {
       else{
         yawInRadians = 0;
       }
-
-      q0 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*cos(rollInRadians/2.0) + sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*sin(rollInRadians/2.0); 
-      q1 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*sin(rollInRadians/2.0) - sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*cos(rollInRadians/2.0); 
-      q2 = cos(yawInRadians/2.0)*sin(pitchInRadians/2.0)*cos(rollInRadians/2.0) + sin(yawInRadians/2.0)*cos(pitchInRadians/2.0)*sin(rollInRadians/2.0); 
-      q3 = sin(yawInRadians/2.0)*cos(pitchInRadians/2.0)*cos(rollInRadians/2.0) - cos(yawInRadians/2.0)*sin(pitchInRadians/2.0)*sin(rollInRadians/2.0);
+      pitchBy2 = pitchInRadians/2.0;
+      rollBy2 = rollInRadians/2.0;
+      yawBy2 = yawInRadians/2.0;
+      q0 = cos(yawBy2)*cos(pitchBy2)*cos(rollBy2) + sin(yawBy2)*sin(pitchBy2)*sin(rollBy2); 
+      q1 = cos(yawBy2)*cos(pitchBy2)*sin(rollBy2) - sin(yawBy2)*sin(pitchBy2)*cos(rollBy2); 
+      q2 = cos(yawBy2)*sin(pitchBy2)*cos(rollBy2) + sin(yawBy2)*cos(pitchBy2)*sin(rollBy2); 
+      q3 = sin(yawBy2)*cos(pitchBy2)*cos(rollBy2) - cos(yawBy2)*sin(pitchBy2)*sin(rollBy2);
       magnitude = sqrt(q0 *  q0 + q1 *  q1 + q2 *  q2 + q3 *  q3); 
       q0 = q0 / magnitude;
       q1 = q1 / magnitude;
