@@ -1052,6 +1052,37 @@ void ProcessModes() {
     return;
 
   }
+if (RCValue[AUX2] > 1400 && RCValue[AUX2] < 1600) {
+    gsCTRL = false;
+    flightMode = ATT;
+    setTrim = false;
+    trimComplete = false;
+    cmdElev = RCValue[ELEV];
+    cmdAile = RCValue[AILE];
+    cmdRudd = RCValue[RUDD];
+    throCommand = RCValue[THRO];
+
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPoint < 1 && rollSetPoint > -1) {
+      rollSetPoint = 0;
+    }
+    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+      pitchSetPoint = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+
+
+    if (flightMode != previousFlightMode) {
+      enterState = true;
+    }
+
+    return;
+
+  }
 
 
   if (RCValue[AUX3] > 1750) {
@@ -1093,8 +1124,8 @@ void ProcessModes() {
     cmdRudd = GSRCValue[RUDD];
     throCommand = GSRCValue[THRO];
     flightModeControl = GSRCValue[GEAR];
-    if (flightModeControl < 2){
-      flightModeControl = 2;
+    if (flightModeControl < 0){
+      flightModeControl = 0;
     }
     if (flightModeControl > 9){
       flightModeControl = 2;
@@ -1170,9 +1201,9 @@ void ProcessModes() {
     break;
   case L0:
     flightMode = L0;
-    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -35, 35);
-    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -35, 35);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -100, 100);
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, LOIT_YAW_MIN, LOIT_YAW_MAX);
     if (rollSetPointTX < 1 && rollSetPointTX > -1) {
       rollSetPointTX = 0;
     }
@@ -1185,9 +1216,9 @@ void ProcessModes() {
     break;
   case L1:
     flightMode = L1;
-    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -35, 35);
-    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -35, 35);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -100, 100);
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, LOIT_YAW_MIN, LOIT_YAW_MAX);
     if (rollSetPointTX < 1 && rollSetPointTX > -1) {
       rollSetPointTX = 0;
     }
@@ -1200,9 +1231,9 @@ void ProcessModes() {
     break;
   case L2:
     flightMode = L2;
-    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -35, 35);
-    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -35, 35);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -100, 100);
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, LOIT_YAW_MIN, LOIT_YAW_MAX);
     if (rollSetPointTX < 1 && rollSetPointTX > -1) {
       rollSetPointTX = 0;
     }
@@ -1289,9 +1320,9 @@ void ProcessModes() {
   }
   if (flightMode > L0 && magDetected == false) {
     flightMode = L0;
-    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -35, 35);
-    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -35, 35);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -100, 100);
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, LOIT_YAW_MIN, LOIT_YAW_MAX);
     if (rollSetPoint < 1 && rollSetPoint > -1) {
       rollSetPoint = 0;
     }

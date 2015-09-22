@@ -1,6 +1,10 @@
 #ifndef Definitions_h
 #define Definitions_h
 
+#define LOIT_TILT_MAX 20
+#define LOIT_TILT_MIN -20
+#define LOIT_YAW_MAX 75
+#define LOIT_YAW_MIN -75
 //#define EXT_MAG
 
 //#define V1
