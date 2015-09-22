@@ -34,5 +34,6 @@ extern float R11_,R12_,R13_,R21_,R22_,R23_,R31_,R32_,R33_;
 extern float initialAccMagnitude;
 extern float q0,q1,q2,q3;
 extern float kpAcc,kiAcc,kpMag,kiMag,feedbackLimit;
+extern float exa,eya,eza;
 
 #endif 

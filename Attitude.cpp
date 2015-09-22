@@ -27,7 +27,7 @@ float acc_x,acc_y,acc_z,mag_x,mag_y,mag_z,gro_x,gro_y,gro_z;
 float initialAccMagnitude;
 
 float kpAcc,kiAcc,kpMag,kiMag,feedbackLimit;
-
+float exa,eya,eza;
 
 
 void SetInitialAccelerometerMagnitude(){
@@ -64,7 +64,7 @@ void AHRSupdate(float dt) {
   float kiDTAcc,kiDTMag,dtby2;
   float bx,bz,wx,wy,wz,vx,vy,vz;
 
-  float hx,hy,hz,exm,eym,ezm,exa,eya,eza;
+  float hx,hy,hz,exm,eym,ezm;//,exa,eya,eza;
 
   float magnitudeDifference;
 
@@ -118,6 +118,29 @@ void AHRSupdate(float dt) {
     exa = (acc_y * vz - acc_z * vy);
     eya = (acc_z * vx - acc_x * vz);
     eza = (acc_x * vy - acc_y * vx);
+    if (fabs(exa) > ATT_ERR_MAX || fabs(eya) > ATT_ERR_MAX || fabs(eza) > ATT_ERR_MAX){
+      pitchInRadians = atan2(-acc_x,sqrt(acc_y * acc_y + acc_z * acc_z));
+      rollInRadians = atan2(acc_y,acc_z);
+      if (magDetected == true){
+        float bx = mag_x * cos(pitchInRadians) + mag_y * sin(pitchInRadians) * sin(rollInRadians) + mag_z * sin(pitchInRadians) * cos(rollInRadians);
+        float by = mag_z * sin(rollInRadians) - mag_y * cos(rollInRadians);
+        yawInRadians = atan2(by, bx);
+      }
+      else{
+        yawInRadians = 0;
+      }
+
+      q0 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*cos(rollInRadians/2.0) + sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*sin(rollInRadians/2.0); 
+      q1 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*sin(rollInRadians/2.0) - sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*cos(rollInRadians/2.0); 
+      q2 = cos(yawInRadians/2.0)*sin(pitchInRadians/2.0)*cos(rollInRadians/2.0) + sin(yawInRadians/2.0)*cos(pitchInRadians/2.0)*sin(rollInRadians/2.0); 
+      q3 = sin(yawInRadians/2.0)*cos(pitchInRadians/2.0)*cos(rollInRadians/2.0) - cos(yawInRadians/2.0)*sin(pitchInRadians/2.0)*sin(rollInRadians/2.0);
+      magnitude = sqrt(q0 *  q0 + q1 *  q1 + q2 *  q2 + q3 *  q3); 
+      q0 = q0 / magnitude;
+      q1 = q1 / magnitude;
+      q2 = q2 / magnitude;
+      q3 = q3 / magnitude;
+      return;
+    }
 
     kiDTAcc = kiAcc * dt;
     kiDTMag = kiMag * dt;
@@ -175,7 +198,7 @@ void SetInitialQuaternion(){
   //calculate the ypr from sensors convert to quaternion and rotation matrix
   pitchInRadians = atan2(-acc_x,sqrt(acc_y * acc_y + acc_z * acc_z));
   rollInRadians = atan2(acc_y,acc_z);
-  
+
   yawInRadians = 0;
   q0 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*cos(rollInRadians/2.0) + sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*sin(rollInRadians/2.0); 
   q1 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*sin(rollInRadians/2.0) - sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*cos(rollInRadians/2.0); 
@@ -216,7 +239,7 @@ void SetInitialQuaternion(){
   GetEuler();
 
   SetGyroOffsets();
- 
+
   SetInitialAccelerometerMagnitude();
 }
 
@@ -293,11 +316,13 @@ void GetRoll(){
 void GetYaw(){
   yawInRadians = atan2(2.0 * (q0 * q3 + q1 * q2) , 1 - 2.0* (q2 * q2 + q3 * q3)) - declination;
   yawInDegrees = ToDeg(yawInRadians);
-  
+
   if (yawInDegrees < 0){
     yawInDegrees +=360;
   }
 }
+
+
 
 
 
