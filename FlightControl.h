@@ -120,6 +120,7 @@ extern float adjustmentZ;
 
 extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
 extern float alhpaForPressure;
+extern float debugVariable;
 
 extern PID PitchRate;
 extern PID RollRate;

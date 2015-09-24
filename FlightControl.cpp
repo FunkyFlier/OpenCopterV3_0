@@ -145,6 +145,7 @@ float alhpaForPressure;
 int16_t floorLimit,ceilingLimit;
 
 boolean executeStep = false,stepStart = false;
+float debugVariable;
 
 PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
@@ -187,6 +188,7 @@ void _100HzTask(uint32_t loopTime){
     while(_100HzState < LAST_100HZ_TASK){
       switch (_100HzState){
       case GET_GYRO:
+        //debugVariable = (float)variableOfInterst;
         PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;

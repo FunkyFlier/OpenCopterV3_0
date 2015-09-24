@@ -214,7 +214,7 @@ void AssignPointerArray() {
   floatPointerArray[MOTOR_CMD_4] = &yVelError;
   floatPointerArray[MOTOR_CMD_5] = &zPosError;
   floatPointerArray[MOTOR_CMD_6] = &zVelError;
-  floatPointerArray[MOTOR_CMD_7] = &initialPressure;
+  floatPointerArray[MOTOR_CMD_7] = &PitchRate.error;
   floatPointerArray[MOTOR_CMD_8] = &takeOffPressure;
 
   floatPointerArray[PRESSURE_] = &pressure;//sensors
