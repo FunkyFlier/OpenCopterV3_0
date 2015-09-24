@@ -5,7 +5,7 @@
 #define LOIT_TILT_MIN -20
 #define LOIT_YAW_MAX 75
 #define LOIT_YAW_MIN -75
-#define ATT_ERR_MAX 0.5
+#define ATT_ERR_MAX 500
 //#define EXT_MAG
 
 //#define V1

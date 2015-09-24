@@ -144,6 +144,8 @@ float alhpaForPressure;
 
 int16_t floorLimit,ceilingLimit;
 
+boolean executeStep = false,stepStart = false;
+
 PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
 PID_2 YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
@@ -1022,6 +1024,7 @@ void ProcessChannels() {
 void ProcessModes() {
   uint8_t flightModeControl=0;
   previousFlightMode = flightMode;
+  static uint32_t stepTimer;
   if (RCValue[AUX2] > 1750) {
     gsCTRL = false;
     flightMode = RATE;
@@ -1052,7 +1055,7 @@ void ProcessModes() {
     return;
 
   }
-if (RCValue[AUX2] > 1400 && RCValue[AUX2] < 1600) {
+  if (RCValue[AUX2] > 1400 && RCValue[AUX2] < 1600) {
     gsCTRL = false;
     flightMode = ATT;
     setTrim = false;
@@ -1086,23 +1089,38 @@ if (RCValue[AUX2] > 1400 && RCValue[AUX2] < 1600) {
 
 
   if (RCValue[AUX3] > 1750) {
+    if (stepStart == false){
+      executeStep = true;
+      stepTimer = millis();
+    }
     gsCTRL = false;
-    flightMode = RTB;
+    flightMode = RATE;
+    setTrim = false;
+    trimComplete = false;
     cmdElev = RCValue[ELEV];
     cmdAile = RCValue[AILE];
     cmdRudd = RCValue[RUDD];
     throCommand = RCValue[THRO];
-    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
-    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
-    if (rollSetPointTX < 1 && rollSetPointTX > -1) {
-      rollSetPointTX = 0;
+    MapVar(&cmdElev, &rateSetPointY, 1000, 2000, -400, 400);
+    MapVar(&cmdAile, &rateSetPointX, 1000, 2000, -400, 400);
+    MapVar(&cmdRudd, &rateSetPointZ, 1000, 2000, -400, 400);
+    if (rateSetPointY < 5 && rateSetPointY > -5) {
+      rateSetPointY = 0;
     }
-    if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
-      pitchSetPointTX = 0;
+    if (executeStep == true){
+      stepStart = true;
+      rateSetPointX = 50.0;
+      if (millis() - stepTimer > 500){
+        executeStep = false;
+      }
     }
-    if (yawInput < 5 && yawInput > -5) {
-      yawInput = 0;
+    else{
+      if (rateSetPointX < 5 && rateSetPointX > -5) {
+        rateSetPointX = 0;
+      }
+    }
+    if (rateSetPointZ < 5 && rateSetPointZ > -5) {
+      rateSetPointZ = 0;
     }
     if (flightMode != previousFlightMode) {
       enterState = true;
@@ -1110,7 +1128,8 @@ if (RCValue[AUX2] > 1400 && RCValue[AUX2] < 1600) {
     return;
 
   }
-
+  executeStep = false;
+  stepStart = false;
   if (gsCTRL == false){
     cmdElev = RCValue[ELEV];
     cmdAile = RCValue[AILE];
@@ -1337,6 +1356,7 @@ if (RCValue[AUX2] > 1400 && RCValue[AUX2] < 1600) {
     enterState = true;
   }
 }
+
 
 
 
