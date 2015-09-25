@@ -4,12 +4,13 @@
 
 boolean rotateSensor45Deg = false;
 float batteryPercent,cellVoltage,mAh;
+boolean batteryFailSafe = false;
 
 void ReadBatteryInfo(float *dt){
   uint16_t ampCount;
   uint16_t voltCount;
   static float smoothAmpCount = 0.0;
-  static float smoothVoltCount = 0.0;
+  static float smoothVoltCount = 1024.0;
   float amps;
   ampCount = analogRead(7);
   voltCount = analogRead(6);
@@ -26,6 +27,9 @@ void ReadBatteryInfo(float *dt){
   }
   else{
     batteryPercent = 0.0;
+  }
+  if (batteryPercent < 20.0){
+    batteryFailSafe = true;
   }
 }
 int16_t tempX, tempY;

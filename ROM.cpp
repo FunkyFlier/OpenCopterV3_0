@@ -213,9 +213,9 @@ void AssignPointerArray() {
   floatPointerArray[MOTOR_CMD_3] = &eza;
   floatPointerArray[MOTOR_CMD_4] = &yVelError;
   floatPointerArray[MOTOR_CMD_5] = &zPosError;
-  floatPointerArray[MOTOR_CMD_6] = &zVelError;
-  floatPointerArray[MOTOR_CMD_7] = &PitchRate.error;
-  floatPointerArray[MOTOR_CMD_8] = &takeOffPressure;
+  floatPointerArray[MOTOR_CMD_6] = &mAh;
+  floatPointerArray[MOTOR_CMD_7] = &batteryPercent;
+  floatPointerArray[MOTOR_CMD_8] = &cellVoltage;
 
   floatPointerArray[PRESSURE_] = &pressure;//sensors
   floatPointerArray[CTRL_BEARING] = &controlBearing;//flight control
@@ -309,7 +309,7 @@ void AssignPointerArray() {
   bytePointerArray[SWITCH_POS] = &switchPositions;//RC
 
 
-  bytePointerArray[IDLE_PERCENT] = &baroFS;//rom
+  bytePointerArray[IDLE_PERCENT] = &batteryFailSafe;//rom
   bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
   bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors

@@ -28,7 +28,7 @@ void ProcessModes();
 
 
 float zero = 0;
-
+boolean batteryFSOverride = false;
 
 
 uint8_t flightMode = 0;
@@ -402,6 +402,14 @@ void FailSafeHandler(){
     }
   }
 
+  if (batteryFailSafe == true && batteryFSOverride == false){
+    if (txLossRTB == 1){
+      if (flightMode != RTB) {
+        enterState = true;
+        flightMode = RTB;
+      }
+    }
+  }
 
 
 }
@@ -1024,10 +1032,13 @@ void ProcessChannels() {
 }
 
 void ProcessModes() {
+  static uint8_t clearBATTRTB=0;
   uint8_t flightModeControl=0;
   previousFlightMode = flightMode;
-  static uint32_t stepTimer;
   if (RCValue[AUX2] > 1750) {
+    if (batteryFailSafe == true){
+      batteryFSOverride = true;
+    }
     gsCTRL = false;
     flightMode = RATE;
     setTrim = false;
@@ -1058,6 +1069,9 @@ void ProcessModes() {
 
   }
   if (RCValue[AUX2] > 1400 && RCValue[AUX2] < 1600) {
+    if (batteryFailSafe == true){
+      batteryFSOverride = true;
+    }
     gsCTRL = false;
     flightMode = ATT;
     setTrim = false;
@@ -1091,38 +1105,29 @@ void ProcessModes() {
 
 
   if (RCValue[AUX3] > 1750) {
-    if (stepStart == false){
-      executeStep = true;
-      stepTimer = millis();
+    if (batteryFailSafe == true){
+      batteryFSOverride = true;
     }
     gsCTRL = false;
     flightMode = RATE;
     setTrim = false;
     trimComplete = false;
+    flightMode = RTB;
     cmdElev = RCValue[ELEV];
     cmdAile = RCValue[AILE];
     cmdRudd = RCValue[RUDD];
     throCommand = RCValue[THRO];
-    MapVar(&cmdElev, &rateSetPointY, 1000, 2000, -400, 400);
-    MapVar(&cmdAile, &rateSetPointX, 1000, 2000, -400, 400);
-    MapVar(&cmdRudd, &rateSetPointZ, 1000, 2000, -400, 400);
-    if (rateSetPointY < 5 && rateSetPointY > -5) {
-      rateSetPointY = 0;
+    MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+      rollSetPointTX = 0;
     }
-    if (executeStep == true){
-      stepStart = true;
-      rateSetPointX = 50.0;
-      if (millis() - stepTimer > 500){
-        executeStep = false;
-      }
+    if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+      pitchSetPointTX = 0;
     }
-    else{
-      if (rateSetPointX < 5 && rateSetPointX > -5) {
-        rateSetPointX = 0;
-      }
-    }
-    if (rateSetPointZ < 5 && rateSetPointZ > -5) {
-      rateSetPointZ = 0;
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
     }
     if (flightMode != previousFlightMode) {
       enterState = true;
@@ -1130,8 +1135,47 @@ void ProcessModes() {
     return;
 
   }
-  executeStep = false;
-  stepStart = false;
+
+  if (txLossRTB == 1 && batteryFailSafe == true && batteryFSOverride == false){
+    if (gsCTRL == false){
+      switch (clearBATTRTB) {
+
+      case 0:
+        if (RCValue[GEAR] > 1850) {
+          clearBATTRTB = 1;
+        }
+        return;
+        break;
+
+      case 1:
+        if (RCValue[GEAR] < 1150) {
+          RCFailSafe = false;
+          RCFailSafeCounter = 0;
+          clearBATTRTB = 0;
+          break;
+        }
+        return;
+        break;
+      default:
+        clearBATTRTB = 0;
+        return;
+        break;
+
+      }
+      /*if (RCValue[GEAR] > 1500){
+       batteryFSOverride = true;
+       }*/
+    }
+    else{
+      if (GSRCValue[AUX1] > 0){
+        batteryFSOverride = true;
+      }
+    }
+    return;
+  }
+
+
+
   if (gsCTRL == false){
     cmdElev = RCValue[ELEV];
     cmdAile = RCValue[AILE];
@@ -1358,46 +1402,5 @@ void ProcessModes() {
     enterState = true;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -34,7 +34,9 @@ extern float initialPressure, pressure, alti,takeOffPressure;;
 extern boolean newBaro,magDetected;
 extern uint32_t baroPollTimer;
 extern boolean rotateSensor45Deg;
+extern boolean batteryFailSafe;
 
+extern float batteryPercent,cellVoltage,mAh;
 #ifdef V1
 extern short temperature;
 #endif

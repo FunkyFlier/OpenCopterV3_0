@@ -29,6 +29,7 @@ extern boolean telemFailSafe,txFailSafe,tuningTrasnmitOK,baroFS;
 extern boolean enterState;
 extern float xFromTO,yFromTO;
 extern int16_t floorLimit,ceilingLimit;
+extern boolean batteryFSOverride;
 
 extern uint8_t modeArray[9];
 
