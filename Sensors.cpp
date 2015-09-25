@@ -28,7 +28,7 @@ void ReadBatteryInfo(float *dt){
   else{
     batteryPercent = 0.0;
   }
-  if (batteryPercent < 20.0){
+  if (batteryPercent < BATT_FS_PERCENT){
     batteryFailSafe = true;
   }
 }
