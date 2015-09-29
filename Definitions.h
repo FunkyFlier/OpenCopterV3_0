@@ -1,5 +1,7 @@
 #ifndef Definitions_h
 #define Definitions_h
+
+#define LOW_RATE_DIVIDER 3
 //------------------------
 //#define AUX3_RTB
 
