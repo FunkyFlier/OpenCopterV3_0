@@ -689,6 +689,9 @@ void LoiterCalculations() {
   if (RCValue[AUX3] > 1750) {
     velSetPointY = STEP_VEL;
   }
+  if (RCValue[AUX3] > 1400 && RCValue[AUX3] < 1600) {
+    velSetPointY = 0;
+  }
   #endif
   LoiterXVelocity.calculate();
   tiltAngleX *= -1.0;
@@ -1227,6 +1230,7 @@ void ProcessModes() {
 #ifdef AUX3_POS
   if (RCValue[AUX3] > 1750) {
     if (stepStart == true){
+      stepStart = false;
       yTarget += STEP_DIST;
     }
   }else{
