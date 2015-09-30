@@ -1,12 +1,12 @@
 #ifndef Definitions_h
 #define Definitions_h
 //------------------------
-//#define AUX3_RTB
+#define AUX3_RTB
 
 //#define AUX3_RATEX
 //#define AUX3_ROLL
 //#define AUX3_VEL
-#define AUX3_POS
+//#define AUX3_POS
 //------------------------
 #ifdef AUX3_RATEX
 #define STEP_RATE 50.0

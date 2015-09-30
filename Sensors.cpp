@@ -3,14 +3,26 @@
 #include "FlightControl.h"
 
 boolean rotateSensor45Deg = false;
-float batteryPercent,cellVoltage,mAh;
+float batteryPercent,cellVoltage,mAh=0;
 boolean batteryFailSafe = false;
 
+uint16_t ampCount;
+uint16_t voltCount;
+float smoothAmpCount;
+float smoothVoltCount;
+
+void BatteryInfoInit(){
+  float dt = 0.01;
+  ReadBatteryInfo(&dt);
+  smoothAmpCount = ampCount;
+  smoothVoltCount = voltCount;
+  ReadBatteryInfo(&dt);
+  if (batteryPercent < BATT_FS_PERCENT){
+    batteryFSOverride = true;
+  }
+}
+
 void ReadBatteryInfo(float *dt){
-  uint16_t ampCount;
-  uint16_t voltCount;
-  static float smoothAmpCount = 0.0;
-  static float smoothVoltCount = 1024.0;
   float amps;
   ampCount = analogRead(7);
   voltCount = analogRead(6);
@@ -428,7 +440,8 @@ void PollPressure(void) {
             temperature = Temperature(ut);
             pressure = pressureTemp;
             newBaro = true;
-          }else{
+          }
+          else{
             baroFS = true;
           }
         }
@@ -818,6 +831,7 @@ void GetMag() {
 }
 
 //end mag------------------------------
+
 
 
 
