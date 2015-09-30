@@ -24,7 +24,7 @@ uint32_t loopTime;
 
 
 void setup() {
-
+  BatteryInfoInit();
   RadioSerialBegin();
 
   AssignPointerArray();

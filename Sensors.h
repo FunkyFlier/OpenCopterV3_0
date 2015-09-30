@@ -27,6 +27,8 @@ boolean GetAltitude(float*, float*, float*);
 
 void GetInitialPressure();
 
+void BatteryInfoInit();
+
 extern int16_u gyroX, gyroY, gyroZ;
 extern int16_u  accX, accY, accZ;
 extern int16_u magX,magY,magZ;
