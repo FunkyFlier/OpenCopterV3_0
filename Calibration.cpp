@@ -34,15 +34,16 @@ boolean StationaryGyro(){
   static int16_t gyroPrevX=0,gyroPrevY=0,gyroPrevZ=0;
   boolean stationary;
   if ( abs(gyroPrevX - gyroX.val) > 25 || abs(gyroPrevY - gyroY.val) > 25 || abs(gyroPrevZ - gyroZ.val) > 25 ) {
-      stationary = false;
-    }else{
-      stationary = true;
-    }
-    gyroPrevX = gyroX.val;
-    gyroPrevY = gyroY.val;
-    gyroPrevZ = gyroZ.val;
-    return stationary;
-    
+    stationary = false;
+  }
+  else{
+    stationary = true;
+  }
+  gyroPrevX = gyroX.val;
+  gyroPrevY = gyroY.val;
+  gyroPrevZ = gyroZ.val;
+  return stationary;
+
 }
 void SetGyroOffsets(){
   int32_t gyroSumX=0,gyroSumY=0,gyroSumZ=0;
@@ -52,7 +53,7 @@ void SetGyroOffsets(){
     gyroSumX += gyroX.val;
     gyroSumY += gyroY.val;
     gyroSumZ += gyroZ.val;
-    
+
     if (StationaryGyro() == false){
       gyroSumX = gyroX.val;
       gyroSumY = gyroY.val;
@@ -72,7 +73,7 @@ void ACCScale(){
   static uint32_t previousTime;
   float dt;
   float shiftedAccX,shiftedAccY,shiftedAccZ;
-  
+
   shiftedAccX  = accX.val - accXOffset;
   shiftedAccY  = accY.val - accYOffset;
   shiftedAccZ  = accZ.val - accZOffset;
@@ -80,19 +81,20 @@ void ACCScale(){
   scaledAccX = shiftedAccX * accXScale;
   scaledAccY = shiftedAccY * accYScale;
   scaledAccZ = shiftedAccZ * accZScale;
-  
+
   dt = (micros() - previousTime) * 0.000001;
   previousTime = micros();
   if (dt > 0.1 || dt <= 0){
     filtAccX = scaledAccX ;
     filtAccY = scaledAccY;
     filtAccZ = scaledAccZ;
-  }else{
+  }
+  else{
     LPF(&filtAccX,&scaledAccX,&dt,RC_CONST_ACC);
     LPF(&filtAccY,&scaledAccY,&dt,RC_CONST_ACC);
     LPF(&filtAccZ,&scaledAccZ,&dt,RC_CONST_ACC);
   }
-  
+
 }
 void MAGScale(){
   float shiftedMagX,shiftedMagY,shiftedMagZ;
@@ -114,6 +116,7 @@ void GROScale(){
   radianGyroY = ToRad(degreeGyroY);
   radianGyroZ = ToRad(degreeGyroZ);
 }
+
 
 
 

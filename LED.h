@@ -28,6 +28,10 @@
 #define RedLEDLow() PORTD &= ~(1<<7)
 #define RedLEDToggle() PORTD ^= (1<<7)
 
+void LEDPatternSet(uint8_t, uint8_t, uint8_t, uint8_t);
+void LEDPatternHandler(uint32_t);
 void LEDInit();
 void ControlLED(uint8_t);
+
+extern uint8_t ctrlByte;
 #endif

@@ -3,6 +3,7 @@
 #include <EEPROM.h>
 #include <Arduino.h>
 #include "Definitions.h"
+#include "LED.h"
 
 Print* radioPrint;
 Stream* radioStream;
@@ -53,6 +54,7 @@ uint8_t RCSerialAvailable(){
 }
 
 void RadioSerialBegin(){
+  LEDPatternSet(6,6,6,6);
   Port0.begin(115200);
   Port2.begin(115200);
   Port2.write(0x0D);//in case a programmable XBEE is attached
@@ -106,6 +108,7 @@ void EEPROMWrite(uint16_t address,uint16_t data){
 uint8_t EEPROMRead(uint16_t address){
   return EEPROM.read(address);
 }
+
 
 
 

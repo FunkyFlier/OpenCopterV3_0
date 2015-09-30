@@ -314,6 +314,10 @@ void _100HzTask(uint32_t loopTime){
         break;
       case READ_BATTERY:
         ReadBatteryInfo(&_100HzDt);
+        _100HzState = LED_HANDLE;
+        break;
+      case LED_HANDLE:
+        LEDPatternHandler(loopTime);
         _100HzState = MOTOR_HANDLER;
         break;
       case MOTOR_HANDLER:
@@ -345,20 +349,10 @@ void MotorShutDown(){
   Motor6WriteMicros(0);
   Motor7WriteMicros(0);
   Motor8WriteMicros(0);
-  ControlLED(0x00); 
-  BlueLEDHigh();
-  while (1) {
 
-    YellowLEDHigh();
-    if (groundFSCount >= 200 ) {
-      GreenLEDLow();
-    }
-    delay(500);
-    YellowLEDLow();
-    if (groundFSCount >= 200 ) {
-      GreenLEDHigh();
-    }
-    delay(500);
+
+  while (1) {
+    LEDPatternHandler(millis());
   }
 
 }
@@ -373,6 +367,7 @@ void FailSafeHandler(){
       gsCTRL = false;
       if (rcDetected == false || RCFailSafe == true){
         if (txLossRTB == 0){
+          LEDPatternSet(0,3,0,1);
           MotorShutDown();
         }
         else{
@@ -391,6 +386,7 @@ void FailSafeHandler(){
   else{
     if (RCFailSafe == true){
       if (txLossRTB == 0) {
+        LEDPatternSet(0,2,0,1);
         MotorShutDown();
       }
       else{
@@ -421,7 +417,7 @@ void FlightSM() {
       if (previousFlightMode != RATE && previousFlightMode != ATT) {
         throttleCheckFlag = true;
       }
-      ControlLED(0x0F); 
+      LEDPatternSet(1,6,0,6);
     }
     TrimCheck();
     break;
@@ -432,7 +428,7 @@ void FlightSM() {
       }
       yawSetPoint = yawInDegrees;
       enterState = false;
-      ControlLED(flightMode);
+      LEDPatternSet(1,2,0,0);
     }
     HeadingHold();
     TrimCheck();
@@ -442,7 +438,7 @@ void FlightSM() {
       enterState = false;
       InitLoiter();
       yawSetPoint = yawInDegrees;
-      ControlLED(flightMode);
+      LEDPatternSet(1,0,1,0);
     }
     HeadingHold();
     controlBearing = yawInDegrees;
@@ -453,7 +449,7 @@ void FlightSM() {
       enterState = false;
       InitLoiter();
       yawSetPoint = yawInDegrees;
-      ControlLED(flightMode);
+      LEDPatternSet(1,0,2,0);
       controlBearing = initialYaw;
     }
     HeadingHold();
@@ -463,7 +459,7 @@ void FlightSM() {
     if (enterState == true) {
       InitLoiter();
       yawSetPoint = yawInDegrees;
-      ControlLED(flightMode);
+      LEDPatternSet(1,0,3,0);
       enterState = false;
     }
     HeadingHold();
@@ -471,22 +467,23 @@ void FlightSM() {
     LoiterSM();
     break;
   case FOLLOW:
-    ControlLED(flightMode);
     if (enterState == true) {
+      LEDPatternSet(1,0,4,0);
       enterState = false;
       yawSetPoint = yawInDegrees;
     }
     break;
   case WP:
-    ControlLED(flightMode);
+
     if (enterState == true) {
       enterState = false;
       yawSetPoint = yawInDegrees;
+      LEDPatternSet(1,0,5,0);
     }
     break;
   case RTB:
-    ControlLED(0x0B);
     if (enterState == true) {
+      LEDPatternSet(1,0,6,0);
       enterState = false;
       InitLoiter();
       xTarget = XEst;
@@ -691,9 +688,9 @@ void LoiterCalculations() {
 }
 
 //move the rudder to the right to start calibration
-void Arm(){
-  //arming procedure
-  ControlLED(0x00);
+void StartCalibration(){
+  //calibration procedure
+  LEDPatternSet(0,1,0,0);
   newRC = false;
   newGSRC = false;
   if(gsCTRL == false){
@@ -702,14 +699,14 @@ void Arm(){
   }
   else{
     while (newGSRC == false){
-      Radio();
+      //Radio();
     }
   }
   newRC = false;
-  ControlLED(0x02);
+
   if (gsCTRL == true){
     while (GSRCValue[RUDD] < 1750){
-      Radio();
+      //Radio();
     } 
   }
   else{
@@ -720,7 +717,7 @@ void Arm(){
       }
     } 
   }
-  ControlLED(0x09);
+
 
 }
 
@@ -1313,7 +1310,7 @@ void ProcessModes() {
 
     }
     break;
-  case FOLLOW://TBD impliment FOLLOW and WP modes currently operate as ATT
+  case FOLLOW: //TBD impliment FOLLOW and WP modes currently operate as ATT
     flightMode = ATT;
     setTrim = false;
     trimComplete = false;
@@ -1402,5 +1399,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 

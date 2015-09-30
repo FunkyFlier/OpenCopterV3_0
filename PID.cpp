@@ -90,7 +90,7 @@ void PID_2::calculate(){
   if (iError < integralLimitLow){
     iError = integralLimitLow;
   }
-  
+
   dError = dErrorPrev - *fc * *dt * dErrorPrev - *kd * *fc * (*actual - previousActual);
   *adjustment = *kp * error  + iError +  dError;
 
@@ -325,5 +325,6 @@ void YAW_2::reset(){
   prevActual = *actual;
   dErrorPrev = 0;
 }
+
 
 

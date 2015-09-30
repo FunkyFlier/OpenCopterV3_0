@@ -428,7 +428,8 @@ void PollPressure(void) {
             temperature = Temperature(ut);
             pressure = pressureTemp;
             newBaro = true;
-          }else{
+          }
+          else{
             baroFS = true;
           }
         }
@@ -818,6 +819,7 @@ void GetMag() {
 }
 
 //end mag------------------------------
+
 
 
 

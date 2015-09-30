@@ -42,9 +42,8 @@ boolean calibrationModeESCs = false;
 
 void CheckESCFlag(){
   int16_u outInt16;
-  uint32_t LEDTimer = 0,timeOutTimer = 0;
-  uint8_t LEDControlNumber = 0;
-
+  uint32_t timeOutTimer = 0;
+  uint8_t LEDPatternArray[4];
   if (EEPROMRead(PWM_FLAG) != 0xAA){
     pwmHigh = PWM_HIGH_MAX;
     pwmLow = PWM_LOW_MIN;
@@ -77,16 +76,12 @@ void CheckESCFlag(){
   if (pwmLow > PWM_LOW_MAX){
     pwmLow = PWM_LOW_MAX;
   }
-  LEDTimer = millis();
   timeOutTimer = millis();
   if (EEPROMRead(ESC_CAL_FLAG) == 0xAA){
     calibrationMode = false;
     if (rcDetected == false){
+      LEDPatternSet(1,1,0,1);
       while(1){
-        ControlLED(0x0F);
-        delay(75);
-        ControlLED(0x00);
-        delay(75);
       }
     }
     else{
@@ -97,18 +92,42 @@ void CheckESCFlag(){
       newRC = false;
     }
     while(RCValue[THRO] > 1100 || RCValue[AILE] > 1100 || RCValue[ELEV] > 1100 || RCValue[RUDD] > 1100){
+
       if (millis() - timeOutTimer > 60000){
         EEPROMWrite(ESC_CAL_FLAG,0xFF);
+        LEDPatternSet(3,3,3,1);
         while(1){
-        }//add lights
+        }
       }
-      if (millis() - LEDTimer > 250){
-        LEDTimer = millis();
-        ControlLED(LEDControlNumber++);
-      }
+
       if (newRC == true){
         newRC = false;
         ProcessChannels();
+        if (RCValue[THRO] > 1100 ){
+          LEDPatternArray[0] = 5;
+        }
+        else{
+          LEDPatternArray[0] = 1;
+        }
+        if (RCValue[AILE] > 1100 ){
+          LEDPatternArray[1] = 5;
+        }
+        else{
+          LEDPatternArray[1] = 1;
+        }
+        if (RCValue[ELEV] > 1100 ){
+          LEDPatternArray[2] = 5;
+        }
+        else{
+          LEDPatternArray[2] = 1;
+        }
+        if (RCValue[RUDD] > 1100 ){
+          LEDPatternArray[3] = 5;
+        }
+        else{
+          LEDPatternArray[3] = 1;
+        }
+        LEDPatternSet(LEDPatternArray[0],LEDPatternArray[1],LEDPatternArray[2],LEDPatternArray[3]);
       } 
     }
     CompleteESCCalibration();
@@ -119,14 +138,12 @@ void CheckESCFlag(){
     TryHandShake();
     if (handShake == false || calibrationModeESCs == false){
       EEPROMWrite(ESC_CAL_FLAG,0xFF);
+      LEDPatternSet(4,4,4,1);
       while(1){
       }
     }
     while(calibrateESCs == false){
-      if (millis() - LEDTimer > 250){
-        LEDTimer = millis();
-        ControlLED(LEDControlNumber++);
-      }
+      LEDPatternSet(6,1,1,1);
       Radio();
     }
     if (calibrateESCs == true){
@@ -137,8 +154,6 @@ void CheckESCFlag(){
 
 void CompleteESCCalibration(){
 
-  uint32_t LEDTimer;
-  uint8_t LEDControlNumber = 0;
 
   DDRE |= B00111000;
   DDRH |= B00111000;
@@ -177,18 +192,15 @@ void CompleteESCCalibration(){
   Motor8WriteMicros(pwmLow);
 
   EEPROMWrite(ESC_CAL_FLAG,0xFF);
-  LEDTimer = millis();
+  LEDPatternSet(1,2,2,0);
   while(1){
-    if (millis() - LEDTimer > 250){
-      LEDTimer = millis();
-      ControlLED(LEDControlNumber--);
-    }
+
   }
 }
 
 void SetRCControlESCCalFlag(){
-  uint32_t LEDTimer;
-  uint8_t LEDControlNumber = 0;
+
+
   delay(100);//wait for new frame
   newRC = false;
   while(newRC == false){
@@ -198,12 +210,8 @@ void SetRCControlESCCalFlag(){
   if (RCValue[THRO] > 1900){
     EEPROMWrite(HS_FLAG,0xFF);//clear the handshake flag
     EEPROMWrite(ESC_CAL_FLAG,0xAA);
-    LEDTimer = millis();
+    LEDPatternSet(6,6,0,1);
     while(1){
-      if (millis() - LEDTimer > 250){
-        LEDTimer = millis();
-        ControlLED(LEDControlNumber--);
-      }
     }
 
   }
@@ -546,6 +554,8 @@ void WriteMotorPWM(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
+
 
 
 

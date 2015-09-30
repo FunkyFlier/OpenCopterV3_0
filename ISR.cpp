@@ -31,6 +31,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
       Radio();
       TuningTransmitter(); 
     }
+    LEDPatternHandler(millis());
   }
   if (rcType != RC){
     FeedLine();
@@ -45,18 +46,14 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
     Motor6WriteMicros(0);
     Motor7WriteMicros(0);
     Motor8WriteMicros(0);
+    LEDPatternSet(0,1,0,1);
     while(1){
-      ControlLED(0x09);
-      delay(500);
-      ControlLED(0x0D);
-      delay(500);
-      ControlLED(0x0F);
-      delay(500);
-      ControlLED(0x0B);
-      delay(500);
+      LEDPatternHandler(millis());
     }
   }
 }
+
+
 
 
 

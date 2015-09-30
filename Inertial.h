@@ -12,7 +12,7 @@ void CorrectXY();
 void UpdateLagIndex();
 void GetBaroZ();
 void CorrectZ();
-  
+
 extern float inertialX,inertialY,inertialZ;
 extern float velX,velY,velZ,velZUp,XEst,YEst,ZEst,ZEstUp;
 extern float accelBiasX,accelBiasY,accelBiasZ;
@@ -27,3 +27,4 @@ extern float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 extern float zPosError,zVelError;
 
 #endif
+

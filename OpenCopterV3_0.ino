@@ -26,11 +26,13 @@ uint32_t loopTime;
 void setup() {
 
   RadioSerialBegin();
+
   AssignPointerArray();
   SetPinModes();
-  ControlLED(0x0F);  
+
 
   DetectRC();
+
   _200HzISRConfig();
   SPIInit(MSBFIRST,SPI_CLOCK_DIV2,SPI_MODE0);
   I2CInit();
@@ -55,10 +57,11 @@ void setup() {
   }
 
   if (gsCTRL == false && (rcDetected == false || RCFailSafe == true)){
-    NoControlIndicatior();
+    LEDPatternSet(0,1,0,2);
   }
 
-  Arm();
+  StartCalibration();
+
   if (RCValue[GEAR] > 1700 && RCValue[AUX1] > 1700 && RCValue[AUX2] > 1700 && RCValue[AUX3] > 1700){
     GPSDetected = false;
   }
@@ -68,10 +71,8 @@ void setup() {
 
   SetInitialQuaternion();
   InertialInit();
-
   CheckTXPositions();
-
-  ControlLED(0x00);  
+  LEDPatternSet(0,1,1,0);
   SetGyroOffsets();
   GetInitialPressure();
   watchDogStartCount = true;
@@ -103,23 +104,6 @@ void Telemetry(){
 
 }
 
-void NoControlIndicatior(){
-  uint8_t LEDIndex = 0;
-  uint8_t LEDArray[8] = {
-    0x00,0x01,0x03,0x02,0x06,0x04,0x0C,0x08            };
-  while(1){
-    ControlLED(LEDArray[LEDIndex++]);
-    if(LEDIndex == 8){
-      LEDIndex = 0;
-    }
-    delay(250);
-  }
-}
-
-
-
-
-
 void SetPinModes(){
   GyroSSOutput();
   AccSSOutput();
@@ -144,6 +128,8 @@ void SetPinModes(){
   LEDInit();
 
 }
+
+
 
 
 

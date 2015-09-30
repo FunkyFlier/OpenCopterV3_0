@@ -320,7 +320,7 @@ void ROMFlagsCheck() {
   uint16_t j;
   float_u outFloat;
   int16_u outInt16;
-  uint8_t LEDControlByte,calibrationFlags;
+  uint8_t LEDControlByte = 0,calibrationFlags;
   if (EEPROMRead(VER_FLAG_1) != VER_NUM_1 || EEPROMRead(VER_FLAG_2) != VER_NUM_2) {
     for (uint16_t i = 0; i < 600; i++) {
       EEPROMWrite(i, 0xFF);
@@ -440,23 +440,26 @@ void ROMFlagsCheck() {
   if ( (((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 && rcDetected == true && RCFailSafe == false)|| ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 || ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 && magDetected ) ) {
     TryHandShake();
     if (calibrationMode == true) {
-      ControlLED(0x07);
       return;
     }
-    LEDControlByte = 0x00;
+    if ( ((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 ) {
+      LEDControlByte |= 1<<0;
+    }
+    if ( ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 ) {
+      LEDControlByte |= 1<<1;
+    }
+    if ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 ) {
+      LEDControlByte |= 1<<2;
+    }
+    LEDControlByte |= 1<<3;
     ControlLED(LEDControlByte);
+
+
     while (1) {
-      if ( ((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 ) {
-        LEDControlByte ^= 1<<0;
-      }
-      if ( ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 ) {
-        LEDControlByte ^= 1<<1;
-      }
-      if ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 ) {
-        LEDControlByte ^= 1<<2;
-      }
+      ControlLED(0x80);
+      delay(500);
       ControlLED(LEDControlByte);
-      delay(300);
+      delay(500);
     }
   }
 
@@ -845,6 +848,7 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
 
 
 

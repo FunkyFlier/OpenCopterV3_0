@@ -1,12 +1,71 @@
 #include "LED.h"
 //Green Yellow Blue Red
+#define PATTERN_TIME 250//in mS
+uint8_t ctrlByte;
+enum LED_COLORS{
+  RED_,
+  BLUE_,
+  YELLOW_,
+  GREEN_
+
+};
+uint8_t LEDPatternMatrix[4];
+
+void LEDPatternSet(uint8_t, uint8_t, uint8_t, uint8_t);
+void LEDPatternHandler(uint32_t);
+
 void LEDInit(){
   GreenLEDOutput();
   YellowLEDOutput();
   BlueLEDOutput();
   RedLEDOutput();  
+  ControlLED(0x0F);
 
 }
+void LEDPatternSet(uint8_t green,uint8_t yellow, uint8_t blue, uint8_t red){
+  LEDPatternMatrix[GREEN_] = green;
+  LEDPatternMatrix[YELLOW_] = yellow;
+  LEDPatternMatrix[BLUE_] = blue;
+  LEDPatternMatrix[RED_] = red;
+}
+void LEDPatternHandler(uint32_t currentTime){
+  static boolean onOff = true;
+  static uint8_t patternCount;
+  static uint32_t patternTime;//to do on main code get this time from the main loop
+
+
+  if (currentTime - patternTime >= PATTERN_TIME){
+    patternTime = currentTime;
+    if (onOff == true){
+      patternCount++;
+      ctrlByte = 0xFF;
+      for (uint8_t i = 0; i <= 3; i++){
+        if (LEDPatternMatrix[i] == 0){
+          ctrlByte &= ~(1<<i);
+        }
+        if (LEDPatternMatrix[i] >= 2 && LEDPatternMatrix[i] < 6){
+          if (patternCount % LEDPatternMatrix[i] == 0){
+            ctrlByte &= ~(1<<i);
+          }
+        }
+      }
+      ControlLED(ctrlByte);
+      onOff = false;
+    }
+    else{
+      ctrlByte = 0x00;
+      for (uint8_t i = 0; i <= 3; i++){
+        if (LEDPatternMatrix[i] == 1){
+          ctrlByte |= 1<<i;
+        }
+      }
+      ControlLED(ctrlByte);
+      onOff = true;
+    }
+
+  }
+}
+
 
 void ControlLED(uint8_t controlByte){
   controlByte = controlByte & 0x0F;
@@ -114,5 +173,12 @@ void ControlLED(uint8_t controlByte){
     break;
   }
 }
+
+
+
+
+
+
+
 
 

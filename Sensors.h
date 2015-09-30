@@ -30,7 +30,8 @@ void GetInitialPressure();
 extern int16_u gyroX, gyroY, gyroZ;
 extern int16_u  accX, accY, accZ;
 extern int16_u magX,magY,magZ;
-extern float initialPressure, pressure, alti,takeOffPressure;;
+extern float initialPressure, pressure, alti,takeOffPressure;
+;
 extern boolean newBaro,magDetected;
 extern uint32_t baroPollTimer;
 extern boolean rotateSensor45Deg;
@@ -48,3 +49,4 @@ extern float temperature;
 
 
 #endif
+

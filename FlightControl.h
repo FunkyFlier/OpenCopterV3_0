@@ -7,7 +7,7 @@
 void _400HzTask();
 void _100HzTask(uint32_t);
 void ProcessChannels();
-void Arm();
+void StartCalibration();
 void Rotate2dVector(float*, float*, float*, float*, float*, float*);
 
 extern uint8_t flightMode;

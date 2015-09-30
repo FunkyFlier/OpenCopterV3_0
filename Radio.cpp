@@ -9,6 +9,7 @@
 #include "Definitions.h"
 #include "Motors.h"
 #include "Enums.h"
+#include "LED.h"
 
 boolean USBFlag=false,handShake=false,calibrationMode=false,gsCTRL=false;
 
@@ -36,6 +37,7 @@ uint32_t hsMillis,lsMillis;
 uint8_t groundStationID;
 
 void TryHandShake(){
+  LEDPatternSet(3,0,0,3);
   AssignRadioUART();
   HandShake();
 
@@ -350,7 +352,6 @@ void Radio() {
 void CalibrateSensors() {
   uint32_t generalPurposeTimer = millis();
   while (1) {
-    Radio();
     if ( millis() - generalPurposeTimer >= 10) {
       generalPurposeTimer = millis();
       GetAcc();
@@ -1599,6 +1600,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 

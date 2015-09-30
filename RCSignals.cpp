@@ -70,36 +70,56 @@ void GetSwitchPositions() {
   }
 
 }
-
 void CheckTXPositions() {
-
+  uint8_t LEDPatternArray[4];
   boolean positionOK = false;
   if (gsCTRL == false){
-    ControlLED(0x0A);
-    while (positionOK == false) {
+
+    while (positionOK == false){
+
       if (newRC == true) {
         newRC = false;
         ProcessChannels();
       }
+      LEDPatternArray[0] = 0;
+      LEDPatternArray[1] = 0;
+      LEDPatternArray[2] = 0;
+      LEDPatternArray[3] = 0;
+
       positionOK = true;
       if (RCValue[THRO] > 1050) {
+        LEDPatternArray[0] = 2;
         positionOK = false;
       }
       if (RCValue[GEAR] > 1050) {
+        if (LEDPatternArray[0] == 2){
+          LEDPatternArray[0] = 6;
+        }
+        else{
+          LEDPatternArray[0] = 2;
+        }
         positionOK = false;
       }
       if (RCValue[AUX1] > 1050) {
+        LEDPatternArray[1] = 6;
         positionOK = false;
       }
       if (RCValue[AUX2] > 1050) {
+        LEDPatternArray[2] = 6;
         positionOK = false;
       }
       if (RCValue[AUX3] > 1050) {
+        LEDPatternArray[3] = 6;
         positionOK = false;
       }
+      LEDPatternSet(LEDPatternArray[0],LEDPatternArray[1],LEDPatternArray[2],LEDPatternArray[3]);
+
     }
+
   }
+
 }
+
 
 
 
@@ -414,6 +434,8 @@ void DSMSerial(){
 
 
 }
+
+
 
 
 
