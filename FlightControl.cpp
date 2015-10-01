@@ -728,14 +728,14 @@ void StartCalibration(){
   }
   else{
     while (newGSRC == false){
-      //Radio();
+      Radio();
     }
   }
   newRC = false;
 
   if (gsCTRL == true){
     while (GSRCValue[RUDD] < 1750){
-      //Radio();
+      Radio();
     } 
   }
   else{
