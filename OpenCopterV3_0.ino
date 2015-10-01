@@ -30,7 +30,6 @@ void setup() {
   AssignPointerArray();
   SetPinModes();
 
-
   DetectRC();
 
   _200HzISRConfig();
@@ -55,9 +54,9 @@ void setup() {
   if (calibrationMode == true){
     CalibrateSensors();
   }
-
   if (gsCTRL == false && (rcDetected == false || RCFailSafe == true)){
     LEDPatternSet(0,1,0,2);
+    while(1){}
   }
 
   StartCalibration();

@@ -31,7 +31,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
       Radio();
       TuningTransmitter(); 
     }
-    LEDPatternHandler(millis());
+    LEDPatternHandler(micros());
   }
   if (rcType != RC){
     FeedLine();

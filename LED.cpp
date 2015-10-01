@@ -1,6 +1,6 @@
 #include "LED.h"
 //Green Yellow Blue Red
-#define PATTERN_TIME 250//in mS
+#define PATTERN_TIME 200000//in mS
 uint8_t ctrlByte;
 enum LED_COLORS{
   RED_,
@@ -31,7 +31,7 @@ void LEDPatternSet(uint8_t green,uint8_t yellow, uint8_t blue, uint8_t red){
 void LEDPatternHandler(uint32_t currentTime){
   static boolean onOff = true;
   static uint8_t patternCount;
-  static uint32_t patternTime;//to do on main code get this time from the main loop
+  static uint32_t patternTime;
 
 
   if (currentTime - patternTime >= PATTERN_TIME){

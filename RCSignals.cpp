@@ -87,16 +87,16 @@ void CheckTXPositions() {
       LEDPatternArray[3] = 0;
 
       positionOK = true;
-      if (RCValue[THRO] > 1050) {
-        LEDPatternArray[0] = 2;
+      if (RCValue[GEAR] > 1050) {
+        LEDPatternArray[0] = 6;
         positionOK = false;
       }
-      if (RCValue[GEAR] > 1050) {
-        if (LEDPatternArray[0] == 2){
-          LEDPatternArray[0] = 6;
+      if (RCValue[THRO] > 1050) {
+        if (LEDPatternArray[0] == 6){
+          LEDPatternArray[0] = 2;
         }
         else{
-          LEDPatternArray[0] = 2;
+          LEDPatternArray[0] = 6;
         }
         positionOK = false;
       }
