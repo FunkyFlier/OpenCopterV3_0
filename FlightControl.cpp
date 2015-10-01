@@ -372,6 +372,14 @@ void FailSafeHandler(){
           MotorShutDown();
         }
         else{
+          if (magDetected == false){
+            LEDPatternSet(0,6,0,1);
+            MotorShutDown();
+          }
+          if (baroFS == true){
+            LEDPatternSet(0,7,0,1);
+            MotorShutDown();
+          }
           if (flightMode != RTB) {
             enterState = true;
             flightMode = RTB;
@@ -391,6 +399,14 @@ void FailSafeHandler(){
         MotorShutDown();
       }
       else{
+        if (magDetected == false){
+          LEDPatternSet(0,4,0,1);
+          MotorShutDown();
+        }
+        if (baroFS == true){
+          LEDPatternSet(0,5,0,1);
+          MotorShutDown();
+        }
         if (flightMode != RTB) {
           enterState = true;
           flightMode = RTB;
@@ -401,6 +417,14 @@ void FailSafeHandler(){
 
   if (batteryFailSafe == true && batteryFSOverride == false){
     if (txLossRTB == 1){
+      if (magDetected == false){
+          LEDPatternSet(0,1,0,7);
+          MotorShutDown();
+        }
+        if (baroFS == true){
+          LEDPatternSet(0,2,0,7);
+          MotorShutDown();
+        }
       if (flightMode != RTB) {
         enterState = true;
         flightMode = RTB;
@@ -656,7 +680,11 @@ void RTBStateMachine() {
       RTBState = RTB_LAND;
       motorState = LANDING;
     }
-
+    if (gpsFailSafe == true) {
+      velSetPointZ = LAND_VEL;
+      RTBState = RTB_LAND;
+      motorState = LANDING;
+    }
     break;
   case RTB_LAND:
     if (gpsFailSafe == true) {
@@ -1381,8 +1409,8 @@ void ProcessModes() {
     }
 
   }
-  if (flightMode > L0 && magDetected == false) {
-    flightMode = L0;
+  if (flightMode >= L0 && magDetected == false) {
+    flightMode = ATT;
     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
     MapVar(&cmdAile, &rollSetPoint, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
     MapVar(&cmdRudd, &yawInput, 1000, 2000, LOIT_YAW_MIN, LOIT_YAW_MAX);
@@ -1400,6 +1428,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 
