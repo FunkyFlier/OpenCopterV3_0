@@ -11,7 +11,6 @@ enum LED_COLORS{
 
 };
 uint8_t LEDPatternMatrix[4];
-
 void LEDPatternSet(uint8_t, uint8_t, uint8_t, uint8_t);
 void LEDPatternHandler(uint32_t);
 

@@ -223,12 +223,12 @@ void AssignPointerArray() {
   floatPointerArray[GPS_ALT] = &gpsAlt;//gps
 
 
-  floatPointerArray[LAT_] = &homeBaseXOffset;//gps
-  floatPointerArray[LON_] = &homeBaseYOffset;
-  floatPointerArray[HB_LAT] = &xFromTO;
-  floatPointerArray[HB_LON] = &yFromTO;
-  floatPointerArray[H_ACC] = &hAcc;
-  floatPointerArray[S_ACC] = &sAcc;
+  floatPointerArray[LAT_] = &xPosError;//gps
+  floatPointerArray[LON_] = &xVelError;
+  floatPointerArray[HB_LAT] = &yPosError;
+  floatPointerArray[HB_LON] = &yVelError;
+  floatPointerArray[H_ACC] = &zPosError;
+  floatPointerArray[S_ACC] = &zVelError;
 
 
   floatPointerArray[M1_X] = &m1X;
@@ -309,10 +309,10 @@ void AssignPointerArray() {
   bytePointerArray[SWITCH_POS] = &switchPositions;//RC
 
 
-  bytePointerArray[IDLE_PERCENT] = &batteryFailSafe;//rom
-  bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
-  bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
-  bytePointerArray[MAG_DET] = &magDetected;//sensors
+  bytePointerArray[IDLE_PERCENT] = &LEDPatternMatrix[0];//rom
+  bytePointerArray[HOVER_PERCENT] = &LEDPatternMatrix[1];//rom
+  bytePointerArray[TX_LOSS_RTB] = &LEDPatternMatrix[2];//flight control
+  bytePointerArray[MAG_DET] = &LEDPatternMatrix[3];//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
 }
 
