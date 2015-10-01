@@ -1,18 +1,17 @@
 #include "LED.h"
+#include "Motors.h"
+#include "Enums.h"
+#include "Definitions.h"
 //Green Yellow Blue Red
-#define PATTERN_TIME 200000//in mS
-#define PATTERN_TIME_FAST 40000
-uint8_t ctrlByte;
-enum LED_COLORS{
-  RED_,
-  BLUE_,
-  YELLOW_,
-  GREEN_
 
-};
-uint8_t LEDPatternMatrix[4];
 void LEDPatternSet(uint8_t, uint8_t, uint8_t, uint8_t);
 void LEDPatternHandler(uint32_t);
+
+uint8_t LEDPatternMatrix[4];
+uint8_t LEDPattern[4];
+uint8_t OverRideMatrix[4];
+boolean displayFSData = false;
+uint8_t ctrlByte;
 
 void LEDInit(){
   GreenLEDOutput();
@@ -23,17 +22,30 @@ void LEDInit(){
 
 }
 void LEDPatternSet(uint8_t green,uint8_t yellow, uint8_t blue, uint8_t red){
-  LEDPatternMatrix[GREEN_] = green;
-  LEDPatternMatrix[YELLOW_] = yellow;
-  LEDPatternMatrix[BLUE_] = blue;
-  LEDPatternMatrix[RED_] = red;
+  LEDPattern[GREEN_] = green;
+  LEDPattern[YELLOW_] = yellow;
+  LEDPattern[BLUE_] = blue;
+  LEDPattern[RED_] = red;
+
 }
 void LEDPatternHandler(uint32_t currentTime){
   static boolean onOff = true,fastIndicator = true,updatePattern;
   static uint8_t patternCount;
   static uint32_t patternTime;
   static uint32_t fastBlinkTime;
-  
+
+  if (displayFSData == true && motorState == HOLD){
+    LEDPatternMatrix[GREEN_] = OverRideMatrix[GREEN_];
+    LEDPatternMatrix[YELLOW_] = OverRideMatrix[YELLOW_];
+    LEDPatternMatrix[BLUE_] = OverRideMatrix[BLUE_];
+    LEDPatternMatrix[RED_] = OverRideMatrix[RED_]; 
+  }
+  else{
+    LEDPatternMatrix[GREEN_] = LEDPattern[GREEN_];
+    LEDPatternMatrix[YELLOW_] = LEDPattern[YELLOW_];
+    LEDPatternMatrix[BLUE_] = LEDPattern[BLUE_];
+    LEDPatternMatrix[RED_] = LEDPattern[RED_];
+  }
 
   if (currentTime - patternTime >= PATTERN_TIME){
     patternTime = currentTime;
@@ -67,14 +79,15 @@ void LEDPatternHandler(uint32_t currentTime){
     fastBlinkTime = currentTime;
     fastIndicator ^= 1;
     for (uint8_t i = 0; i <= 3; i++){
-        if (LEDPatternMatrix[i] == 7){
-          if (fastIndicator == true){
-            ctrlByte |= 1<<i;
-          }else{
-            ctrlByte &= ~(1<<i);
-          }
-          
+      if (LEDPatternMatrix[i] == 7){
+        if (fastIndicator == true){
+          ctrlByte |= 1<<i;
         }
+        else{
+          ctrlByte &= ~(1<<i);
+        }
+
+      }
     }
     updatePattern = true;
   }
@@ -82,7 +95,7 @@ void LEDPatternHandler(uint32_t currentTime){
     ControlLED(ctrlByte);
     updatePattern = false;
   }
-  
+
 }
 
 
@@ -192,6 +205,7 @@ void ControlLED(uint8_t controlByte){
     break;
   }
 }
+
 
 
 

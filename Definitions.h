@@ -7,6 +7,11 @@
 #define LOIT_YAW_MIN -75
 #define ATT_ERR_MAX 500
 #define BATT_FS_PERCENT 30
+
+#define PATTERN_TIME 200000//in mS
+#define PATTERN_TIME_FAST 40000
+
+
 //#define EXT_MAG
 
 //#define V1

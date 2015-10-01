@@ -24,7 +24,15 @@ uint32_t loopTime;
 
 
 void setup() {
+
+  OverRideMatrix[GREEN_] = 7;
+  OverRideMatrix[YELLOW_] = 7;
+  OverRideMatrix[BLUE_] = 5;
+  OverRideMatrix[RED_] = 5;
+
+
   BatteryInfoInit();
+
   RadioSerialBegin();
 
   AssignPointerArray();
@@ -56,7 +64,8 @@ void setup() {
   }
   if (gsCTRL == false && (rcDetected == false || RCFailSafe == true)){
     LEDPatternSet(0,1,0,2);
-    while(1){}
+    while(1){
+    }
   }
 
   StartCalibration();
@@ -127,6 +136,7 @@ void SetPinModes(){
   LEDInit();
 
 }
+
 
 
 

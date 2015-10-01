@@ -362,6 +362,7 @@ void FailSafeHandler(){
     GPSDetected = false;
     gpsFailSafe = false;
   }
+
   if (gsCTRL == true){
     if (telemFailSafe == true){
       gsCTRL = false;

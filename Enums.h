@@ -1,6 +1,13 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+enum LED_COLORS{
+  RED_,
+  BLUE_,
+  YELLOW_,
+  GREEN_
+
+};
 
 enum GPSStartStates{
   GPS_START_FIX,

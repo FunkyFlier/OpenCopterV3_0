@@ -34,5 +34,11 @@ void LEDInit();
 void ControlLED(uint8_t);
 
 extern uint8_t ctrlByte;
+
 extern uint8_t LEDPatternMatrix[4];
+extern uint8_t LEDPattern[4];
+extern uint8_t OverRideMatrix[4];
+
+extern boolean displayFSData;
+
 #endif

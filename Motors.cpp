@@ -325,6 +325,11 @@ void MotorHandler(){
 
   switch(motorState){
   case HOLD:
+    if (cmdElev < 1250 && cmdAile > 1750){
+      displayFSData = true;  
+    }else{
+      displayFSData = false;
+    }
     landDetected = false;
     if (saveGainsFlag == true && (millis() - romWriteDelayTimer) > 2000){
       SaveGains();
