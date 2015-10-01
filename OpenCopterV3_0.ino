@@ -71,7 +71,7 @@ void setup() {
   SetInitialQuaternion();
   InertialInit();
   CheckTXPositions();
-  LEDPatternSet(0,1,1,0);
+  LEDPatternSet(0,0,1,0);
   SetGyroOffsets();
   GetInitialPressure();
   watchDogStartCount = true;

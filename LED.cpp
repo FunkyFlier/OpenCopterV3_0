@@ -1,6 +1,7 @@
 #include "LED.h"
 //Green Yellow Blue Red
 #define PATTERN_TIME 200000//in mS
+#define PATTERN_TIME_FAST 40000
 uint8_t ctrlByte;
 enum LED_COLORS{
   RED_,
@@ -29,10 +30,11 @@ void LEDPatternSet(uint8_t green,uint8_t yellow, uint8_t blue, uint8_t red){
   LEDPatternMatrix[RED_] = red;
 }
 void LEDPatternHandler(uint32_t currentTime){
-  static boolean onOff = true;
+  static boolean onOff = true,fastIndicator = true,updatePattern;
   static uint8_t patternCount;
   static uint32_t patternTime;
-
+  static uint32_t fastBlinkTime;
+  
 
   if (currentTime - patternTime >= PATTERN_TIME){
     patternTime = currentTime;
@@ -49,7 +51,6 @@ void LEDPatternHandler(uint32_t currentTime){
           }
         }
       }
-      ControlLED(ctrlByte);
       onOff = false;
     }
     else{
@@ -59,11 +60,30 @@ void LEDPatternHandler(uint32_t currentTime){
           ctrlByte |= 1<<i;
         }
       }
-      ControlLED(ctrlByte);
       onOff = true;
     }
-
+    updatePattern = true;
   }
+  if (currentTime - fastBlinkTime >= PATTERN_TIME_FAST){
+    fastBlinkTime = currentTime;
+    fastIndicator ^= 1;
+    for (uint8_t i = 0; i <= 3; i++){
+        if (LEDPatternMatrix[i] == 7){
+          if (fastIndicator == true){
+            ctrlByte |= 1<<i;
+          }else{
+            ctrlByte &= ~(1<<i);
+          }
+          
+        }
+    }
+    updatePattern = true;
+  }
+  if (updatePattern == true){
+    ControlLED(ctrlByte);
+    updatePattern = false;
+  }
+  
 }
 
 

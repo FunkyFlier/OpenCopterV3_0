@@ -690,7 +690,7 @@ void LoiterCalculations() {
 //move the rudder to the right to start calibration
 void StartCalibration(){
   //calibration procedure
-  LEDPatternSet(0,1,0,0);
+  LEDPatternSet(0,7,0,0);
   newRC = false;
   newGSRC = false;
   if(gsCTRL == false){
