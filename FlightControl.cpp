@@ -53,7 +53,7 @@ float controlBearing;
 boolean enterState;
 boolean setTrim,trimComplete,calcYaw;
 float yawInput;
-float _100HzDt = 0.01;
+float _100HzDt = 0.01,highRateDT = 0.0025;
 
 float lowRateDT = 0.04;
 
@@ -152,13 +152,13 @@ int16_t floorLimit,ceilingLimit;
 boolean executeStep = false,stepStart = false;
 float debugVariable;
 
-PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &_100HzDt, 400, 400);
-PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &_100HzDt, 400, 400);
-PID_2 YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &_100HzDt, 400, 400);
+PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &highRateDT, 400, 400);
+PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &highRateDT, 400, 400);
+PID_2 YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &highRateDT, 400, 400);
 
-PID_2 PitchAngle(&pitchSetPoint, &pitchInDegrees, &rateSetPointY, &integrate, &kp_pitch_attitude, &ki_pitch_attitude, &kd_pitch_attitude, &fc_pitch_attitude, &lowRateDT, 360, 360);
-PID_2 RollAngle(&rollSetPoint, &rollInDegrees, &rateSetPointX, &integrate, &kp_roll_attitude, &ki_roll_attitude, &kd_roll_attitude, &fc_roll_attitude, &lowRateDT, 360, 360);
-YAW_2 YawAngle(&yawSetPoint, &yawInDegrees, &rateSetPointZ, &integrate, &kp_yaw_attitude, &ki_yaw_attitude, &kd_yaw_attitude, &fc_yaw_attitude, &lowRateDT, 360, 360);
+PID_2 PitchAngle(&pitchSetPoint, &pitchInDegrees, &rateSetPointY, &integrate, &kp_pitch_attitude, &ki_pitch_attitude, &kd_pitch_attitude, &fc_pitch_attitude, &_100HzDt, 360, 360);
+PID_2 RollAngle(&rollSetPoint, &rollInDegrees, &rateSetPointX, &integrate, &kp_roll_attitude, &ki_roll_attitude, &kd_roll_attitude, &fc_roll_attitude, &_100HzDt, 360, 360);
+YAW_2 YawAngle(&yawSetPoint, &yawInDegrees, &rateSetPointZ, &integrate, &kp_yaw_attitude, &ki_yaw_attitude, &kd_yaw_attitude, &fc_yaw_attitude, &_100HzDt, 360, 360);
 
 PID_2 LoiterXPosition(&xTarget, &XEst, &velSetPointX, &integrate, &kp_loiter_pos_x, &ki_loiter_pos_x, &kd_loiter_pos_x, &fc_loiter_pos_x, &lowRateDT, 1, 1);
 PID_2 LoiterXVelocity(&velSetPointX, &velX, &tiltAngleX, &integrate, &kp_loiter_velocity_x, &ki_loiter_velocity_x, &kd_loiter_velocity_x, &fc_loiter_velocity_x, &lowRateDT, 30, 30);
@@ -179,8 +179,21 @@ void _400HzTask() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
+    highRateDT =  _400HzTime - _400HzTimer * 0.000001; 
     _400HzTimer = _400HzTime;
     PollAcc();
+    PollGro();
+    if (flightMode == RTB){
+      if (rateSetPointZ > 100.0){
+        rateSetPointZ = 100.0;
+      }
+      if (rateSetPointZ < -100.0){
+        rateSetPointZ = -100.0;
+      }
+    }
+    PitchRate.calculate();
+    RollRate.calculate();
+    YawRate.calculate();
   }
 }
 
@@ -206,7 +219,7 @@ void _100HzTask(uint32_t loopTime){
         else{
           lowRateTasks = false;
         }     
-        PollGro();
+        //PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
         }
@@ -308,27 +321,25 @@ void _100HzTask(uint32_t loopTime){
 
         break;
       case ATTITUDE_PID_LOOPS:
-        if (lowRateTasks == true){
-          PitchAngle.calculate();
-          RollAngle.calculate();
-          if (calcYaw == true) {
-            YawAngle.calculate();
-          }
+        PitchAngle.calculate();
+        RollAngle.calculate();
+        if (calcYaw == true) {
+          YawAngle.calculate();
         }
         _100HzState = RATE_PID_LOOPS;
         break;
       case RATE_PID_LOOPS:
-        if (flightMode == RTB){
-          if (rateSetPointZ > 100.0){
-            rateSetPointZ = 100.0;
-          }
-          if (rateSetPointZ < -100.0){
-            rateSetPointZ = -100.0;
-          }
-        }
-        PitchRate.calculate();
-        RollRate.calculate();
-        YawRate.calculate();
+        /*if (flightMode == RTB){
+         if (rateSetPointZ > 100.0){
+         rateSetPointZ = 100.0;
+         }
+         if (rateSetPointZ < -100.0){
+         rateSetPointZ = -100.0;
+         }
+         }
+         PitchRate.calculate();
+         RollRate.calculate();
+         YawRate.calculate();*/
         _100HzState = READ_BATTERY;
         break;
       case READ_BATTERY:
@@ -1432,6 +1443,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 
