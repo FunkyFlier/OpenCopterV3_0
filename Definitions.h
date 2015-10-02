@@ -1,6 +1,8 @@
 #ifndef Definitions_h
 #define Definitions_h
 
+#define LOW_RATE_DIVIDER 3
+
 #define LOIT_TILT_MAX 20
 #define LOIT_TILT_MIN -20
 #define LOIT_YAW_MAX 75
