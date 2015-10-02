@@ -1,6 +1,6 @@
 #include "Calibration.h"
 #include "Rom.h"
-
+#include "flightControl.h"
 
 float scaledMagX, scaledMagY, scaledMagZ, scaledAccX, scaledAccY, scaledAccZ;
 float degreeGyroX,degreeGyroY,degreeGyroZ,radianGyroX,radianGyroY,radianGyroZ;
@@ -70,8 +70,8 @@ void SetGyroOffsets(){
 }
 
 void ACCScale(){
-  static uint32_t previousTime;
-  float dt;
+  //static uint32_t previousTime;
+  //float dt;
   float shiftedAccX,shiftedAccY,shiftedAccZ;
 
   shiftedAccX  = accX.val - accXOffset;
@@ -82,17 +82,17 @@ void ACCScale(){
   scaledAccY = shiftedAccY * accYScale;
   scaledAccZ = shiftedAccZ * accZScale;
 
-  dt = (micros() - previousTime) * 0.000001;
-  previousTime = micros();
-  if (dt > 0.1 || dt <= 0){
+  //dt = (micros() - previousTime) * 0.000001;
+  //previousTime = micros();
+  if (highRateDT > 0.002 || highRateDT <= 0){
     filtAccX = scaledAccX ;
     filtAccY = scaledAccY;
     filtAccZ = scaledAccZ;
   }
   else{
-    LPF(&filtAccX,&scaledAccX,&dt,RC_CONST_ACC);
-    LPF(&filtAccY,&scaledAccY,&dt,RC_CONST_ACC);
-    LPF(&filtAccZ,&scaledAccZ,&dt,RC_CONST_ACC);
+    LPF(&filtAccX,&scaledAccX,&highRateDT,RC_CONST_ACC);
+    LPF(&filtAccY,&scaledAccY,&highRateDT,RC_CONST_ACC);
+    LPF(&filtAccZ,&scaledAccZ,&highRateDT,RC_CONST_ACC);
   }
 
 }

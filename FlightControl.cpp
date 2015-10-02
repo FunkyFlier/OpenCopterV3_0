@@ -53,7 +53,8 @@ float controlBearing;
 boolean enterState;
 boolean setTrim,trimComplete,calcYaw;
 float yawInput;
-float _100HzDt = 0.01,highRateDT = 0.0025;
+float _100HzDt = 0.01;
+float highRateDT = 0.0025;
 
 float lowRateDT = 0.04;
 
@@ -328,6 +329,7 @@ void _100HzTask(uint32_t loopTime){
         }
         _100HzState = RATE_PID_LOOPS;
         break;
+
       case RATE_PID_LOOPS:
         /*if (flightMode == RTB){
          if (rateSetPointZ > 100.0){
@@ -1443,6 +1445,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
