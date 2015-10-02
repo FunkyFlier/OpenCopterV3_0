@@ -188,7 +188,6 @@ void _100HzTask(uint32_t loopTime){
     while(_100HzState < LAST_100HZ_TASK){
       switch (_100HzState){
       case GET_GYRO:
-        //debugVariable = (float)variableOfInterst;
         PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
@@ -361,6 +360,26 @@ void FailSafeHandler(){
   if (magDetected == false){
     GPSDetected = false;
     gpsFailSafe = false;
+    batteryFSOverride = true;
+    if (flightMode > ATT){
+      flightMode = ATT;
+      if (flightMode != previousFlightMode) {
+        enterState = true;
+        previousFlightMode = flightMode;
+      }
+    }
+  }
+  if (baroFS == true){
+    GPSDetected = false;
+    gpsFailSafe = false;
+    batteryFSOverride = true;
+    if (flightMode > ATT){
+      flightMode = ATT;
+      if (flightMode != previousFlightMode) {
+        enterState = true;
+        previousFlightMode = flightMode;
+      }
+    }
   }
 
   if (gsCTRL == true){
@@ -417,14 +436,6 @@ void FailSafeHandler(){
 
   if (batteryFailSafe == true && batteryFSOverride == false){
     if (txLossRTB == 1){
-      if (magDetected == false){
-          LEDPatternSet(0,1,0,7);
-          MotorShutDown();
-        }
-        if (baroFS == true){
-          LEDPatternSet(0,2,0,7);
-          MotorShutDown();
-        }
       if (flightMode != RTB) {
         enterState = true;
         flightMode = RTB;
@@ -508,7 +519,7 @@ void FlightSM() {
     break;
   case RTB:
     if (enterState == true) {
-      LEDPatternSet(1,0,6,0);
+      LEDPatternSet(1,0,7,0);
       enterState = false;
       InitLoiter();
       xTarget = XEst;
@@ -1016,8 +1027,8 @@ void ProcessChannels() {
   }
 
 
-
   if (RCFailSafe == true) {
+
     switch (clearTXRTB) {
 
     case 0:
@@ -1061,14 +1072,15 @@ void ProcessModes() {
   static uint8_t clearBATTRTB=0;
   uint8_t flightModeControl=0;
   previousFlightMode = flightMode;
+
   if (RCValue[AUX2] > 1750) {
     if (batteryFailSafe == true){
       batteryFSOverride = true;
     }
     gsCTRL = false;
-    flightMode = RATE;
     setTrim = false;
     trimComplete = false;
+    flightMode = RATE;
     cmdElev = RCValue[ELEV];
     cmdAile = RCValue[AILE];
     cmdRudd = RCValue[RUDD];
@@ -1099,13 +1111,13 @@ void ProcessModes() {
       batteryFSOverride = true;
     }
     gsCTRL = false;
-    flightMode = ATT;
     setTrim = false;
     trimComplete = false;
+    flightMode = ATT;
     cmdElev = RCValue[ELEV];
     cmdAile = RCValue[AILE];
     cmdRudd = RCValue[RUDD];
-    throCommand = RCValue[THRO];
+    throCommand = RCValue[THRO]; 
 
     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
     MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
@@ -1129,13 +1141,11 @@ void ProcessModes() {
 
   }
 
-
   if (RCValue[AUX3] > 1750) {
     if (batteryFailSafe == true){
       batteryFSOverride = true;
     }
     gsCTRL = false;
-    flightMode = RATE;
     setTrim = false;
     trimComplete = false;
     flightMode = RTB;
@@ -1175,8 +1185,7 @@ void ProcessModes() {
 
       case 1:
         if (RCValue[GEAR] < 1150) {
-          RCFailSafe = false;
-          RCFailSafeCounter = 0;
+          batteryFSOverride = true;
           clearBATTRTB = 0;
           break;
         }
@@ -1188,9 +1197,6 @@ void ProcessModes() {
         break;
 
       }
-      /*if (RCValue[GEAR] > 1500){
-       batteryFSOverride = true;
-       }*/
     }
     else{
       if (GSRCValue[AUX1] > 0){
@@ -1208,6 +1214,7 @@ void ProcessModes() {
     cmdRudd = RCValue[RUDD];
     throCommand = RCValue[THRO];
     flightModeControl = modeArray[switchPositions];
+
   }
   else{
     cmdElev = GSRCValue[ELEV];
@@ -1222,6 +1229,10 @@ void ProcessModes() {
       flightModeControl = 2;
     }
   }  
+
+  if ( (magDetected == false || baroFS == true) && flightModeControl > ATT){
+    flightModeControl = ATT;
+  }
 
   switch(flightModeControl){
   case RATE:
@@ -1393,41 +1404,23 @@ void ProcessModes() {
     break;
 
   }
-  if (flightMode > ATT && baroFS == true){
-    flightMode = ATT;
-    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
-    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
-    if (rollSetPoint < 1 && rollSetPoint > -1) {
-      rollSetPoint = 0;
-    }
-    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
-      pitchSetPoint = 0;
-    }
-    if (yawInput < 5 && yawInput > -5) {
-      yawInput = 0;
-    }
 
-  }
-  if (flightMode >= L0 && magDetected == false) {
-    flightMode = ATT;
-    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
-    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, LOIT_YAW_MIN, LOIT_YAW_MAX);
-    if (rollSetPoint < 1 && rollSetPoint > -1) {
-      rollSetPoint = 0;
-    }
-    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
-      pitchSetPoint = 0;
-    }
-    if (yawInput < 5 && yawInput > -5) {
-      yawInput = 0;
-    }
-  }
   if (flightMode != previousFlightMode) {
     enterState = true;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
