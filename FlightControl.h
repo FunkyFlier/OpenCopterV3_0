@@ -4,7 +4,7 @@
 #include "PID.h"
 #include <Arduino.h>
 
-void _400HzTask();
+void highRateTasks();
 void _100HzTask(uint32_t);
 void ProcessChannels();
 void StartCalibration();

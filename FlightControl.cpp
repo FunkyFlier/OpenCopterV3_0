@@ -175,7 +175,7 @@ PID_2 WPVelocity(&wpVelSetPoint, &wpPathVelocity,&wpTilX, &integrate, &kp_waypoi
 
 PID_2 WPCrossTrack(&zero, &wpCrossTrackVelocity, &wpTiltY, &integrate, &kp_cross_track ,&ki_cross_track, &kd_cross_track,&fc_cross_track , &lowRateDT, 15,15);
 
-void _400HzTask() {
+void highRateTasks() {
   uint32_t _400HzTime;
 
   _400HzTime = micros();
@@ -361,7 +361,7 @@ void _100HzTask(uint32_t loopTime){
         _100HzState = GET_GYRO;
         break;
       }
-      _400HzTask();
+      highRateTasks();
 
     }
     _100HzState = GET_GYRO;

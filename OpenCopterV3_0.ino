@@ -92,7 +92,7 @@ void setup() {
 
 void loop() {
 
-  _400HzTask();
+  highRateTasks();
   loopTime = micros();
   _100HzTask(loopTime);
   Telemetry();
