@@ -142,7 +142,24 @@ void CorrectXY(){
   accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
   accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
   accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
-
+  if (accelBiasX > BIAS_MAX){
+    accelBiasX = BIAS_MAX;
+  }
+  if (accelBiasX < BIAS_MIN){
+    accelBiasX = BIAS_MIN;
+  }
+  if (accelBiasY > BIAS_MAX){
+    accelBiasY = BIAS_MAX;
+  }
+  if (accelBiasY < BIAS_MIN){
+    accelBiasY = BIAS_MIN;
+  }
+  if (accelBiasZ > BIAS_MAX){
+    accelBiasZ = BIAS_MAX;
+  }
+  if (accelBiasZ < BIAS_MIN){
+    accelBiasZ = BIAS_MIN;
+  }
 }
 
 void GetBaroZ(){
@@ -211,7 +228,24 @@ void CorrectZ(){
     accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
     accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
     accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
-
+    if (accelBiasX > BIAS_MAX){
+      accelBiasX = BIAS_MAX;
+    }
+    if (accelBiasX < BIAS_MIN){
+      accelBiasX = BIAS_MIN;
+    }
+    if (accelBiasY > BIAS_MAX){
+      accelBiasY = BIAS_MAX;
+    }
+    if (accelBiasY < BIAS_MIN){
+      accelBiasY = BIAS_MIN;
+    }
+    if (accelBiasZ > BIAS_MAX){
+      accelBiasZ = BIAS_MAX;
+    }
+    if (accelBiasZ < BIAS_MIN){
+      accelBiasZ = BIAS_MIN;
+    }
     ZEstUp = -1.0 * ZEst;
     velZUp = -1.0 * velZ;
   }
@@ -255,6 +289,7 @@ void UpdateLagIndex(){
     lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
   }
 }
+
 
 
 

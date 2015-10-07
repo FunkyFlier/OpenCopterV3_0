@@ -22,6 +22,8 @@
 #define PATTERN_TIME 200000//in mS
 #define PATTERN_TIME_FAST 40000
 
+#define BIAS_MAX 0.1
+#define BIAS_MIN -0.1
 
 //#define EXT_MAG
 
