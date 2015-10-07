@@ -641,6 +641,8 @@ void InitLoiter() {
 }
 
 void RTBStateMachine() {
+  static boolean startSlowing = false;
+  static float initialRTBVel,commandedRTBVel;
   if (motorState == HOLD || motorState == TO) {
     return;
   }
@@ -655,6 +657,7 @@ void RTBStateMachine() {
     AltHoldVelocity.calculate();
     if (ZEstUp >= (zTarget - 0.1) ) {
       RTBState = RTB_TRAVEL;
+      startSlowing = false;
     }
     if (gpsFailSafe == true) {
       velSetPointZ = LAND_VEL;
@@ -674,6 +677,7 @@ void RTBStateMachine() {
       RTBState = RTB_LOITER;
       xTarget = homeBaseXOffset;
       yTarget = homeBaseYOffset;
+      startSlowing = false;
       break;
     }
 
@@ -694,10 +698,14 @@ void RTBStateMachine() {
     WPPosition.calculate(); 
     wpVelSetPoint *= -1.0;
     //wp vel PID
-    if (distToWayPoint < LOW_SPEED_RADIUS){
-      if (wpVelSetPoint > 1.0){
-        wpVelSetPoint = 1.0;
-      }
+    if (distToWayPoint < LOW_SPEED_RADIUS && startSlowing == false){
+      startSlowing = true;
+      initialRTBVel = wpVelSetPoint;
+      commandedRTBVel = wpVelSetPoint;
+    }
+    if (startSlowing == true){
+      commandedRTBVel = commandedRTBVel * RAMP_DOWN_ALPHA + (1 - RAMP_DOWN_ALPHA) * RAMP_DOWN_VEL_RTB;
+      wpVelSetPoint = commandedRTBVel;
     }
     WPVelocity.calculate(); 
     wpTilX *= -1.0;
@@ -709,6 +717,7 @@ void RTBStateMachine() {
       velSetPointZ = LAND_VEL;
       RTBState = RTB_LAND;
       motorState = LANDING;
+      startSlowing = false;
     }
     break;
   case RTB_LOITER:
@@ -797,7 +806,7 @@ void StartCalibration(){
 }
 
 void LoiterSM(){
-  static uint32_t waitTimer;
+  //static uint32_t waitTimer;
   int16_t rcDifference;
   if (lowRateTasks == true){
     switch(ZLoiterState){
@@ -914,19 +923,32 @@ void LoiterSM(){
         Rotate2dVector(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
         if (fabs(rollSetPointTX) < 0.5 && fabs(pitchSetPointTX) < 0.5){
           XYLoiterState = WAIT;
-          waitTimer = millis();
+          //waitTimer = millis();
+          velSetPointX = velX;
+          velSetPointY = velY;
         }
+
         break;
       case WAIT:
         if (fabs(rollSetPointTX) > 0.5 || fabs(pitchSetPointTX) > 0.5){
           XYLoiterState = RCINPUT;
           break;
         }
-        if (millis() - waitTimer > 100){//250){
+        velSetPointX *= RAMP_DOWN_ALPHA;
+        velSetPointY *= RAMP_DOWN_ALPHA;
+        LoiterXVelocity.calculate();
+        tiltAngleX *= -1.0;
+        LoiterYVelocity.calculate();
+        if (fabs(velSetPointX) < LOIT_RAMP_MIN && fabs(velSetPointY) < LOIT_RAMP_MIN){
           XYLoiterState = LOITERING;
           xTarget = XEst;
           yTarget = YEst;
         }
+        /*if (millis() - waitTimer > 100){//250){
+         XYLoiterState = LOITERING;
+         xTarget = XEst;
+         yTarget = YEst;
+         }*/
         break;
 
       }  
@@ -1445,6 +1467,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 

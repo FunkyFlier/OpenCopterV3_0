@@ -1,6 +1,15 @@
 #ifndef Definitions_h
 #define Definitions_h
 
+#define MAX_LOIT_VEL 2.0
+#define MIN_LOIT_VEL -2.0
+#define RAMP_DOWN_ALPHA 0.95
+#define RAMP_DOWN_VEL_RTB 1.0
+#define LOIT_RAMP_MIN 0.5
+
+#define LOW_SPEED_RADIUS 30
+#define MIN_RTB_DIST 1.5
+
 #define LOW_RATE_DIVIDER 3
 
 #define LOIT_TILT_MAX 20
@@ -35,7 +44,7 @@
 #define FLOOR 1.0
 #define TAKE_OFF_ALT 1.0
 
-#define MIN_RTB_DIST 1.5
+
 
 #define LAND_VEL -0.5
 #define RTB_VEL 1
@@ -156,7 +165,7 @@
 #define FlashSSHigh() PORTL |= 1<<4
 #define FlashSSLow() PORTL &= ~(1<<4)
 
-#define LOW_SPEED_RADIUS 30
+
 
 #define Port0 Serial
 #define RC_SERIAL_PORT Serial1
