@@ -208,10 +208,10 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
-  floatPointerArray[MOTOR_CMD_1] = &exa;//motors
-  floatPointerArray[MOTOR_CMD_2] = &eya;
-  floatPointerArray[MOTOR_CMD_3] = &eza;
-  floatPointerArray[MOTOR_CMD_4] = &yVelError;
+  floatPointerArray[MOTOR_CMD_1] = &xPosOutput;//motors
+  floatPointerArray[MOTOR_CMD_2] = &yPosOutput;
+  floatPointerArray[MOTOR_CMD_3] = &xVelOutput;
+  floatPointerArray[MOTOR_CMD_4] = &yVelOutput;
   floatPointerArray[MOTOR_CMD_5] = &zPosError;
   floatPointerArray[MOTOR_CMD_6] = &mAh;
   floatPointerArray[MOTOR_CMD_7] = &batteryPercent;

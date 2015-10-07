@@ -823,6 +823,8 @@ void StartCalibration(){
 
 void LoiterSM(){
   //static uint32_t waitTimer;
+  float absVelX,absVelY;
+  float limitedPitch,limitedRoll;
   int16_t rcDifference;
   if (lowRateTasks == true){
     switch(ZLoiterState){
@@ -937,6 +939,35 @@ void LoiterSM(){
         break;
       case RCINPUT:
         Rotate2dVector(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
+        absVelX = fabs(velX);
+        absVelY = fabs(velY);
+        if (absVelX > LOIT_VEL_MAX || absVelY > LOIT_VEL_MAX){
+          //need an angle differnce 
+          Rotate2dVector(&yawInDegrees,&zero,&pitchSetPoint,&rollSetPoint,&limitedPitch,&limitedRoll);
+          if (velX > LOIT_VEL_MAX){
+            velSetPointX = LOIT_VEL_MAX;
+            LoiterXVelocity.calculate();
+            limitedPitch = tiltAngleX;
+          }
+          if (velX < LOIT_VEL_MIN){
+            velSetPointX = LOIT_VEL_MIN;
+            LoiterXVelocity.calculate();
+            limitedPitch = tiltAngleX;
+          }
+
+          if (velY > LOIT_VEL_MAX){
+            velSetPointY = LOIT_VEL_MAX;
+            LoiterXVelocity.calculate();
+            limitedRoll = tiltAngleY;
+          }
+          if (velY < LOIT_VEL_MIN){
+            velSetPointY = LOIT_VEL_MIN;
+            LoiterXVelocity.calculate();
+            limitedRoll = tiltAngleY;
+          }
+          Rotate2dVector(&zero,&yawInDegrees,&limitedPitch,&limitedRoll,&pitchSetPoint,&rollSetPoint);
+
+        }
         if (fabs(rollSetPointTX) < 0.5 && fabs(pitchSetPointTX) < 0.5){
           XYLoiterState = WAIT;
           //waitTimer = millis();
@@ -1245,7 +1276,7 @@ void ProcessModes() {
    return;
    
    }*/
-static uint32_t stepTimer;
+  static uint32_t stepTimer;
 #ifdef AUX3_RTB
   if (RCValue[AUX3] > 1750) {
     if (batteryFailSafe == true){
@@ -1610,6 +1641,9 @@ static uint32_t stepTimer;
     enterState = true;
   }
 }
+
+
+
 
 
 

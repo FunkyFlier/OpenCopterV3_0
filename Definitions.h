@@ -27,9 +27,8 @@
 #endif
 //------------------------
 
-
-#define MAX_LOIT_VEL 2.0
-#define MIN_LOIT_VEL -2.0
+#define LOIT_VEL_MAX 2.0
+#define LOIT_VEL_MIN -2.0
 #define RAMP_DOWN_ALPHA 0.95
 #define RAMP_DOWN_VEL_RTB 1.0
 #define LOIT_RAMP_MIN 0.5
