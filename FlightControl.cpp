@@ -182,7 +182,7 @@ void highRateTasks() {
   if ( _400HzTime - _400HzTimer  >= 2500) {
     highRateDT =  (_400HzTime - _400HzTimer) * 0.000001; 
     _400HzTimer = _400HzTime;
-    
+
     PollAcc();
     PollGro();
     if (flightMode == RTB){
@@ -765,8 +765,23 @@ void RTBStateMachine() {
 }
 
 void LoiterCalculations() {
+  static boolean resetPositionFlag = false;
   LoiterXPosition.calculate();
   LoiterYPosition.calculate();
+#ifdef AUX3_VEL
+  if (RCValue[AUX3] > 1750) {
+    velSetPointY = STEP_VEL;
+    resetPositionFlag = true;
+  }
+  if (RCValue[AUX3] > 1400 && RCValue[AUX3] < 1600) {
+    velSetPointY = 0;
+    resetPositionFlag = true;
+  }
+  if (resetPositionFlag == true){
+    resetPositionFlag = false;
+    yTarget = YEst;
+  }
+#endif  
   LoiterXVelocity.calculate();
   tiltAngleX *= -1.0;
   LoiterYVelocity.calculate();
@@ -1200,6 +1215,38 @@ void ProcessModes() {
 
   }
 
+  /*if (RCValue[AUX3] > 1750) {
+   if (batteryFailSafe == true){
+   batteryFSOverride = true;
+   }
+   gsCTRL = false;
+   setTrim = false;
+   trimComplete = false;
+   flightMode = RTB;
+   cmdElev = RCValue[ELEV];
+   cmdAile = RCValue[AILE];
+   cmdRudd = RCValue[RUDD];
+   throCommand = RCValue[THRO];
+   MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
+   MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
+   MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+   if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+   rollSetPointTX = 0;
+   }
+   if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+   pitchSetPointTX = 0;
+   }
+   if (yawInput < 5 && yawInput > -5) {
+   yawInput = 0;
+   }
+   if (flightMode != previousFlightMode) {
+   enterState = true;
+   }
+   return;
+   
+   }*/
+static uint32_t stepTimer;
+#ifdef AUX3_RTB
   if (RCValue[AUX3] > 1750) {
     if (batteryFailSafe == true){
       batteryFSOverride = true;
@@ -1230,7 +1277,102 @@ void ProcessModes() {
     return;
 
   }
+#endif
+#ifdef AUX3_RATEX
+  if (RCValue[AUX3] > 1750) {
+    if (stepStart == false){
+      executeStep = true;
+      stepTimer = millis();
+    }
+    flightMode = RATE;
+    setTrim = false;
+    trimComplete = false;
+    cmdElev = RCValue[ELEV];
+    cmdAile = RCValue[AILE];
+    cmdRudd = RCValue[RUDD];
+    throCommand = RCValue[THRO];
+    MapVar(&cmdElev, &rateSetPointY, 1000, 2000, -400, 400);
+    MapVar(&cmdAile, &rateSetPointX, 1000, 2000, -400, 400);
+    MapVar(&cmdRudd, &rateSetPointZ, 1000, 2000, -400, 400);
 
+    if (rateSetPointY < 5 && rateSetPointY > -5) {
+      rateSetPointY = 0;
+    }
+
+    if (executeStep == true){
+      stepStart = true;
+      rateSetPointX = STEP_RATE;
+      if (millis() - stepTimer > STEP_DURATION){
+        executeStep = false;
+      }
+    }
+    else{
+      if (rateSetPointX < 5 && rateSetPointX > -5) {
+        rateSetPointX = 0;
+      }
+    }
+    if (rateSetPointZ < 5 && rateSetPointZ > -5) {
+      rateSetPointZ = 0;
+    }
+
+    if (flightMode != previousFlightMode) {
+      enterState = true;
+    }
+    return;
+
+  }
+  executeStep = false;
+  stepStart = false;
+#endif
+#ifdef AUX3_ROLL
+  if (RCValue[AUX3] > 1750) {
+    if (stepStart == false){
+      executeStep = true;
+      stepTimer = millis();
+    }
+    flightMode = ATT;
+    setTrim = false;
+    trimComplete = false;
+    cmdElev = RCValue[ELEV];
+    cmdAile = RCValue[AILE];
+    cmdRudd = RCValue[RUDD];
+    throCommand = RCValue[THRO];
+    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+    //MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+    /*if (rollSetPoint < 1 && rollSetPoint > -1) {
+     rollSetPoint = 0;
+     }*/
+
+    rollSetPoint = STEP_ATT;
+    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+      pitchSetPoint = 0;
+    }
+    if (yawInput < 5 && yawInput > -5) {
+      yawInput = 0;
+    }
+
+    if (flightMode != previousFlightMode) {
+      enterState = true;
+    }
+    return;
+
+  }
+  executeStep = false;
+  stepStart = false;
+#endif
+#ifdef AUX3_POS
+  if (RCValue[AUX3] > 1750) {
+    if (stepStart == true){
+      stepStart = false;
+      yTarget += STEP_DIST;
+    }
+  }
+  else{
+    stepStart = true;
+  }
+
+#endif
   if (txLossRTB == 1 && batteryFailSafe == true && batteryFSOverride == false){
     if (gsCTRL == false){
       switch (clearBATTRTB) {
@@ -1468,6 +1610,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
