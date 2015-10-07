@@ -180,8 +180,9 @@ void highRateTasks() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
-    highRateDT =  _400HzTime - _400HzTimer * 0.000001; 
+    highRateDT =  (_400HzTime - _400HzTimer) * 0.000001; 
     _400HzTimer = _400HzTime;
+    
     PollAcc();
     PollGro();
     if (flightMode == RTB){
@@ -1467,6 +1468,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
