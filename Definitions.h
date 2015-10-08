@@ -2,12 +2,12 @@
 #define Definitions_h
 
 //------------------------
-//#define AUX3_RTB
+#define AUX3_RTB
 
 //#define AUX3_RATEX
 //#define AUX3_ROLL
 //#define AUX3_VEL
-#define AUX3_POS
+//#define AUX3_POS
 //------------------------
 #ifdef AUX3_RATEX
 #define STEP_RATE 50.0
@@ -38,8 +38,8 @@
 
 #define LOW_RATE_DIVIDER 3
 
-#define LOIT_TILT_MAX 20
-#define LOIT_TILT_MIN -20
+#define LOIT_TILT_MAX 30
+#define LOIT_TILT_MIN -30
 #define LOIT_YAW_MAX 75
 #define LOIT_YAW_MIN -75
 #define ATT_ERR_MAX 500

@@ -1276,6 +1276,8 @@ void ProcessModes() {
    return;
    
    }*/
+
+
   static uint32_t stepTimer;
 #ifdef AUX3_RTB
   if (RCValue[AUX3] > 1750) {
@@ -1641,6 +1643,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 

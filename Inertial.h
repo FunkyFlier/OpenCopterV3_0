@@ -1,6 +1,8 @@
 #ifndef INERTIAL_H
 #define INERTIAL_H
 
+#include <Arduino.h>
+
 #define LAG_SIZE 56
 #define LAG_SIZE_BARO 14
 
@@ -26,6 +28,5 @@ extern float baroAlt,baroRate;
 extern float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 extern float zPosError,zVelError;
 extern float xPosOutput,yPosOutput,xVelOutput,yVelOutput;
-
 #endif
 

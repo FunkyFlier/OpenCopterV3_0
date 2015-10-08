@@ -314,7 +314,7 @@ void AssignPointerArray() {
   bytePointerArray[TX_LOSS_RTB] = &LEDPatternMatrix[2];//flight control
   bytePointerArray[MAG_DET] = &LEDPatternMatrix[3];//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
-}
+} 
 
 void ROMFlagsCheck() {
   uint16_t j;

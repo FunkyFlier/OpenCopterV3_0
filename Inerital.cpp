@@ -29,7 +29,6 @@ float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
 float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 float zPosError,zVelError;
 float xPosOutput,yPosOutput,xVelOutput,yVelOutput;
-
 void GetInertial(){
 
   inertialX = ((R11_ * (filtAccX)) + (R21_ * (filtAccY))) + (R31_ * (filtAccZ));
@@ -75,7 +74,6 @@ void Predict(float dt){
   inertialXBiased = R11_ * biasedX + R21_ * biasedY + R31_ * biasedZ;
   inertialYBiased = R12_ * biasedX + R22_ * biasedY + R32_ * biasedZ;
   inertialZBiased = R13_ * biasedX + R23_ * biasedY + R33_ * biasedZ + initialAccMagnitude;
-
 
 
   velX = velX + inertialXBiased * dt;
@@ -220,14 +218,14 @@ void CorrectZ(){
       return;
     }
     ZEst = ZEst - kPosBaro * zPosError;
-    velZ = velZ - kVelBaro * zVelError;
+    velZ = velZ - kVelBaro * zVelError - kPosBaro * zPosError;
 
     accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
     accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
     accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
 
 
-    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
+    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError + kBiasBaro * zPosError;
 
     accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
     accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
