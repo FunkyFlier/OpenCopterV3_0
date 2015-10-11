@@ -217,15 +217,25 @@ void CorrectZ(){
       ZEst = -1.0 * ZEstUp;
       return;
     }
-    ZEst = ZEst - kPosBaro * zPosError;
-    velZ = velZ - kVelBaro * zVelError - kPosBaro * zPosError;
+
+
+
 
     accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
     accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
     accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
-
+#ifdef NEW_BARO_FEEDBACK
+    ZEst = ZEst - kPosBaro * zPosError;
+    velZ = velZ - kVelBaro * zVelError - kPosBaro * zPosError;
 
     accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError + kBiasBaro * zPosError;
+#else
+    ZEst = ZEst - kPosBaro * zPosError;
+    velZ = velZ - kVelBaro * zVelError;
+
+    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
+#endif
+
 
     accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
     accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
@@ -291,6 +301,8 @@ void UpdateLagIndex(){
     lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
   }
 }
+
+
 
 
 

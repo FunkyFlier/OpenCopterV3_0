@@ -1,7 +1,9 @@
 #ifndef Definitions_h
 #define Definitions_h
 
+#define NEW_BARO_FEEDBACK
 //------------------------
+
 //#define AUX3_RTB
 
 //#define AUX3_RATEX
