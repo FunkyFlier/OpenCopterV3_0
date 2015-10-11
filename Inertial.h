@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 
-#define LAG_SIZE 56
-#define LAG_SIZE_BARO 14
+#define LAG_SIZE 45
+#define LAG_SIZE_BARO 20
 
 
 void GetInertial();
@@ -27,6 +27,6 @@ extern float baroAlt,baroRate;
 
 extern float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 extern float zPosError,zVelError;
-extern float xPosOutput,yPosOutput,xVelOutput,yVelOutput;
+extern float xPosOutput,yPosOutput,zPosOutput,xVelOutput,yVelOutput,zVelOutput;
 #endif
 

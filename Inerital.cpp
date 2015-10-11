@@ -28,7 +28,7 @@ float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
 
 float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 float zPosError,zVelError;
-float xPosOutput,yPosOutput,xVelOutput,yVelOutput;
+float xPosOutput,yPosOutput,zPosOutput,xVelOutput,yVelOutput,zVelOutput;
 void GetInertial(){
 
   inertialX = ((R11_ * (filtAccX)) + (R21_ * (filtAccY))) + (R31_ * (filtAccZ));
@@ -93,6 +93,7 @@ void Predict(float dt){
 
   XVelHist[currentEstIndex] = velX;
   YVelHist[currentEstIndex] = velY;
+  
   xPosOutput = XEstHist[lagIndex];
   yPosOutput = YEstHist[lagIndex];
   xVelOutput = XVelHist[lagIndex];
@@ -100,6 +101,9 @@ void Predict(float dt){
 
   ZEstHist[currentEstIndex_z] = ZEst;
   ZVelHist[currentEstIndex_z] = velZ;
+  
+  zPosOutput = -1.0 * ZEstHist[lagIndex_z];
+  zVelOutput = -1.0 * ZVelHist[lagIndex_z];
 
   ZEstUp = -1.0 * ZEst;
   velZUp = -1.0 * velZ;
