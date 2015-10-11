@@ -2,12 +2,14 @@
 #define Definitions_h
 
 //------------------------
-#define AUX3_RTB
+//#define AUX3_RTB
 
 //#define AUX3_RATEX
 //#define AUX3_ROLL
 //#define AUX3_VEL
 //#define AUX3_POS
+//#define AUX3_FORCE_ATT_RESET
+#define AUX3_RESET_BIAS 
 //------------------------
 #ifdef AUX3_RATEX
 #define STEP_RATE 50.0
@@ -48,8 +50,8 @@
 #define PATTERN_TIME 200000//in mS
 #define PATTERN_TIME_FAST 40000
 
-#define BIAS_MAX 0.1
-#define BIAS_MIN -0.1
+#define BIAS_MAX 0.3
+#define BIAS_MIN -0.3
 
 //#define EXT_MAG
 

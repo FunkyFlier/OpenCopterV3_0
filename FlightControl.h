@@ -32,7 +32,7 @@ extern int16_t floorLimit,ceilingLimit;
 extern boolean batteryFSOverride;
 
 extern uint8_t modeArray[9];
-extern float highRateDT;
+extern float highRateDT,_100HzDt;
 
 extern float kp_pitch_rate;
 extern float ki_pitch_rate;

@@ -30,16 +30,14 @@ void setup() {
   OverRideMatrix[BLUE_] = 5;
   OverRideMatrix[RED_] = 5;
 
-
   BatteryInfoInit();
 
   RadioSerialBegin();
 
   AssignPointerArray();
   SetPinModes();
-
+  
   DetectRC();
-
   _200HzISRConfig();
   SPIInit(MSBFIRST,SPI_CLOCK_DIV2,SPI_MODE0);
   I2CInit();

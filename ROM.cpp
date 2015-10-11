@@ -1,5 +1,4 @@
 #include "ROM.h"
-
 #include "Attitude.h"
 #include "Calibration.h"
 #include "Comm.h"
@@ -208,7 +207,7 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
-  floatPointerArray[MOTOR_CMD_1] = &xPosOutput;//motors
+  floatPointerArray[MOTOR_CMD_1] = &_100HzDt;//motors
   floatPointerArray[MOTOR_CMD_2] = &yPosOutput;
   floatPointerArray[MOTOR_CMD_3] = &xVelOutput;
   floatPointerArray[MOTOR_CMD_4] = &yVelOutput;
@@ -312,7 +311,7 @@ void AssignPointerArray() {
   bytePointerArray[IDLE_PERCENT] = &LEDPatternMatrix[0];//rom
   bytePointerArray[HOVER_PERCENT] = &LEDPatternMatrix[1];//rom
   bytePointerArray[TX_LOSS_RTB] = &LEDPatternMatrix[2];//flight control
-  bytePointerArray[MAG_DET] = &LEDPatternMatrix[3];//sensors
+  bytePointerArray[MAG_DET] = &magDetected;//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
 } 
 
@@ -454,9 +453,9 @@ void ROMFlagsCheck() {
     LEDControlByte |= 1<<3;
     ControlLED(LEDControlByte);
 
-
+    TIMSK5 = (0<<OCIE5A);
     while (1) {
-      ControlLED(0x80);
+      ControlLED(0x08);
       delay(500);
       ControlLED(LEDControlByte);
       delay(500);
@@ -848,6 +847,7 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
 
 
 

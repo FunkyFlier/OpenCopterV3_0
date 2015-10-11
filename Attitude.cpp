@@ -28,7 +28,7 @@ float initialAccMagnitude;
 
 float kpAcc,kiAcc,kpMag,kiMag,feedbackLimit;
 float exa,eya,eza;
-
+boolean startReset = false,resetTriggered = false;
 
 void SetInitialAccelerometerMagnitude(){
   float accSumX = 0,accSumY = 0,accSumZ = 0;
@@ -118,6 +118,10 @@ void AHRSupdate(float dt) {
     exa = (acc_y * vz - acc_z * vy);
     eya = (acc_z * vx - acc_x * vz);
     eza = (acc_x * vy - acc_y * vx);
+    if (startReset == true){
+      startReset = false;
+      exa += (ATT_ERR_MAX + 1);
+    }
     if (fabs(exa) > ATT_ERR_MAX || fabs(eya) > ATT_ERR_MAX || fabs(eza) > ATT_ERR_MAX){
       float pitchBy2,yawBy2,rollBy2;
       pitchInRadians = atan2(-acc_x,sqrt(acc_y * acc_y + acc_z * acc_z));

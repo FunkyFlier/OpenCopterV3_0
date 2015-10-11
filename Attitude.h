@@ -6,6 +6,7 @@
 #include "Definitions.h"
 #include "Math.h"
 #include "Sensors.h"
+#include <Arduino.h> 
 
 //#define KP_ACC 1.0
 //#define KI_ACC 0.0
@@ -35,5 +36,5 @@ extern float initialAccMagnitude;
 extern float q0,q1,q2,q3;
 extern float kpAcc,kiAcc,kpMag,kiMag,feedbackLimit;
 extern float exa,eya,eza;
-
+extern boolean startReset,resetTriggered;
 #endif 

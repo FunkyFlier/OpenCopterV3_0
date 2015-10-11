@@ -180,6 +180,7 @@ void highRateTasks() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
+    D22High();
     highRateDT =  (_400HzTime - _400HzTimer) * 0.000001; 
     _400HzTimer = _400HzTime;
 
@@ -196,13 +197,15 @@ void highRateTasks() {
     PitchRate.calculate();
     RollRate.calculate();
     YawRate.calculate();
+    D22Low();
   }
 }
 
 void _100HzTask(uint32_t loopTime){
   static uint8_t _100HzState = 0;
 
-  if (loopTime - _100HzTimer >= 10000){
+  if (loopTime - _100HzTimer >= 13300){
+    D23High();
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
     while(_100HzState < LAST_100HZ_TASK){
@@ -210,6 +213,7 @@ void _100HzTask(uint32_t loopTime){
       case GET_GYRO:
         lowRateCounter++;
         if (lowRateCounter >= LOW_RATE_DIVIDER){
+          D24High();
           lowRateDT = (millis() - lowRateTimer) * 0.001;
           lowRateTimer = millis();
           if (lowRateDT > 0.1){
@@ -357,6 +361,7 @@ void _100HzTask(uint32_t loopTime){
         MotorHandler();
         tuningTrasnmitOK = true;
         _100HzState = LAST_100HZ_TASK;
+        D24Low();
         break;
       default:
         _100HzState = GET_GYRO;
@@ -366,6 +371,7 @@ void _100HzTask(uint32_t loopTime){
 
     }
     _100HzState = GET_GYRO;
+    D23Low();
   }
 
 
@@ -420,24 +426,26 @@ void FailSafeHandler(){
     if (telemFailSafe == true){
       gsCTRL = false;
       if (rcDetected == false || RCFailSafe == true){
-        if (txLossRTB == 0){
-          LEDPatternSet(0,3,0,1);
-          MotorShutDown();
-        }
-        else{
-          if (magDetected == false){
-            LEDPatternSet(0,6,0,1);
-            MotorShutDown();
-          }
-          if (baroFS == true){
-            LEDPatternSet(0,7,0,1);
-            MotorShutDown();
-          }
-          if (flightMode != RTB) {
-            enterState = true;
-            flightMode = RTB;
-          }
-        }
+        LEDPatternSet(0,3,0,1);
+        MotorShutDown();
+        /*if (txLossRTB == 0){
+         LEDPatternSet(0,3,0,1);
+         MotorShutDown();
+         }
+         else{
+         if (magDetected == false){
+         LEDPatternSet(0,6,0,1);
+         MotorShutDown();
+         }
+         if (baroFS == true){
+         LEDPatternSet(0,7,0,1);
+         MotorShutDown();
+         }
+         if (flightMode != RTB) {
+         enterState = true;
+         flightMode = RTB;
+         }
+         }*/
 
       }
 
@@ -447,24 +455,26 @@ void FailSafeHandler(){
   }
   else{
     if (RCFailSafe == true){
-      if (txLossRTB == 0) {
-        LEDPatternSet(0,2,0,1);
-        MotorShutDown();
-      }
-      else{
-        if (magDetected == false){
-          LEDPatternSet(0,4,0,1);
-          MotorShutDown();
-        }
-        if (baroFS == true){
-          LEDPatternSet(0,5,0,1);
-          MotorShutDown();
-        }
-        if (flightMode != RTB) {
-          enterState = true;
-          flightMode = RTB;
-        }
-      }
+      LEDPatternSet(0,2,0,1);
+      MotorShutDown();
+      /*if (txLossRTB == 0) {
+       LEDPatternSet(0,2,0,1);
+       MotorShutDown();
+       }
+       else{
+       if (magDetected == false){
+       LEDPatternSet(0,4,0,1);
+       MotorShutDown();
+       }
+       if (baroFS == true){
+       LEDPatternSet(0,5,0,1);
+       MotorShutDown();
+       }
+       if (flightMode != RTB) {
+       enterState = true;
+       flightMode = RTB;
+       }
+       }*/
     }
   }
 
@@ -942,28 +952,33 @@ void LoiterSM(){
         absVelX = fabs(velX);
         absVelY = fabs(velY);
         if (absVelX > LOIT_VEL_MAX || absVelY > LOIT_VEL_MAX){
-          //need an angle differnce 
           Rotate2dVector(&yawInDegrees,&zero,&pitchSetPoint,&rollSetPoint,&limitedPitch,&limitedRoll);
-          if (velX > LOIT_VEL_MAX){
+          if (velX > LOIT_VEL_MAX && limitedPitch < 0.0){
             velSetPointX = LOIT_VEL_MAX;
             LoiterXVelocity.calculate();
+            tiltAngleX *= -1.0;
             limitedPitch = tiltAngleX;
           }
-          if (velX < LOIT_VEL_MIN){
-            velSetPointX = LOIT_VEL_MIN;
-            LoiterXVelocity.calculate();
-            limitedPitch = tiltAngleX;
+          else{
+            if (velX < LOIT_VEL_MIN && limitedPitch > 0.0){
+              velSetPointX = LOIT_VEL_MIN;
+              LoiterXVelocity.calculate();
+              tiltAngleX *= -1.0;
+              limitedPitch = tiltAngleX;
+            }
           }
 
-          if (velY > LOIT_VEL_MAX){
+          if (velY > LOIT_VEL_MAX && limitedRoll > 0.0){
             velSetPointY = LOIT_VEL_MAX;
-            LoiterXVelocity.calculate();
+            LoiterYVelocity.calculate();
             limitedRoll = tiltAngleY;
           }
-          if (velY < LOIT_VEL_MIN){
-            velSetPointY = LOIT_VEL_MIN;
-            LoiterXVelocity.calculate();
-            limitedRoll = tiltAngleY;
+          else{
+            if (velY < LOIT_VEL_MIN && limitedRoll < 0.0){
+              velSetPointY = LOIT_VEL_MIN;
+              LoiterYVelocity.calculate();
+              limitedRoll = tiltAngleY;
+            }
           }
           Rotate2dVector(&zero,&yawInDegrees,&limitedPitch,&limitedRoll,&pitchSetPoint,&rollSetPoint);
 
@@ -986,6 +1001,7 @@ void LoiterSM(){
         LoiterXVelocity.calculate();
         tiltAngleX *= -1.0;
         LoiterYVelocity.calculate();
+        Rotate2dVector(&yawInDegrees,&zero,&tiltAngleX,&tiltAngleY,&pitchSetPoint,&rollSetPoint);
         if (fabs(velSetPointX) < LOIT_RAMP_MIN && fabs(velSetPointY) < LOIT_RAMP_MIN){
           XYLoiterState = LOITERING;
           xTarget = XEst;
@@ -1279,6 +1295,26 @@ void ProcessModes() {
 
 
   static uint32_t stepTimer;
+  static boolean resetBias = false;
+#ifdef AUX3_RESET_BIAS  
+  if (RCValue[AUX3] > 1750 && resetBias == false) {
+    resetBias = true;
+    accelBiasX = 0;
+    accelBiasY = 0;
+    accelBiasZ = 0;
+  }else{
+    resetBias = false;;
+  }
+#endif
+#ifdef AUX3_FORCE_ATT_RESET  
+  if (RCValue[AUX3] > 1750 && resetTriggered == false) {
+    startReset = true;
+    resetTriggered = true;
+  }else{
+    startReset = false;
+    resetTriggered = false;
+  }
+#endif
 #ifdef AUX3_RTB
   if (RCValue[AUX3] > 1750) {
     if (batteryFailSafe == true){
@@ -1643,6 +1679,10 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
 
 
 
