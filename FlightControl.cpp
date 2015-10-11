@@ -1288,15 +1288,16 @@ void ProcessModes() {
   static uint32_t stepTimer;
   static boolean resetBias = false;
 #ifdef AUX3_RESET_BIAS  
-  if (RCValue[AUX3] > 1750 && resetBias == false) {
-    resetBias = true;
-    accelBiasX = 0;
-    accelBiasY = 0;
-    accelBiasZ = 0;
+  if (RCValue[AUX3] > 1750) {
+    if (resetBias == false){
+      resetBias = true;
+      accelBiasX = 0;
+      accelBiasY = 0;
+      accelBiasZ = 0;
+    }
   }
   else{
     resetBias = false;
-    ;
   }
 #endif
 #ifdef AUX3_FORCE_ATT_RESET  
@@ -1675,6 +1676,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
