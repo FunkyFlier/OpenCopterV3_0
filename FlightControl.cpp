@@ -1300,14 +1300,16 @@ void ProcessModes() {
   }
 #endif
 #ifdef AUX3_FORCE_ATT_RESET  
-  if (RCValue[AUX3] > 1750 && resetTriggered == false) {
-    startReset = true;
-    resetTriggered = true;
+  if (RCValue[AUX3] > 1750) {
+    if (resetTriggered == false){
+      startReset = true;
+      resetTriggered = true;
+    }
   }
   else{
     startReset = false;
     resetTriggered = false;
-  }
+  } 
 #endif
 #ifdef AUX3_RTB
   if (RCValue[AUX3] > 1750) {
@@ -1673,6 +1675,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 
