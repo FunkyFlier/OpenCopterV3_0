@@ -180,7 +180,6 @@ void highRateTasks() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
-    D22High();
     highRateDT =  (_400HzTime - _400HzTimer) * 0.000001; 
     _400HzTimer = _400HzTime;
 
@@ -197,7 +196,6 @@ void highRateTasks() {
     PitchRate.calculate();
     RollRate.calculate();
     YawRate.calculate();
-    D22Low();
   }
 }
 
@@ -205,7 +203,6 @@ void _100HzTask(uint32_t loopTime){
   static uint8_t _100HzState = 0;
 
   if (loopTime - _100HzTimer >= 13300){
-    D23High();
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
     while(_100HzState < LAST_100HZ_TASK){
@@ -361,7 +358,6 @@ void _100HzTask(uint32_t loopTime){
         MotorHandler();
         tuningTrasnmitOK = true;
         _100HzState = LAST_100HZ_TASK;
-        D24Low();
         break;
       default:
         _100HzState = GET_GYRO;
@@ -371,7 +367,6 @@ void _100HzTask(uint32_t loopTime){
 
     }
     _100HzState = GET_GYRO;
-    D23Low();
   }
 
 
@@ -959,27 +954,23 @@ void LoiterSM(){
             tiltAngleX *= -1.0;
             limitedPitch = tiltAngleX;
           }
-          else{
-            if (velX < LOIT_VEL_MIN && limitedPitch > 0.0){
-              velSetPointX = LOIT_VEL_MIN;
-              LoiterXVelocity.calculate();
-              tiltAngleX *= -1.0;
-              limitedPitch = tiltAngleX;
-            }
+          if (velX < LOIT_VEL_MIN && limitedPitch > 0.0){
+            velSetPointX = LOIT_VEL_MIN;
+            LoiterXVelocity.calculate();
+            tiltAngleX *= -1.0;
+            limitedPitch = tiltAngleX;
           }
-
           if (velY > LOIT_VEL_MAX && limitedRoll > 0.0){
             velSetPointY = LOIT_VEL_MAX;
             LoiterYVelocity.calculate();
             limitedRoll = tiltAngleY;
           }
-          else{
-            if (velY < LOIT_VEL_MIN && limitedRoll < 0.0){
-              velSetPointY = LOIT_VEL_MIN;
-              LoiterYVelocity.calculate();
-              limitedRoll = tiltAngleY;
-            }
+          if (velY < LOIT_VEL_MIN && limitedRoll < 0.0){
+            velSetPointY = LOIT_VEL_MIN;
+            LoiterYVelocity.calculate();
+            limitedRoll = tiltAngleY;
           }
+
           Rotate2dVector(&zero,&yawInDegrees,&limitedPitch,&limitedRoll,&pitchSetPoint,&rollSetPoint);
 
         }
@@ -1302,15 +1293,18 @@ void ProcessModes() {
     accelBiasX = 0;
     accelBiasY = 0;
     accelBiasZ = 0;
-  }else{
-    resetBias = false;;
+  }
+  else{
+    resetBias = false;
+    ;
   }
 #endif
 #ifdef AUX3_FORCE_ATT_RESET  
   if (RCValue[AUX3] > 1750 && resetTriggered == false) {
     startReset = true;
     resetTriggered = true;
-  }else{
+  }
+  else{
     startReset = false;
     resetTriggered = false;
   }
@@ -1679,6 +1673,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
