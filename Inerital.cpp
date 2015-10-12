@@ -198,10 +198,10 @@ void CorrectZ(){
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
   //
-  if (zPosError < Z_RESET_LIM || errorCorrectCount > 25){
-    if(errorCorrectCount >= 25){
+  if (zPosError < baroErrorLim  || errorCorrectCount > countsOff){
+    if(errorCorrectCount >= countsOff){
       errorCorrectCount++;
-      if (errorCorrectCount > 35){
+      if (errorCorrectCount > countsOn){
         errorCorrectCount = 0;
         initialPressure = takeOffPressure;
         GetAltitude(&pressure, &initialPressure, &baroAlt);
@@ -212,7 +212,7 @@ void CorrectZ(){
         return;
       }
     }
-    if (errorCorrectCount < 25 && errorCorrectCount > 0){
+    if (errorCorrectCount < countsOff && errorCorrectCount > 0){
       errorCorrectCount = 0;
       initialPressure = takeOffPressure;
       GetAltitude(&pressure, &initialPressure, &baroAlt);

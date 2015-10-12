@@ -153,6 +153,8 @@ int16_t floorLimit,ceilingLimit;
 boolean executeStep = false,stepStart = false;
 float debugVariable;
 
+float baroErrorLim,countsOff,countsOn,landErrorLim;
+
 PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &highRateDT, 400, 400);
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &highRateDT, 400, 400);
 PID_2 YawRate(&rateSetPointZ, &degreeGyroZ, &adjustmentZ, &integrate, &kp_yaw_rate, &ki_yaw_rate, &kd_yaw_rate, &fc_yaw_rate, &highRateDT, 400, 400);
@@ -203,7 +205,6 @@ void highRateTasks() {
 
 void _100HzTask(uint32_t loopTime){
   static uint8_t _100HzState = 0;
-
   if (loopTime - _100HzTimer >= 13300){
     //if (loopTime - _100HzTimer >= 10000){
     D23High();
@@ -212,6 +213,10 @@ void _100HzTask(uint32_t loopTime){
     while(_100HzState < LAST_100HZ_TASK){
       switch (_100HzState){
       case GET_GYRO:
+        baroErrorLim = kp_waypoint_velocity;
+        countsOff = ki_waypoint_velocity;
+        countsOn = kd_waypoint_velocity;
+        landErrorLim = fc_waypoint_velocity;
         lowRateCounter++;
         if (lowRateCounter >= LOW_RATE_DIVIDER){
           lowRateDT = (millis() - lowRateTimer) * 0.001;
