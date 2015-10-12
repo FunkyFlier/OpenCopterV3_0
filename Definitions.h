@@ -1,7 +1,11 @@
 #ifndef Definitions_h
 #define Definitions_h
 
-#define NEW_BARO_FEEDBACK
+
+#define Z_RESET_LIM 1.25
+#define LAND_DET_LIM -1.25
+
+//#define NEW_BARO_FEEDBACK
 //------------------------
 
 //#define AUX3_RTB
@@ -31,8 +35,8 @@
 #endif
 //------------------------
 
-#define LOIT_VEL_MAX 2.0
-#define LOIT_VEL_MIN -2.0
+#define LOIT_VEL_MAX 2.5
+#define LOIT_VEL_MIN -2.5
 #define RAMP_DOWN_ALPHA 0.95
 #define RAMP_DOWN_VEL_RTB 1.0
 #define LOIT_RAMP_MIN 0.5
@@ -296,6 +300,7 @@
 #define FC_ACC 5.0
 #define RC_CONST_ACC 1.0/(2.0 * 3.14 * FC_ACC)
 
+//#define FC_BARO 3.0
 #define FC_BARO 2.0
 #define RC_CONST_BARO 1.0/(2.0 * 3.14 * FC_BARO)
 

@@ -180,6 +180,7 @@ void highRateTasks() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
+    D22High();
     highRateDT =  (_400HzTime - _400HzTimer) * 0.000001; 
     _400HzTimer = _400HzTime;
 
@@ -196,6 +197,7 @@ void highRateTasks() {
     PitchRate.calculate();
     RollRate.calculate();
     YawRate.calculate();
+    D22Low();
   }
 }
 
@@ -203,6 +205,8 @@ void _100HzTask(uint32_t loopTime){
   static uint8_t _100HzState = 0;
 
   if (loopTime - _100HzTimer >= 13300){
+    //if (loopTime - _100HzTimer >= 10000){
+    D23High();
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
     while(_100HzState < LAST_100HZ_TASK){
@@ -210,7 +214,6 @@ void _100HzTask(uint32_t loopTime){
       case GET_GYRO:
         lowRateCounter++;
         if (lowRateCounter >= LOW_RATE_DIVIDER){
-          D24High();
           lowRateDT = (millis() - lowRateTimer) * 0.001;
           lowRateTimer = millis();
           if (lowRateDT > 0.1){
@@ -277,9 +280,11 @@ void _100HzTask(uint32_t loopTime){
           baroFS = true;
         }
         if (newBaro == true && baroFS == false) {
+          D24High();
           baroFSCount = 0;
           newBaro = false;
           CorrectZ();
+          D24Low();
         }
         _100HzState = FLIGHT_STATE_MACHINE;
         break;
@@ -367,6 +372,7 @@ void _100HzTask(uint32_t loopTime){
 
     }
     _100HzState = GET_GYRO;
+    D23Low();
   }
 
 
@@ -831,6 +837,7 @@ void LoiterSM(){
   float absVelX,absVelY;
   float limitedPitch,limitedRoll;
   int16_t rcDifference;
+  static boolean limitX = false,limitY = false;
   if (lowRateTasks == true){
     switch(ZLoiterState){
     case LOITERING:
@@ -943,35 +950,86 @@ void LoiterSM(){
         }
         break;
       case RCINPUT:
+        //              end angle      start angle      x in            y in            x out            y out
         Rotate2dVector(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
         absVelX = fabs(velX);
         absVelY = fabs(velY);
         if (absVelX > LOIT_VEL_MAX || absVelY > LOIT_VEL_MAX){
-          Rotate2dVector(&yawInDegrees,&zero,&pitchSetPoint,&rollSetPoint,&limitedPitch,&limitedRoll);
-          if (velX > LOIT_VEL_MAX && limitedPitch < 0.0){
+          Rotate2dVector(&zero,&yawInDegrees,&pitchSetPoint,&rollSetPoint,&limitedPitch,&limitedRoll);
+          if (velX > LOIT_VEL_MAX || limitX == true){
+            limitX  = true;
             velSetPointX = LOIT_VEL_MAX;
             LoiterXVelocity.calculate();
             tiltAngleX *= -1.0;
-            limitedPitch = tiltAngleX;
+            if (limitedPitch > tiltAngleX){
+              limitX = false;
+            } 
           }
-          if (velX < LOIT_VEL_MIN && limitedPitch > 0.0){
+          if (velX < LOIT_VEL_MIN || limitX == true){
+            limitX  = true;
             velSetPointX = LOIT_VEL_MIN;
             LoiterXVelocity.calculate();
             tiltAngleX *= -1.0;
+            if (limitedPitch < tiltAngleX){
+              limitX = false;
+            }
+          }
+          if (fabs(limitedPitch) < 10){
+            limitX = false;
+          }
+          if (limitX == true){
             limitedPitch = tiltAngleX;
           }
-          if (velY > LOIT_VEL_MAX && limitedRoll > 0.0){
+          
+          if (velY > LOIT_VEL_MAX || limitY == true){
+            limitY  = true;
             velSetPointY = LOIT_VEL_MAX;
             LoiterYVelocity.calculate();
-            limitedRoll = tiltAngleY;
+            tiltAngleY *= -1.0;
+            if (limitedRoll > tiltAngleY){
+              limitY = false;
+            } 
           }
-          if (velY < LOIT_VEL_MIN && limitedRoll < 0.0){
+          if (velY < LOIT_VEL_MIN || limitY == true){
+            limitY  = true;
             velSetPointY = LOIT_VEL_MIN;
             LoiterYVelocity.calculate();
-            limitedRoll = tiltAngleY;
+            tiltAngleY *= -1.0;
+            if (limitedRoll < tiltAngleY){
+              limitY = false;
+            }
+          }
+          if (fabs(limitedRoll) < 10){
+            limitY = false;
+          }
+          if (limitY == true){
+            limitedPitch = tiltAngleY;
           }
 
-          Rotate2dVector(&zero,&yawInDegrees,&limitedPitch,&limitedRoll,&pitchSetPoint,&rollSetPoint);
+          /*if (velX > LOIT_VEL_MAX && limitedPitch < 0.0){
+           velSetPointX = LOIT_VEL_MAX;
+           LoiterXVelocity.calculate();
+           tiltAngleX *= -1.0;
+           limitedPitch = tiltAngleX;
+           }
+           if (velX < LOIT_VEL_MIN && limitedPitch > 0.0){
+           velSetPointX = LOIT_VEL_MIN;
+           LoiterXVelocity.calculate();
+           tiltAngleX *= -1.0;
+           limitedPitch = tiltAngleX;
+           }
+           if (velY > LOIT_VEL_MAX && limitedRoll > 0.0){
+           velSetPointY = LOIT_VEL_MAX;
+           LoiterYVelocity.calculate();
+           limitedRoll = tiltAngleY;
+           }
+           if (velY < LOIT_VEL_MIN && limitedRoll < 0.0){
+           velSetPointY = LOIT_VEL_MIN;
+           LoiterYVelocity.calculate();
+           limitedRoll = tiltAngleY;
+           }*/
+
+          Rotate2dVector(&yawInDegrees,&zero,&limitedPitch,&limitedRoll,&pitchSetPoint,&rollSetPoint);
 
         }
         if (fabs(rollSetPointTX) < 0.5 && fabs(pitchSetPointTX) < 0.5){
@@ -1676,6 +1734,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 

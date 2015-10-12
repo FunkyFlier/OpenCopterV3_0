@@ -492,7 +492,7 @@ void MotorHandler(){
     }
 
     CalculateMotorMixing();
-    if (zPosError < -0.75 && landDetected == false){
+    if (zPosError < LAND_DET_LIM  && landDetected == false){
       landDetected = true;
       landRampValue = throttleAdjustment;// - 75;//AltHoldVelocity.iError;//throttleAdjustment - 100;// + throttleCommand;// - 100;
     }
