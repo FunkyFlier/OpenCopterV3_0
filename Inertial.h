@@ -3,9 +3,8 @@
 
 #include <Arduino.h>
 
-#define LAG_SIZE 43
-//#define LAG_SIZE_BARO 16
-#define LAG_SIZE_BARO 20
+#define LAG_SIZE 32
+#define LAG_SIZE_BARO 14
 
 
 

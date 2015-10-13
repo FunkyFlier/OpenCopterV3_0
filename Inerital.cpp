@@ -198,7 +198,7 @@ void CorrectZ(){
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
   //
-  if (zPosError < baroErrorLim  || errorCorrectCount > countsOff){
+  if (fabs(zPosError) < baroErrorLim  || errorCorrectCount > countsOff){
     if(errorCorrectCount >= countsOff){
       errorCorrectCount++;
       if (errorCorrectCount > countsOn){
@@ -229,11 +229,8 @@ void CorrectZ(){
     accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
     accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
     accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
-    ZEst = ZEst - kPosBaro * zPosError;
-    velZ = velZ - kVelBaro * zVelError;
 
-    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
-/*#ifdef NEW_BARO_FEEDBACK
+#ifdef NEW_BARO_FEEDBACK
     ZEst = ZEst - kPosBaro * zPosError;
     velZ = velZ - kVelBaro * zVelError - kPosBaro * zPosError;
 
@@ -243,7 +240,7 @@ void CorrectZ(){
     velZ = velZ - kVelBaro * zVelError;
 
     accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
-#endif*/
+#endif
 
 
     accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;

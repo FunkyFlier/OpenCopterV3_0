@@ -1,6 +1,7 @@
 #ifndef Definitions_h
 #define Definitions_h
 
+//#define SPEED_LIMIT
 
 #define Z_RESET_LIM 1.25
 #define LAND_DET_LIM -1.25
@@ -14,8 +15,8 @@
 //#define AUX3_ROLL
 //#define AUX3_VEL
 //#define AUX3_POS
-//#define AUX3_FORCE_ATT_RESET
-#define AUX3_RESET_BIAS 
+#define AUX3_FORCE_ATT_RESET
+//#define AUX3_RESET_BIAS 
 //------------------------
 #ifdef AUX3_RATEX
 #define STEP_RATE 50.0
@@ -35,8 +36,8 @@
 #endif
 //------------------------
 
-#define LOIT_VEL_MAX 2.5
-#define LOIT_VEL_MIN -2.5
+#define LOIT_VEL_MAX 1.0
+#define LOIT_VEL_MIN -1.0
 #define RAMP_DOWN_ALPHA 0.95
 #define RAMP_DOWN_VEL_RTB 1.0
 #define LOIT_RAMP_MIN 0.5
@@ -300,8 +301,8 @@
 #define FC_ACC 5.0
 #define RC_CONST_ACC 1.0/(2.0 * 3.14 * FC_ACC)
 
-//#define FC_BARO 3.0
-#define FC_BARO 2.0
+#define FC_BARO 4.0
+//#define FC_BARO 2.0
 #define RC_CONST_BARO 1.0/(2.0 * 3.14 * FC_BARO)
 
 #define DEC_START 328

@@ -957,6 +957,7 @@ void LoiterSM(){
       case RCINPUT:
         //              end angle      start angle      x in            y in            x out            y out
         Rotate2dVector(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
+#ifdef SPEED_LIMIT
         absVelX = fabs(velX);
         absVelY = fabs(velY);
         if (absVelX > LOIT_VEL_MAX || absVelY > LOIT_VEL_MAX){
@@ -979,7 +980,7 @@ void LoiterSM(){
               limitX = false;
             }
           }
-          if (fabs(limitedPitch) < 10){
+          if (fabs(limitedPitch) < 1.0){
             limitX = false;
           }
           if (limitX == true){
@@ -1004,7 +1005,7 @@ void LoiterSM(){
               limitY = false;
             }
           }
-          if (fabs(limitedRoll) < 10){
+          if (fabs(limitedRoll) < 1.0){
             limitY = false;
           }
           if (limitY == true){
@@ -1037,6 +1038,7 @@ void LoiterSM(){
           Rotate2dVector(&yawInDegrees,&zero,&limitedPitch,&limitedRoll,&pitchSetPoint,&rollSetPoint);
 
         }
+#endif        
         if (fabs(rollSetPointTX) < 0.5 && fabs(pitchSetPointTX) < 0.5){
           XYLoiterState = WAIT;
           //waitTimer = millis();
