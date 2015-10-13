@@ -222,9 +222,9 @@ void AssignPointerArray() {
   floatPointerArray[GPS_ALT] = &gpsAlt;//gps
 
 
-  floatPointerArray[LAT_] = &initialPressure;//gps
-  floatPointerArray[LON_] = &takeOffPressure;
-  floatPointerArray[HB_LAT] = &yPosError;
+  floatPointerArray[LAT_] = &exa;//gps
+  floatPointerArray[LON_] = &eya;
+  floatPointerArray[HB_LAT] = &eza;
   floatPointerArray[HB_LON] = &yVelError;
   floatPointerArray[H_ACC] = &zPosError;
   floatPointerArray[S_ACC] = &zVelError;
