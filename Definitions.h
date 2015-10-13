@@ -2,6 +2,7 @@
 #define Definitions_h
 
 //#define SPEED_LIMIT
+#define SPEED_TILT_OFF_LIMIT 1.0
 
 #define Z_RESET_LIM 1.25
 #define LAND_DET_LIM -1.25

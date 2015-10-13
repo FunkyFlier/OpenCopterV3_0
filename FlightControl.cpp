@@ -980,7 +980,7 @@ void LoiterSM(){
               limitX = false;
             }
           }
-          if (fabs(limitedPitch) < 1.0){
+          if (fabs(limitedPitch) < SPEED_TILT_OFF_LIMIT){
             limitX = false;
           }
           if (limitX == true){
@@ -1005,7 +1005,7 @@ void LoiterSM(){
               limitY = false;
             }
           }
-          if (fabs(limitedRoll) < 1.0){
+          if (fabs(limitedRoll) < SPEED_TILT_OFF_LIMIT){
             limitY = false;
           }
           if (limitY == true){
