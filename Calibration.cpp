@@ -84,7 +84,7 @@ void ACCScale(){
 
   //dt = (micros() - previousTime) * 0.000001;
   //previousTime = micros();
-  if (highRateDT > 0.002 || highRateDT <= 0){
+  if (highRateDT > 0.004 || highRateDT <= 0){
     filtAccX = scaledAccX ;
     filtAccY = scaledAccY;
     filtAccZ = scaledAccZ;
