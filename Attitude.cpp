@@ -146,7 +146,9 @@ void AHRSupdate(float dt) {
       q1 = q1 / magnitude;
       q2 = q2 / magnitude;
       q3 = q3 / magnitude;
+      yawSetPoint = ToDeg(yawInRadians);
       return;
+      
     }
 
     kiDTAcc = kiAcc * dt;
