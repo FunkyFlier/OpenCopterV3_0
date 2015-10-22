@@ -2,6 +2,7 @@
 
 #include <EEPROM.h>
 #include "Streaming_.h"
+#include "FlightControl.h"
 
 void SetInitialAccelerometerMagnitude();
 

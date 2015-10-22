@@ -217,6 +217,9 @@ void _100HzTask(uint32_t loopTime){
         countsOff = ki_waypoint_velocity;
         countsOn = kd_waypoint_velocity;
         landErrorLim = fc_waypoint_velocity;
+        kPosVelBaro = kp_waypoint_position;
+        kPosBiasBaro = ki_altitude_position;
+
         lowRateCounter++;
         if (lowRateCounter >= LOW_RATE_DIVIDER){
           lowRateDT = (millis() - lowRateTimer) * 0.001;

@@ -7,7 +7,7 @@
 #define Z_RESET_LIM 1.25
 #define LAND_DET_LIM -1.25
 
-//#define NEW_BARO_FEEDBACK
+#define NEW_BARO_FEEDBACK
 //------------------------
 
 //#define AUX3_RTB

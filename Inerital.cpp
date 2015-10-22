@@ -27,6 +27,7 @@ float XEstHist[LAG_SIZE],YEstHist[LAG_SIZE],ZEstHist[LAG_SIZE_BARO];
 float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
 
 float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
+float kPosBiasBaro,kPosVelBaro;
 float zPosError,zVelError;
 float xPosOutput,yPosOutput,zPosOutput,xVelOutput,yVelOutput,zVelOutput;
 void GetInertial(){
@@ -232,9 +233,9 @@ void CorrectZ(){
 
 #ifdef NEW_BARO_FEEDBACK
     ZEst = ZEst - kPosBaro * zPosError;
-    velZ = velZ - kVelBaro * zVelError - kPosBaro * zPosError;
+    velZ = velZ - kVelBaro * zVelError - kPosVelBaro * zPosError;
 
-    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError + kBiasBaro * zPosError;
+    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError + kPosBiasBaro * zPosError;
 #else
     ZEst = ZEst - kPosBaro * zPosError;
     velZ = velZ - kVelBaro * zVelError;
