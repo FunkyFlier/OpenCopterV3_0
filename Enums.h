@@ -346,8 +346,9 @@ enum BYTES {
   HOVER_PERCENT,
   TX_LOSS_RTB,
   MAG_DET,
-  TX_FS_STATUS
-
+  TX_FS_STATUS,
+  GPS_START_STATE,
+  INIT_PROG
 };
 enum RTBStates {
   RTB_CLIMB,
@@ -371,6 +372,7 @@ enum RC_Types {
 enum RC_Chan {
   THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 #endif
+
 
 
 

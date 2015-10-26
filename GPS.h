@@ -47,7 +47,7 @@ extern int32_t homeLat,homeLon;
 extern float homeLatFloat,homeLonFloat;
 extern float hAcc,sAcc;
 extern volatile uint32_t GPSFailSafeCounter;
-
+extern uint8_t gpsStartState;
 
 
 #endif

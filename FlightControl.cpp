@@ -58,6 +58,8 @@ float highRateDT = 0.0025;
 
 float lowRateDT = 0.04;
 
+uint8_t initProgress = 0;
+
 uint8_t modeArray[9] = {
   RATE,L1,ATT,ATT,ATT,ATT_TRIM,RATE,RATE,L0};
 

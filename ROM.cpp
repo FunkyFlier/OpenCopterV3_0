@@ -31,7 +31,7 @@ float* floatPointerArray[186];
 
 int16_t* int16PointerArray[14];
 
-uint8_t* bytePointerArray[14];
+uint8_t* bytePointerArray[16];
 
 uint8_t propIdlePercent,hoverPercent;
 
@@ -222,12 +222,12 @@ void AssignPointerArray() {
   floatPointerArray[GPS_ALT] = &gpsAlt;//gps
 
 
-  floatPointerArray[LAT_] = &exa;//gps
-  floatPointerArray[LON_] = &eya;
-  floatPointerArray[HB_LAT] = &eza;
-  floatPointerArray[HB_LON] = &yVelError;
-  floatPointerArray[H_ACC] = &zPosError;
-  floatPointerArray[S_ACC] = &zVelError;
+  floatPointerArray[LAT_] = &floatLat;//gps
+  floatPointerArray[LON_] = &floatLon;
+  floatPointerArray[HB_LAT] = &homeLatFloat;
+  floatPointerArray[HB_LON] = &homeLonFloat;
+  floatPointerArray[H_ACC] = &hAcc;
+  floatPointerArray[S_ACC] = &sAcc;
 
 
   floatPointerArray[M1_X] = &m1X;
@@ -308,11 +308,16 @@ void AssignPointerArray() {
   bytePointerArray[SWITCH_POS] = &switchPositions;//RC
 
 
-  bytePointerArray[IDLE_PERCENT] = &propIdlePercen;//rom
+  bytePointerArray[IDLE_PERCENT] = &propIdlePercent;//rom
   bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
   bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
+  
+  bytePointerArray[GPS_START_STATE] = &gpsStartState;//sensors
+  bytePointerArray[INIT_PROG] = &initProgress;
+  
+  
 } 
 
 void ROMFlagsCheck() {
@@ -320,6 +325,7 @@ void ROMFlagsCheck() {
   float_u outFloat;
   int16_u outInt16;
   uint8_t LEDControlByte = 0,calibrationFlags;
+	initProgress = 2;
   if (EEPROMRead(VER_FLAG_1) != VER_NUM_1 || EEPROMRead(VER_FLAG_2) != VER_NUM_2) {
     for (uint16_t i = 0; i < 600; i++) {
       EEPROMWrite(i, 0xFF);

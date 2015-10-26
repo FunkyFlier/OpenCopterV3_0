@@ -2,6 +2,7 @@
 #include "LED.h"
 #include "Streaming_.h"
 #include "Enums.h"
+#include "FlightControl.h"
 
 boolean newGPSData,GPSDetected;
 int32_t homeLat,homeLon;
@@ -24,6 +25,8 @@ float floatLat, floatLon;
 float homeLatFloat,homeLonFloat;
 float velN, velE, velD;
 float hAcc,sAcc;
+
+uint8_t gpsStartState = 0;
 
 void GPSInit(){
   gpsPort.begin(38400);
@@ -51,7 +54,8 @@ void GPSStart() {
   uint32_t gpsStartTimer = 0;
 
 
-  uint8_t gpsStartState = 0;
+  //uint8_t gpsStartState = 0;
+  initProgress = 3; 
   boolean gpsStartComplete = false;
 
   LEDPatternSet(0,1,2,0);

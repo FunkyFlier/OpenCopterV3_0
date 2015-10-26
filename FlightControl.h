@@ -34,6 +34,8 @@ extern boolean batteryFSOverride;
 extern uint8_t modeArray[9];
 extern float highRateDT,_100HzDt;
 
+extern uint8_t initProgress;
+
 extern float kp_pitch_rate;
 extern float ki_pitch_rate;
 extern float kd_pitch_rate;

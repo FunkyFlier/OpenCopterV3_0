@@ -73,6 +73,7 @@ void GetSwitchPositions() {
 void CheckTXPositions() {
   uint8_t LEDPatternArray[4];
   boolean positionOK = false;
+	initProgress = 4;
   if (gsCTRL == false){
 
     while (positionOK == false){
@@ -117,6 +118,7 @@ void CheckTXPositions() {
     }
 
   }
+	initProgress = 5;
 
 }
 
@@ -326,7 +328,7 @@ boolean DSMParser(){
   return validFrame;
 }
 void DetectRC(){
-
+  initProgress = 1;
   RC_SS_Output();
 
 
