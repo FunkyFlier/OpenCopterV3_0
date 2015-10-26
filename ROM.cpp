@@ -303,14 +303,14 @@ void AssignPointerArray() {
 
   bytePointerArray[RTB_STATE] = &RTBState;//flight control
   bytePointerArray[MOTOR_STATE] = &motorState;//motors
-  bytePointerArray[TELEM_FS] = &ctrlByte;//flight control
+  bytePointerArray[TELEM_FS] = &telemFailSafe;//flight control
   bytePointerArray[GPS_FS] = &gpsFailSafe;//gps
   bytePointerArray[SWITCH_POS] = &switchPositions;//RC
 
 
-  bytePointerArray[IDLE_PERCENT] = &LEDPatternMatrix[0];//rom
-  bytePointerArray[HOVER_PERCENT] = &LEDPatternMatrix[1];//rom
-  bytePointerArray[TX_LOSS_RTB] = &LEDPatternMatrix[2];//flight control
+  bytePointerArray[IDLE_PERCENT] = &propIdlePercen;//rom
+  bytePointerArray[HOVER_PERCENT] = &hoverCommand;//rom
+  bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
 } 
