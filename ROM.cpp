@@ -27,7 +27,7 @@ void SetDefaultGains();
 void LoadMotorMix();
 void LoadEstimatorGains();
 
-float* floatPointerArray[186];
+float* floatPointerArray[196];
 
 int16_t* int16PointerArray[14];
 
@@ -207,14 +207,14 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
-  floatPointerArray[MOTOR_CMD_1] = &_100HzDt;//motors
-  floatPointerArray[MOTOR_CMD_2] = &xPosOutput;
-  floatPointerArray[MOTOR_CMD_3] = &xVelOutput;
-  floatPointerArray[MOTOR_CMD_4] = &yPosOutput;
-  floatPointerArray[MOTOR_CMD_5] = &yVelOutput;
-  floatPointerArray[MOTOR_CMD_6] = &zPosOutput;
-  floatPointerArray[MOTOR_CMD_7] = &zVelOutput;
-  floatPointerArray[MOTOR_CMD_8] = &cellVoltage;
+  floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
+  floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
+  floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
+  floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
+  floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
+  floatPointerArray[MOTOR_CMD_6] = &motorCommand6;
+  floatPointerArray[MOTOR_CMD_7] = &motorCommand7;
+  floatPointerArray[MOTOR_CMD_8] = &motorCommand8;
 
   floatPointerArray[PRESSURE_] = &pressure;//sensors
   floatPointerArray[CTRL_BEARING] = &controlBearing;//flight control
@@ -313,11 +313,11 @@ void AssignPointerArray() {
   bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
-  
+
   bytePointerArray[GPS_START_STATE] = &gpsStartState;//sensors
   bytePointerArray[INIT_PROG] = &initProgress;
-  
-  
+
+
 } 
 
 void ROMFlagsCheck() {
@@ -325,7 +325,7 @@ void ROMFlagsCheck() {
   float_u outFloat;
   int16_u outInt16;
   uint8_t LEDControlByte = 0,calibrationFlags;
-	initProgress = 2;
+  initProgress = 2;
   if (EEPROMRead(VER_FLAG_1) != VER_NUM_1 || EEPROMRead(VER_FLAG_2) != VER_NUM_2) {
     for (uint16_t i = 0; i < 600; i++) {
       EEPROMWrite(i, 0xFF);
@@ -347,8 +347,10 @@ void ROMFlagsCheck() {
     kPosBaro = 0.07;
     kVelBaro = 0.08;
     kBiasBaro = 0.001;
+    kPosVelBaro = 0;
+    kPosBiasBaro = 0;    
     j = EST_GAIN_START;
-    for(uint16_t i = KP_ACC; i <= K_B_BARO; i++){
+    for(uint16_t i = KP_ACC; i <= K_P_B_BARO; i++){
       outFloat.val = *floatPointerArray[i];
       EEPROMWrite(j++, outFloat.buffer[0]);
       EEPROMWrite(j++, outFloat.buffer[1]);
@@ -832,7 +834,7 @@ void LoadMotorMix(){
 void LoadEstimatorGains(){
   float_u outFloat;
   uint16_t j = EST_GAIN_START;
-  for (uint16_t i = KP_ACC; i <= K_B_BARO; i++) { //pitch and roll offsets
+  for (uint16_t i = KP_ACC; i <= K_P_B_BARO; i++) { //pitch and roll offsets
     outFloat.buffer[0] = EEPROMRead(j++);
     outFloat.buffer[1] = EEPROMRead(j++);
     outFloat.buffer[2] = EEPROMRead(j++);
@@ -853,6 +855,7 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
 
 
 

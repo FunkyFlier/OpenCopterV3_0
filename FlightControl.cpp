@@ -991,7 +991,7 @@ void LoiterSM(){
           if (limitX == true){
             limitedPitch = tiltAngleX;
           }
-          
+
           if (velY > LOIT_VEL_MAX || limitY == true){
             limitY  = true;
             velSetPointY = LOIT_VEL_MAX;
@@ -1746,6 +1746,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 

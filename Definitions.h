@@ -416,10 +416,10 @@
 
 #define EST_FLAG 554
 #define EST_GAIN_START 555
-#define EST_GAIN_END 598
+#define EST_GAIN_END 606
 
-#define SWIFT_X_FLAG 599
-#define ROT_45 600
+#define SWIFT_X_FLAG 607
+#define ROT_45 608
 
 #endif//#ifndef Definitions.h
 

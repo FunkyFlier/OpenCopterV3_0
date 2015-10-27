@@ -276,9 +276,20 @@ enum Floats {
   K_P_BARO,
   K_V_BARO,
   K_B_BARO,
+  K_P_V_BARO,
+  K_P_B_BARO,
   M_AH,
   BATT_PERCENT,
-  CELL_VOLT
+  CELL_VOLT,
+  X_ERROR_POS,
+  X_ERROR_VEL,
+  Y_ERROR_POS,
+  Y_ERROR_VEL,
+  Z_ERROR_POS,
+  Z_ERROR_VEL,
+  ACC_ERROR_X,
+  ACC_ERROR_Y,
+  ACC_ERROR_Z
 
 
 };
@@ -372,6 +383,8 @@ enum RC_Types {
 enum RC_Chan {
   THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 #endif
+
+
 
 
 
