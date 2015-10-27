@@ -290,8 +290,6 @@ enum Floats {
   ACC_ERROR_X,
   ACC_ERROR_Y,
   ACC_ERROR_Z
-
-
 };
 enum motorControlStates {
   HOLD,

@@ -7,9 +7,9 @@ void AssignPointerArray();
 void ROMFlagsCheck();
 void LoadROM();
 
-extern float* floatPointerArray[196];
-extern int16_t* int16PointerArray[14];
-extern uint8_t* bytePointerArray[16];
+extern float* floatPointerArray[197];
+extern int16_t* int16PointerArray[15];
+extern uint8_t* bytePointerArray[17];
 
 #endif
 
