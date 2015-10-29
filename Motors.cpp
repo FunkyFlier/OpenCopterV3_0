@@ -285,7 +285,7 @@ void SaveGains(){
 void SaveEstiamtorGains(){
   float_u outFloat;
   uint16_t j = EST_GAIN_START;
-  for (uint16_t i = KP_ACC; i <= K_B_BARO; i++) {
+  for(uint16_t i = KP_ACC; i <= K_P_B_BARO; i++){
     outFloat.val = *floatPointerArray[i];
     EEPROMWrite(j++, outFloat.buffer[0]);
     EEPROMWrite(j++, outFloat.buffer[1]);
@@ -327,7 +327,8 @@ void MotorHandler(){
   case HOLD:
     if (cmdElev < 1250 && cmdAile > 1750){
       displayFSData = true;  
-    }else{
+    }
+    else{
       displayFSData = false;
     }
     landDetected = false;
@@ -559,6 +560,8 @@ void WriteMotorPWM(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
+
 
 
 

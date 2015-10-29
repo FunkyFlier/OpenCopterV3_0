@@ -1,11 +1,12 @@
 #ifndef Definitions_h
 #define Definitions_h
 
-//#define SPEED_LIMIT
-#define SPEED_TILT_OFF_LIMIT 1.0
+#define SPEED_LIMIT
+
+//#define SPEED_TILT_OFF_LIMIT 1.0
 
 #define Z_RESET_LIM 1.25
-#define LAND_DET_LIM -1.25
+#define LAND_DET_LIM -0.75
 
 #define NEW_BARO_FEEDBACK
 //------------------------
@@ -37,8 +38,8 @@
 #endif
 //------------------------
 
-#define LOIT_VEL_MAX 1.0
-#define LOIT_VEL_MIN -1.0
+#define LOIT_VEL_MAX 4.0
+#define LOIT_VEL_MIN -4.0
 #define RAMP_DOWN_ALPHA 0.95
 #define RAMP_DOWN_VEL_RTB 1.0
 #define LOIT_RAMP_MIN 0.5
@@ -374,7 +375,7 @@
 #define PROTOCOL_VER_SUB_NUM 1
 
 #define VER_NUM_1 0x01
-#define VER_NUM_2 0x01
+#define VER_NUM_2 0x02
 
 
 #define PWM_LIM_HIGH_START 430

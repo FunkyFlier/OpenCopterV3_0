@@ -58,6 +58,8 @@ float highRateDT = 0.0025;
 
 float lowRateDT = 0.04;
 
+float bodyVelX,bodyVelY;
+
 uint8_t initProgress = 0;
 
 uint8_t modeArray[9] = {
@@ -155,7 +157,7 @@ int16_t floorLimit,ceilingLimit;
 boolean executeStep = false,stepStart = false;
 float debugVariable;
 
-float baroErrorLim,countsOff,countsOn,landErrorLim;
+//float baroErrorLim,countsOff,countsOn,landErrorLim;
 
 PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &highRateDT, 400, 400);
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &highRateDT, 400, 400);
@@ -215,12 +217,11 @@ void _100HzTask(uint32_t loopTime){
     while(_100HzState < LAST_100HZ_TASK){
       switch (_100HzState){
       case GET_GYRO:
-        baroErrorLim = kp_waypoint_velocity;
+        //Serial<<mAh<<"\r\n";
+        /*baroErrorLim = kp_waypoint_velocity;
         countsOff = ki_waypoint_velocity;
         countsOn = kd_waypoint_velocity;
-        landErrorLim = fc_waypoint_velocity;
-        kPosVelBaro = kp_waypoint_position;
-        kPosBiasBaro = ki_altitude_position;
+        landErrorLim = fc_waypoint_velocity;*/
 
         lowRateCounter++;
         if (lowRateCounter >= LOW_RATE_DIVIDER){
@@ -845,7 +846,9 @@ void StartCalibration(){
 void LoiterSM(){
   //static uint32_t waitTimer;
   float absVelX,absVelY;
+  //float bodyVelX,bodyVelY;
   float limitedPitch,limitedRoll;
+  float maxPitch,maxRoll;
   int16_t rcDifference;
   static boolean limitX = false,limitY = false;
   if (lowRateTasks == true){
@@ -962,88 +965,48 @@ void LoiterSM(){
       case RCINPUT:
         //              end angle      start angle      x in            y in            x out            y out
         Rotate2dVector(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
-#ifdef SPEED_LIMIT
-        absVelX = fabs(velX);
-        absVelY = fabs(velY);
-        if (absVelX > LOIT_VEL_MAX || absVelY > LOIT_VEL_MAX){
-          Rotate2dVector(&zero,&yawInDegrees,&pitchSetPoint,&rollSetPoint,&limitedPitch,&limitedRoll);
-          if (velX > LOIT_VEL_MAX || limitX == true){
-            limitX  = true;
-            velSetPointX = LOIT_VEL_MAX;
-            LoiterXVelocity.calculate();
-            tiltAngleX *= -1.0;
-            if (limitedPitch > tiltAngleX){
-              limitX = false;
-            } 
-          }
-          if (velX < LOIT_VEL_MIN || limitX == true){
-            limitX  = true;
-            velSetPointX = LOIT_VEL_MIN;
-            LoiterXVelocity.calculate();
-            tiltAngleX *= -1.0;
-            if (limitedPitch < tiltAngleX){
-              limitX = false;
-            }
-          }
-          if (fabs(limitedPitch) < SPEED_TILT_OFF_LIMIT){
-            limitX = false;
-          }
-          if (limitX == true){
-            limitedPitch = tiltAngleX;
-          }
+        //#ifdef SPEED_LIMIT
 
-          if (velY > LOIT_VEL_MAX || limitY == true){
-            limitY  = true;
-            velSetPointY = LOIT_VEL_MAX;
-            LoiterYVelocity.calculate();
-            tiltAngleY *= -1.0;
-            if (limitedRoll > tiltAngleY){
-              limitY = false;
-            } 
-          }
-          if (velY < LOIT_VEL_MIN || limitY == true){
-            limitY  = true;
-            velSetPointY = LOIT_VEL_MIN;
-            LoiterYVelocity.calculate();
-            tiltAngleY *= -1.0;
-            if (limitedRoll < tiltAngleY){
-              limitY = false;
-            }
-          }
-          if (fabs(limitedRoll) < SPEED_TILT_OFF_LIMIT){
-            limitY = false;
-          }
-          if (limitY == true){
-            limitedPitch = tiltAngleY;
-          }
+        Rotate2dVector(&zero,&yawInDegrees,&velX,&velY,&bodyVelX,&bodyVelY);
 
-          /*if (velX > LOIT_VEL_MAX && limitedPitch < 0.0){
-           velSetPointX = LOIT_VEL_MAX;
-           LoiterXVelocity.calculate();
-           tiltAngleX *= -1.0;
-           limitedPitch = tiltAngleX;
-           }
-           if (velX < LOIT_VEL_MIN && limitedPitch > 0.0){
-           velSetPointX = LOIT_VEL_MIN;
-           LoiterXVelocity.calculate();
-           tiltAngleX *= -1.0;
-           limitedPitch = tiltAngleX;
-           }
-           if (velY > LOIT_VEL_MAX && limitedRoll > 0.0){
-           velSetPointY = LOIT_VEL_MAX;
-           LoiterYVelocity.calculate();
-           limitedRoll = tiltAngleY;
-           }
-           if (velY < LOIT_VEL_MIN && limitedRoll < 0.0){
-           velSetPointY = LOIT_VEL_MIN;
-           LoiterYVelocity.calculate();
-           limitedRoll = tiltAngleY;
-           }*/
-
-          Rotate2dVector(&yawInDegrees,&zero,&limitedPitch,&limitedRoll,&pitchSetPoint,&rollSetPoint);
-
+        if (pitchSetPoint < 0.0){
+          maxPitch = -1.0 * (4.0 - bodyVelX) * 7.0;
+          if (maxPitch > 0){
+            maxPitch = 0;
+          }
+          if (pitchSetPoint < maxPitch){
+            pitchSetPoint = maxPitch;
+          }
         }
-#endif        
+        if (pitchSetPoint > 0.0){
+          maxPitch = -1.0 * (-4.0 - bodyVelX) * 7.0;
+          if (maxPitch < 0){
+            maxPitch = 0.0;
+          }
+          if (pitchSetPoint > maxPitch){
+            pitchSetPoint = maxPitch;
+          }
+        }
+        if (rollSetPoint > 0.0){
+          maxRoll = 7.0 * (4.0 - bodyVelY);
+          if (maxRoll < 0){
+            maxRoll = 0.0;
+          }
+          if (rollSetPoint > maxRoll){
+            rollSetPoint = maxRoll;
+          }
+        }
+        if (rollSetPoint < 0.0){
+          maxRoll = 7.0 * (-4.0 - bodyVelY);
+          if (maxRoll > 0){
+            maxRoll = 0.0;
+          }
+          if (rollSetPoint < maxRoll){
+            rollSetPoint = maxRoll;
+          }
+        }
+
+        //#endif        
         if (fabs(rollSetPointTX) < 0.5 && fabs(pitchSetPointTX) < 0.5){
           XYLoiterState = WAIT;
           //waitTimer = millis();
@@ -1746,6 +1709,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 

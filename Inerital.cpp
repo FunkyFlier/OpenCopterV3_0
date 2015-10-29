@@ -94,7 +94,7 @@ void Predict(float dt){
 
   XVelHist[currentEstIndex] = velX;
   YVelHist[currentEstIndex] = velY;
-  
+
   xPosOutput = XEstHist[lagIndex];
   yPosOutput = YEstHist[lagIndex];
   xVelOutput = XVelHist[lagIndex];
@@ -102,7 +102,7 @@ void Predict(float dt){
 
   ZEstHist[currentEstIndex_z] = ZEst;
   ZVelHist[currentEstIndex_z] = velZ;
-  
+
   zPosOutput = -1.0 * ZEstHist[lagIndex_z];
   zVelOutput = -1.0 * ZVelHist[lagIndex_z];
 
@@ -193,91 +193,96 @@ void CorrectZ(){
   static float pressurePrevious;
   static uint8_t errorCorrectCount;
   float accelBiasXEF,accelBiasYEF,accelBiasZEF;
-
+  initialPressure = takeOffPressure;
   GetBaroZ();
 
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
+
   //
-  if (fabs(zPosError) < baroErrorLim  || errorCorrectCount > countsOff){
-    if(errorCorrectCount >= countsOff){
-      errorCorrectCount++;
-      if (errorCorrectCount > countsOn){
-        errorCorrectCount = 0;
-        initialPressure = takeOffPressure;
-        GetAltitude(&pressure, &initialPressure, &baroAlt);
-        baroZ = baroAlt;
-        prevBaro = baroZ;
-        ZEstUp = baroZ;
-        ZEst = -1.0 * ZEstUp;
-        return;
-      }
-    }
-    if (errorCorrectCount < countsOff && errorCorrectCount > 0){
-      errorCorrectCount = 0;
-      initialPressure = takeOffPressure;
-      GetAltitude(&pressure, &initialPressure, &baroAlt);
-      baroZ = baroAlt;
-      prevBaro = baroZ;
-      ZEstUp = baroZ;
-      ZEst = -1.0 * ZEstUp;
-      return;
-    }
+  /*if (fabs(zPosError) < baroErrorLim  || errorCorrectCount > countsOff){
+   if(errorCorrectCount >= countsOff){
+   errorCorrectCount++;
+   if (errorCorrectCount > countsOn){
+   errorCorrectCount = 0;
+   initialPressure = takeOffPressure;
+   GetAltitude(&pressure, &initialPressure, &baroAlt);
+   baroZ = baroAlt;
+   prevBaro = baroZ;
+   ZEstUp = baroZ;
+   ZEst = -1.0 * ZEstUp;
+   
+   return;
+   }
+   }
+   if (errorCorrectCount < countsOff && errorCorrectCount > 0){
+   errorCorrectCount = 0;
+   initialPressure = takeOffPressure;
+   GetAltitude(&pressure, &initialPressure, &baroAlt);
+   baroZ = baroAlt;
+   prevBaro = baroZ;
+   ZEstUp = baroZ;
+   ZEst = -1.0 * ZEstUp;
+   
+   return;
+   }*/
 
 
 
 
-    accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
-    accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
-    accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
+  accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
+  accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
+  accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
 
 #ifdef NEW_BARO_FEEDBACK
-    ZEst = ZEst - kPosBaro * zPosError;
-    velZ = velZ - kVelBaro * zVelError - kPosVelBaro * zPosError;
+  ZEst = ZEst - kPosBaro * zPosError;
+  velZ = velZ - kVelBaro * zVelError - kPosVelBaro * zPosError;
 
-    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError + kPosBiasBaro * zPosError;
+  accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError + kPosBiasBaro * zPosError;
 #else
-    ZEst = ZEst - kPosBaro * zPosError;
-    velZ = velZ - kVelBaro * zVelError;
+  ZEst = ZEst - kPosBaro * zPosError;
+  velZ = velZ - kVelBaro * zVelError;
 
-    accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
+  accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
 #endif
+  /*if (fabs(zVelError) > kd_waypoint_position){
+   velZ = -1.0 * baroVel;
+   }*/
 
-
-    accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
-    accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
-    accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
-    if (accelBiasX > BIAS_MAX){
-      accelBiasX = BIAS_MAX;
-    }
-    if (accelBiasX < BIAS_MIN){
-      accelBiasX = BIAS_MIN;
-    }
-    if (accelBiasY > BIAS_MAX){
-      accelBiasY = BIAS_MAX;
-    }
-    if (accelBiasY < BIAS_MIN){
-      accelBiasY = BIAS_MIN;
-    }
-    if (accelBiasZ > BIAS_MAX){
-      accelBiasZ = BIAS_MAX;
-    }
-    if (accelBiasZ < BIAS_MIN){
-      accelBiasZ = BIAS_MIN;
-    }
-    ZEstUp = -1.0 * ZEst;
-    velZUp = -1.0 * velZ;
+  accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
+  accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
+  accelBiasZ = R31_*accelBiasXEF + R32_*accelBiasYEF + R33_*accelBiasZEF;
+  if (accelBiasX > BIAS_MAX){
+    accelBiasX = BIAS_MAX;
   }
-  else{
-    errorCorrectCount++;
-    initialPressure += pressure - pressurePrevious;
-    GetAltitude(&pressure, &initialPressure, &baroAlt);
-    baroZ = baroAlt;
-    prevBaro = baroZ;
-    ZEstUp = baroZ;
-    ZEst = -1.0 * ZEstUp;
-    //LPF(&baroZ,&baroAlt,&baroDT,RC_CONST_BARO);
+  if (accelBiasX < BIAS_MIN){
+    accelBiasX = BIAS_MIN;
   }
+  if (accelBiasY > BIAS_MAX){
+    accelBiasY = BIAS_MAX;
+  }
+  if (accelBiasY < BIAS_MIN){
+    accelBiasY = BIAS_MIN;
+  }
+  if (accelBiasZ > BIAS_MAX){
+    accelBiasZ = BIAS_MAX;
+  }
+  if (accelBiasZ < BIAS_MIN){
+    accelBiasZ = BIAS_MIN;
+  }
+  ZEstUp = -1.0 * ZEst;
+  velZUp = -1.0 * velZ;
+  /*}
+   else{
+   errorCorrectCount++;
+   initialPressure += pressure - pressurePrevious;
+   GetAltitude(&pressure, &initialPressure, &baroAlt);
+   baroZ = baroAlt;
+   prevBaro = baroZ;
+   ZEstUp = baroZ;
+   ZEst = -1.0 * ZEstUp;
+   //LPF(&baroZ,&baroAlt,&baroDT,RC_CONST_BARO);
+   }*/
 
   pressurePrevious = pressure;
 }
@@ -308,6 +313,10 @@ void UpdateLagIndex(){
     lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
   }
 }
+
+
+
+
 
 
 

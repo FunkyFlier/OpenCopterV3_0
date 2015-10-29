@@ -207,8 +207,8 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
-  floatPointerArray[MOTOR_CMD_1] = &motorCommand1;//motors
-  floatPointerArray[MOTOR_CMD_2] = &motorCommand2;
+  floatPointerArray[MOTOR_CMD_1] = &bodyVelX;//motors
+  floatPointerArray[MOTOR_CMD_2] = &bodyVelY;
   floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
   floatPointerArray[MOTOR_CMD_4] = &motorCommand4;
   floatPointerArray[MOTOR_CMD_5] = &motorCommand5;
@@ -274,18 +274,20 @@ void AssignPointerArray() {
   floatPointerArray[K_V_BARO] = &kVelBaro;
   floatPointerArray[K_B_BARO] = &kBiasBaro;
   floatPointerArray[K_P_BARO] = &kPosBaro;
-  floatPointerArray[K_V_BARO] = &kVelBaro;
-  floatPointerArray[K_B_BARO] = &kBiasBaro;
+  floatPointerArray[K_P_V_BARO] = &kPosVelBaro;
+  floatPointerArray[K_P_B_BARO] = &kPosBiasBaro;
 
 
+  floatPointerArray[M_AH] = &mAh;
   floatPointerArray[BATT_PERCENT] = &batteryPercent;
   floatPointerArray[CELL_VOLT] = &cellVoltage;
+
   floatPointerArray[X_ERROR_POS] = &xPosOutput;
   floatPointerArray[X_ERROR_VEL] = &xVelOutput;
   floatPointerArray[Y_ERROR_POS] = &yPosOutput;
   floatPointerArray[Y_ERROR_VEL] = &yVelOutput;
-  floatPointerArray[Z_ERROR_POS] = &zPosOutput;
-  floatPointerArray[Z_ERROR_VEL] = &zVelOutput;
+  floatPointerArray[Z_ERROR_POS] = &zPosError;
+  floatPointerArray[Z_ERROR_VEL] = &zVelError;
   floatPointerArray[ACC_ERROR_X] = &exa;
   floatPointerArray[ACC_ERROR_Y] = &eya;
   floatPointerArray[ACC_ERROR_Z] = &eza;
@@ -341,7 +343,7 @@ void ROMFlagsCheck() {
   uint8_t LEDControlByte = 0,calibrationFlags;
   initProgress = 2;
   if (EEPROMRead(VER_FLAG_1) != VER_NUM_1 || EEPROMRead(VER_FLAG_2) != VER_NUM_2) {
-    for (uint16_t i = 0; i < 600; i++) {
+    for (uint16_t i = 0; i < 700; i++) {
       EEPROMWrite(i, 0xFF);
     }
     EEPROMWrite(VER_FLAG_1, VER_NUM_1);
@@ -349,9 +351,9 @@ void ROMFlagsCheck() {
   }
   if (EEPROMRead(EST_FLAG) != 0xAA){
     EEPROMWrite(EST_FLAG,0xAA);
-    kpAcc = 1.0;
+    kpAcc = 1.5;
     kiAcc = 0;
-    kpMag = 1.0;
+    kpMag = 1.5;
     kiMag = 0;
     feedbackLimit = 0.25;
 
@@ -869,6 +871,7 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
 
 
 

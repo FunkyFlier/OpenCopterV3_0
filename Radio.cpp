@@ -774,7 +774,6 @@ void WriteCalibrationDataToRom() {
 
 }
 
-
 void OrderedSet() {
   float_u outFloat;
   int16_u outInt16;
@@ -793,7 +792,7 @@ void OrderedSet() {
       romWriteDelayTimer = millis();
 
     }
-    if (cmdNum >= KP_ACC && cmdNum <= K_B_BARO) {
+    if (cmdNum >= KP_ACC && cmdNum <= K_P_B_BARO) {
       for (uint8_t i = 0; i < 4; i++) {
         outFloat.buffer[i] =  itemBuffer[i];
       }

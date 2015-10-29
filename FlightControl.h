@@ -34,6 +34,8 @@ extern boolean batteryFSOverride;
 extern uint8_t modeArray[9];
 extern float highRateDT,_100HzDt;
 
+extern float bodyVelX,bodyVelY;
+
 extern uint8_t initProgress;
 
 extern float kp_pitch_rate;
@@ -125,7 +127,7 @@ extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,he
 extern float alhpaForPressure;
 extern float debugVariable;
 
-extern float baroErrorLim,countsOff,countsOn,landErrorLim;
+//extern float baroErrorLim,countsOff,countsOn,landErrorLim;
 
 extern PID PitchRate;
 extern PID RollRate;

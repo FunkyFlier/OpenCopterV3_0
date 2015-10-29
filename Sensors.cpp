@@ -13,6 +13,7 @@ float smoothVoltCount;
 
 void BatteryInfoInit(){
   float dt = 0.01;
+  mAh = 0;
   ReadBatteryInfo(&dt);
   smoothAmpCount = ampCount;
   smoothVoltCount = voltCount;
