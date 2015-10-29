@@ -30,6 +30,12 @@ float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 float kPosBiasBaro,kPosVelBaro;
 float zPosError,zVelError;
 float xPosOutput,yPosOutput,zPosOutput,xVelOutput,yVelOutput,zVelOutput;
+
+boolean baroGlitchHandling;
+uint32_t takeOffBaroGlitchTimer;
+
+void HandleBaroFeedBack();
+
 void GetInertial(){
 
   inertialX = ((R11_ * (filtAccX)) + (R21_ * (filtAccY))) + (R31_ * (filtAccZ));
@@ -192,44 +198,66 @@ void GetBaroZ(){
 void CorrectZ(){
   static float pressurePrevious;
   static uint8_t errorCorrectCount;
-  float accelBiasXEF,accelBiasYEF,accelBiasZEF;
-  initialPressure = takeOffPressure;
+  //float accelBiasXEF = 0,accelBiasYEF = 0,accelBiasZEF = 0;
+  //initialPressure = takeOffPressure;
   GetBaroZ();
 
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_z] + baroVel;
 
-  //
-  /*if (fabs(zPosError) < baroErrorLim  || errorCorrectCount > countsOff){
-   if(errorCorrectCount >= countsOff){
-   errorCorrectCount++;
-   if (errorCorrectCount > countsOn){
-   errorCorrectCount = 0;
-   initialPressure = takeOffPressure;
-   GetAltitude(&pressure, &initialPressure, &baroAlt);
-   baroZ = baroAlt;
-   prevBaro = baroZ;
-   ZEstUp = baroZ;
-   ZEst = -1.0 * ZEstUp;
-   
-   return;
-   }
-   }
-   if (errorCorrectCount < countsOff && errorCorrectCount > 0){
-   errorCorrectCount = 0;
-   initialPressure = takeOffPressure;
-   GetAltitude(&pressure, &initialPressure, &baroAlt);
-   baroZ = baroAlt;
-   prevBaro = baroZ;
-   ZEstUp = baroZ;
-   ZEst = -1.0 * ZEstUp;
-   
-   return;
-   }*/
+  if (baroGlitchHandling == true || motorState == LAND){
+    if (millis() - takeOffBaroGlitchTimer > BARO_GLITCH_TIME){
+      baroGlitchHandling = false;
+    }
+    if (fabs(zPosError) < BARO_ERR_LIMIT  || errorCorrectCount > BARO_ERR_COUNTS_OFF){
+      if(errorCorrectCount >= BARO_ERR_COUNTS_OFF){
+        errorCorrectCount++;
+        if (errorCorrectCount > BARO_ERR_COUNTS_ON){
+          errorCorrectCount = 0;
+          initialPressure = takeOffPressure;
+          GetAltitude(&pressure, &initialPressure, &baroAlt);
+          baroZ = baroAlt;
+          prevBaro = baroZ;
+          ZEstUp = baroZ;
+          ZEst = -1.0 * ZEstUp;
+
+          return;
+        }
+      }
+      if (errorCorrectCount < BARO_ERR_COUNTS_OFF && errorCorrectCount > 0){
+        errorCorrectCount = 0;
+        initialPressure = takeOffPressure;
+        GetAltitude(&pressure, &initialPressure, &baroAlt);
+        baroZ = baroAlt;
+        prevBaro = baroZ;
+        ZEstUp = baroZ;
+        ZEst = -1.0 * ZEstUp;
+
+        return;
+      }
+      HandleBaroFeedBack();
+    }
+    else{
+      errorCorrectCount++;
+      initialPressure += pressure - pressurePrevious;
+      GetAltitude(&pressure, &initialPressure, &baroAlt);
+      baroZ = baroAlt;
+      prevBaro = baroZ;
+      ZEstUp = baroZ;
+      ZEst = -1.0 * ZEstUp;
+    }
+  }
+  else{
+    initialPressure = takeOffPressure;
+    HandleBaroFeedBack();
+  }
 
 
 
-
+  pressurePrevious = pressure;
+}
+void HandleBaroFeedBack(){
+  float accelBiasXEF = 0,accelBiasYEF = 0,accelBiasZEF = 0;
   accelBiasXEF = R11_*accelBiasX + R21_*accelBiasY + R31_*accelBiasZ;
   accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
   accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
@@ -245,9 +273,7 @@ void CorrectZ(){
 
   accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
 #endif
-  /*if (fabs(zVelError) > kd_waypoint_position){
-   velZ = -1.0 * baroVel;
-   }*/
+
 
   accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;
   accelBiasY = R21_*accelBiasXEF + R22_*accelBiasYEF + R23_*accelBiasZEF;
@@ -272,21 +298,7 @@ void CorrectZ(){
   }
   ZEstUp = -1.0 * ZEst;
   velZUp = -1.0 * velZ;
-  /*}
-   else{
-   errorCorrectCount++;
-   initialPressure += pressure - pressurePrevious;
-   GetAltitude(&pressure, &initialPressure, &baroAlt);
-   baroZ = baroAlt;
-   prevBaro = baroZ;
-   ZEstUp = baroZ;
-   ZEst = -1.0 * ZEstUp;
-   //LPF(&baroZ,&baroAlt,&baroDT,RC_CONST_BARO);
-   }*/
-
-  pressurePrevious = pressure;
 }
-
 
 void UpdateLagIndex(){
 
@@ -313,6 +325,13 @@ void UpdateLagIndex(){
     lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
   }
 }
+
+
+
+
+
+
+
 
 
 

@@ -157,7 +157,7 @@ int16_t floorLimit,ceilingLimit;
 boolean executeStep = false,stepStart = false;
 float debugVariable;
 
-//float baroErrorLim,countsOff,countsOn,landErrorLim;
+float baroErrorLim,countsOff,countsOn,landErrorLim;
 
 PID PitchRate(&rateSetPointY, &degreeGyroY, &adjustmentY, &integrate, &kp_pitch_rate, &ki_pitch_rate, &kd_pitch_rate, &fc_pitch_rate, &highRateDT, 400, 400);
 PID RollRate(&rateSetPointX, &degreeGyroX, &adjustmentX, &integrate, &kp_roll_rate, &ki_roll_rate, &kd_roll_rate, &fc_roll_rate, &highRateDT, 400, 400);
@@ -236,7 +236,6 @@ void _100HzTask(uint32_t loopTime){
         else{
           lowRateTasks = false;
         }     
-        //PollGro();
         if(magDetected == true){
           _100HzState = GET_MAG;
         }
@@ -335,7 +334,7 @@ void _100HzTask(uint32_t loopTime){
           _100HzState = ATTITUDE_PID_LOOPS;
         }
         else{
-          _100HzState = RATE_PID_LOOPS;
+          _100HzState = READ_BATTERY;
         }
 
         break;
@@ -345,23 +344,9 @@ void _100HzTask(uint32_t loopTime){
         if (calcYaw == true) {
           YawAngle.calculate();
         }
-        _100HzState = RATE_PID_LOOPS;
-        break;
-
-      case RATE_PID_LOOPS:
-        /*if (flightMode == RTB){
-         if (rateSetPointZ > 100.0){
-         rateSetPointZ = 100.0;
-         }
-         if (rateSetPointZ < -100.0){
-         rateSetPointZ = -100.0;
-         }
-         }
-         PitchRate.calculate();
-         RollRate.calculate();
-         YawRate.calculate();*/
         _100HzState = READ_BATTERY;
         break;
+
       case READ_BATTERY:
         ReadBatteryInfo(&_100HzDt);
         _100HzState = LED_HANDLE;

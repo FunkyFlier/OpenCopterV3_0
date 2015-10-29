@@ -5,8 +5,12 @@
 
 //#define SPEED_TILT_OFF_LIMIT 1.0
 
-#define Z_RESET_LIM 1.25
+#define BARO_ERR_LIMIT 0.5
+#define BARO_ERR_COUNTS_OFF 25
+#define BARO_ERR_COUNTS_ON 35
 #define LAND_DET_LIM -0.75
+#define BARO_GLITCH_TIME 5000
+
 
 #define NEW_BARO_FEEDBACK
 //------------------------

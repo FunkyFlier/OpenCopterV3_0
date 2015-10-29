@@ -374,7 +374,6 @@ void MotorHandler(){
         motorState = TO;
         takeOffPressure = pressure;
         initialPressure = pressure;
-
         homeBaseXOffset = XEst;
         homeBaseYOffset = YEst;
         if (magDetected == true){
@@ -429,6 +428,8 @@ void MotorHandler(){
         LoiterYVelocity.reset();
         AltHoldPosition.reset();
         AltHoldVelocity.reset();
+        baroGlitchHandling = true;
+        takeOffBaroGlitchTimer = millis();
         integrate = true;
       }
     }

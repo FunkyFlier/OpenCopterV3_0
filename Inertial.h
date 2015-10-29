@@ -30,5 +30,8 @@ extern float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 extern float zPosError,zVelError;
 extern float xPosOutput,yPosOutput,zPosOutput,xVelOutput,yVelOutput,zVelOutput;
 extern float kPosBiasBaro,kPosVelBaro;
+
+extern boolean baroGlitchHandling;
+extern uint32_t takeOffBaroGlitchTimer;
 #endif
 
