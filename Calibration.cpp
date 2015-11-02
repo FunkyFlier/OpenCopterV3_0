@@ -70,8 +70,7 @@ void SetGyroOffsets(){
 }
 
 void ACCScale(){
-  //static uint32_t previousTime;
-  //float dt;
+
   float shiftedAccX,shiftedAccY,shiftedAccZ;
 
   shiftedAccX  = accX.val - accXOffset;
@@ -82,8 +81,6 @@ void ACCScale(){
   scaledAccY = shiftedAccY * accYScale;
   scaledAccZ = shiftedAccZ * accZScale;
 
-  //dt = (micros() - previousTime) * 0.000001;
-  //previousTime = micros();
   if (highRateDT > 0.004 || highRateDT <= 0){
     filtAccX = scaledAccX ;
     filtAccY = scaledAccY;

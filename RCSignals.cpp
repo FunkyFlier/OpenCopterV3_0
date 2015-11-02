@@ -73,7 +73,7 @@ void GetSwitchPositions() {
 void CheckTXPositions() {
   uint8_t LEDPatternArray[4];
   boolean positionOK = false;
-	initProgress = 4;
+  initProgress = 4;
   if (gsCTRL == false){
 
     while (positionOK == false){
@@ -118,7 +118,7 @@ void CheckTXPositions() {
     }
 
   }
-	initProgress = 5;
+  initProgress = 5;
 
 }
 
@@ -134,8 +134,8 @@ ISR(PCINT2_vect){
     currentTime = micros();
     for(uint8_t i=0;i<8;i++){
       if(changeMask & 1<<i){//has there been a change
-        if(!(currentPinState & 1<<i)){//is the pin in question logic low?
-          timeDifference = currentTime - changeTime[i];//if so then calculate the pulse width
+        if(!(currentPinState & 1<<i)){//is the pin in question logic low
+          timeDifference = currentTime - changeTime[i];//calculate the pulse width
           if (900 < timeDifference && timeDifference < 2200){//check to see if it is a valid length
             rcData[i].rcvd = timeDifference;
             if (rcData[i].chan == THRO && ((timeDifference ) < ((uint16_t)rcData[i].min - 50) )){  
@@ -249,7 +249,6 @@ void DSMDetectRes(){
     while(DSMParser() == false){
     }
     //check for second byte flag
-
     if ( (DSMSerialBuffer[0] & 0x80) != 0x80){
       channel1 = DSMSerialBuffer[0] >> 2 & 0x0F;
       channel2 = DSMSerialBuffer[2] >> 2 & 0x0F;
@@ -289,8 +288,6 @@ boolean DSMParser(){
     byteCount = 0;
     bufferIndex = 0;
     while ( RCSerialAvailable() > 0){
-
-
       inByte =  RCSerialRead();
       frameTime = millis();
       byteCount++;
@@ -318,10 +315,7 @@ boolean DSMParser(){
               rcData[channelNumber].rcvd = ((DSMSerialBuffer[i] << 8) | (DSMSerialBuffer[i+1])) & 0x07FF;
             }
           }
-
         }
-
-
       }
     }
   }
@@ -330,8 +324,6 @@ boolean DSMParser(){
 void DetectRC(){
   initProgress = 1;
   RC_SS_Output();
-
-
   readState = 0;
   RC_SSHigh();
   SBus();
@@ -346,17 +338,12 @@ void DetectRC(){
     return;
   }
   PWMPPMCheck();
-
-
-
-
 }
 
 
 void PWMPPMCheck(){//checks if serial RC was incorrectly detected
   newRC = false;
   uint32_t frameCheckTimer;
-
   ISRState = STAND;
   rcType = RC;
   DDRK = 0;//PORTK as input
@@ -380,8 +367,6 @@ void PWMPPMCheck(){//checks if serial RC was incorrectly detected
   }
   rcDetected = true;
   newRC = false;
-
-
 }
 
 void SBus(){
@@ -436,6 +421,7 @@ void DSMSerial(){
 
 
 }
+
 
 
 

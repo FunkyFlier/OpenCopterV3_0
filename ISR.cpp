@@ -38,7 +38,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
   }
   if (watchDogFailSafeCounter >=200){
     TIMSK5 = (0<<OCIE5A);
-    Motor1WriteMicros(0);//set the output compare value
+    Motor1WriteMicros(0);
     Motor2WriteMicros(0);
     Motor3WriteMicros(0);
     Motor4WriteMicros(0);

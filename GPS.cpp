@@ -17,7 +17,7 @@ volatile uint32_t GPSFailSafeCounter;
 GPS_Union_t GPSData;
 
 uint16_t msgLength;
-uint8_t index,msgLengthLSB,msgLengthMSB,msgType,inBuffer[50],localSumA,localSumB;//, uint8_tinByte;
+uint8_t index,msgLengthLSB,msgLengthMSB,msgType,inBuffer[50],localSumA,localSumB;
 
 float gpsAlt;
 
@@ -35,7 +35,7 @@ void GPSInit(){
 }
 
 void DistBearing(int32_t *lat1, int32_t *lon1, int32_t *lat2, int32_t *lon2,float *distX,float *distY,float *distDirect,float *bearing){
-  //using euqirectangular projection since the distances are << than the RADIUS of the earth
+  //using euqirectangular projection since the distances are << than the radius of the earth
   deltaLat = ToRad( (*lat2 - * lat1) *0.0000001 );
   //the below line is as such to get the signs between the accelerometer and GPS position to the same sign convention
   //this will work for the north west heimsphere
@@ -53,8 +53,6 @@ void GPSStart() {
 
   uint32_t gpsStartTimer = 0;
 
-
-  //uint8_t gpsStartState = 0;
   initProgress = 3; 
   boolean gpsStartComplete = false;
 
@@ -105,9 +103,6 @@ void GPSStart() {
             break;
           }
         }
-        /*if (gpsStartState == GPS_START_FIX){
-         break;
-         }*/
         gpsStartComplete = true;
         gpsFailSafe = false;
         break;
@@ -135,7 +130,6 @@ void GPSMonitor(){
     switch (GPSState){
     case 0:
       inByte = gpsPort.read();
-
       if (inByte == 0xB5){
         GPSState = 1;
       }
@@ -164,8 +158,6 @@ void GPSMonitor(){
       localSumB += (localSumA += inByte);
       msgType = inByte;
       GPSState = 4;
-
-
       break;
     case 4://get number of bytes in message LSB
       inByte = gpsPort.read();
@@ -250,7 +242,7 @@ void GPSMonitor(){
     sAcc = GPSData.vars.sAcc * 0.001;
     if (GPSData.vars.gpsFix != 3 || hAcc > HACC_MAX || sAcc > SACC_MAX) {//5
       gpsFailSafe = true;
-    }//5
+    }
     GPSFailSafeCounter = 0;
   }
 }

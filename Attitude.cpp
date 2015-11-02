@@ -119,7 +119,7 @@ void AHRSupdate(float dt) {
     exa = (acc_y * vz - acc_z * vy);
     eya = (acc_z * vx - acc_x * vz);
     eza = (acc_x * vy - acc_y * vx);
-    if (startReset == true){
+    /*if (startReset == true){
       startReset = false;
       exa += (ATT_ERR_MAX + 1);
     }
@@ -150,7 +150,7 @@ void AHRSupdate(float dt) {
       yawSetPoint = ToDeg(yawInRadians);
       return;
       
-    }
+    }*/
 
     kiDTAcc = kiAcc * dt;
     kiDTMag = kiMag * dt;

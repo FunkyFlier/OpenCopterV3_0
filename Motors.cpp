@@ -99,7 +99,6 @@ void CheckESCFlag(){
         while(1){
         }
       }
-
       if (newRC == true){
         newRC = false;
         ProcessChannels();
@@ -500,13 +499,8 @@ void MotorHandler(){
     }
     if (landDetected == true){
       landRampValue = landRampValue - 4.5;
-      //landRampValue = landRampValue - 0.01;
-      //landRampValue = landRampValue * 0.9 + propIdleCommand * 0.1;
-      //throttleAdjustment = landRampValue;
-      /*CommandAllMotors((float)(landRampValue--));*/
       throttleAdjustment = landRampValue;
       if (landRampValue <= 0){
-        //if (landRampValue +  throttleCommand < propIdleCommand + 50){
         CommandAllMotors((float)pwmLow);
         landDetected = false;
         motorState = HOLD;

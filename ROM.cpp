@@ -619,18 +619,6 @@ void LoadPWMLimits() {
     propIdleCommand = pwmLow * (1 + ((float)propIdlePercent / 100.0));
   }
   hoverCommand = propIdleCommand;
-  /*hoverPercent = EEPROMRead(HOVER_THRO);
-   if (hoverPercent > 75) {
-   hoverCommand = 1000 * (1 + (75 / 100.0));
-   }
-   else {
-   if (hoverPercent < 25) {
-   hoverCommand = 1000 * (1 + (25 / 100.0));
-   }
-   else {
-   hoverCommand = 1000 * (1 + ((float)hoverPercent / 100.0));
-   }
-   }*/
 }
 void LoadRC() {
   uint16_t j = 0; //index for input buffers

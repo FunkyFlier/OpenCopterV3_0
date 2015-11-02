@@ -36,8 +36,7 @@ void setup() {
 
   AssignPointerArray();
   SetPinModes();
-  //kPosBiasBaro = 0;
-  //kPosVelBaro = 0;
+
   DetectRC();
   _200HzISRConfig();
   SPIInit(MSBFIRST,SPI_CLOCK_DIV2,SPI_MODE0);
@@ -75,8 +74,7 @@ void setup() {
   else{
     GPSStart();
   }
-  //kPosBiasBaro = 0;
-  //kPosVelBaro = 0;
+
   SetInitialQuaternion();
   InertialInit();
   CheckTXPositions();

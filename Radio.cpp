@@ -53,11 +53,11 @@ void Radio() {
   uint8_t radioByte;
   float_u outFloat;
   uint8_t j;
-  while (RadioAvailable() > 0) { //---
+  while (RadioAvailable() > 0) { 
 
     radioByte = RadioRead();
-    switch (radioState) { //+++
-    case SB_CHECK://check for start byte
+    switch (radioState) { 
+    case SB_CHECK:
       rxSum = 0;
       rxDoubleSum = 0;
       if (radioByte == 0xAA) {
@@ -344,8 +344,8 @@ void Radio() {
       radioState = SB_CHECK;
       break;
 
-    }//+++
-  }//---
+    }
+  }
 
 }
 
@@ -416,7 +416,7 @@ void HandleGSRCData() {
   groundFSCount = 0;
 }
 
-void TuningTransmitter() { //
+void TuningTransmitter() { 
   uint32_u now;
   float_u outFloat;
   int16_u outInt16;
@@ -427,9 +427,9 @@ void TuningTransmitter() { //
   now.val = millis();
 
 
-  if (hsTX == true) { //---
+  if (hsTX == true) { 
 
-    if (now.val - hsTXTimer >= hsMillis) { //+++
+    if (now.val - hsTXTimer >= hsMillis) { 
       hsTXTimer = now.val;
       txSum = 0;
       txDoubleSum = 0;
@@ -463,7 +463,7 @@ void TuningTransmitter() { //
       }
 
 
-      for (uint8_t i = 0; i < hsNumItems; i++) { //***
+      for (uint8_t i = 0; i < hsNumItems; i++) { 
         switch (hsList[hsListIndex++]) {
         case 0://floats
           outFloat.val = *floatPointerArray[hsList[hsListIndex]];
@@ -503,7 +503,7 @@ void TuningTransmitter() { //
           hsListIndex++;
           break;
         }
-      }//***
+      }
 
       liveDataBuffer[2] = packetLength;
       for (uint8_t i = 0; i < (packetLength + 3); i++) {
@@ -513,13 +513,13 @@ void TuningTransmitter() { //
       RadioWrite(txDoubleSum);
 
 
-    }//+++
+    }
 
-  }//---
+  }
 
-  if (lsTX == true) { //---
+  if (lsTX == true) { 
 
-    if (now.val - lsTXTimer >= lsMillis) { //+++
+    if (now.val - lsTXTimer >= lsMillis) { 
       lsTXTimer = now.val;
       txSum = 0;
       txDoubleSum = 0;
@@ -553,7 +553,7 @@ void TuningTransmitter() { //
       }
 
 
-      for (uint8_t i = 0; i < lsNumItems; i++) { //***
+      for (uint8_t i = 0; i < lsNumItems; i++) { 
         switch (lsList[lsListIndex++]) {
         case 0://floats
           for (uint8_t j = 0; j < 4; j++) {
@@ -595,7 +595,7 @@ void TuningTransmitter() { //
         default:
           break;
         }
-      }//***
+      }
 
       liveDataBuffer[2] = packetLength;
       for (uint8_t i = 0; i < (packetLength + 3); i++) {
@@ -604,14 +604,13 @@ void TuningTransmitter() { //
       RadioWrite(txSum);
       RadioWrite(txDoubleSum);
 
-    }//+++
+    }
 
-  }//---
+  }
 
-}//
+}
 
 void SetTransmissionRate() {
-
   if (typeNum == HS_DATA) {
     if (cmdNum == 0) {
       hsTX = false;
@@ -628,12 +627,8 @@ void SetTransmissionRate() {
         memcpy( &hsList[0], &itemBuffer[2], (hsNumItems * 2) );
       }
     }
-
-
-
   }
   else {
-
     if (cmdNum == 0) {
       lsTX = false;
     }
@@ -649,13 +644,10 @@ void SetTransmissionRate() {
         memcpy( &lsList[0], &itemBuffer[2], (lsNumItems * 2) );
       }
     }
-
-
   }
 }
 
 void WriteCalibrationDataToRom() {
-
   uint8_t temp,calibrationFlags;
   uint8_t itemIndex = 0;
   switch (cmdNum) {
@@ -664,7 +656,6 @@ void WriteCalibrationDataToRom() {
       for (uint16_t i = MAG_CALIB_START; i <= MAG_CALIB_END; i++) {
         EEPROMWrite(i, itemBuffer[itemIndex++]);
       }
-
       calibrationFlags = EEPROMRead(CAL_FLAGS);
       calibrationFlags &= ~(1 << MAG_FLAG);
       EEPROMWrite(CAL_FLAGS, calibrationFlags);
@@ -674,15 +665,10 @@ void WriteCalibrationDataToRom() {
     for (uint16_t i = ACC_CALIB_START; i <= ACC_CALIB_END; i++) {
       EEPROMWrite(i, itemBuffer[itemIndex++]);
     }
-
     calibrationFlags = EEPROMRead(CAL_FLAGS);
     calibrationFlags &= ~(1 << ACC_FLAG);
     EEPROMWrite(CAL_FLAGS, calibrationFlags);
-
-
     break;//--------------------------------------------
-
-
   case 2://RC calibration data
     for (uint16_t i = RC_DATA_START; i <= RC_DATA_END; i++) {
       EEPROMWrite(i, itemBuffer[itemIndex++]);
@@ -750,7 +736,6 @@ void WriteCalibrationDataToRom() {
   case 7:
     EEPROMWrite(ESC_CAL_FLAG,0xBB);
     break;
-
   case 8://motor mix
     EEPROMWrite(MIX_FLAG,0xAA);
     for (uint16_t i = MIX_START; i <= MIX_END; i++) {
@@ -768,10 +753,6 @@ void WriteCalibrationDataToRom() {
     }
     break;
   }
-
-
-
-
 }
 
 void OrderedSet() {
@@ -790,7 +771,6 @@ void OrderedSet() {
       }
       saveGainsFlag = true;
       romWriteDelayTimer = millis();
-
     }
     if (cmdNum >= KP_ACC && cmdNum <= K_P_B_BARO) {
       for (uint8_t i = 0; i < 4; i++) {
@@ -799,14 +779,12 @@ void OrderedSet() {
       *floatPointerArray[cmdNum] = outFloat.val;
       saveEstimatorGainsFlag = true;
       romWriteDelayTimer = millis();
-
     }
     break;
   case INT16:
     if (cmdNum == CEILING_LIMIT || cmdNum == FLOOR_LIMIT ){
       for (uint8_t i = 0; i < 2; i++){
         outInt16.buffer[i] =  itemBuffer[i];
-
       }
       *int16PointerArray[cmdNum] =  outInt16.val;
       if (cmdNum == CEILING_LIMIT){
@@ -827,13 +805,11 @@ void OrderedSet() {
      */
     break;
   }
-
 }
 
 void SendOrdAck() {
-
   uint8_t txSum = 0,txDoubleSum = 0,temp;
-
+  
   RadioWrite(0xAA);
   RadioWrite(groundStationID);
   RadioWrite(3);
@@ -878,6 +854,7 @@ void SendOrdMis() {
 void OrderedQuery() {
   float_u outFloat;
   int16_u outInt16;
+  
   switch (typeNum) {
   case FLOAT:
     outFloat.val = *floatPointerArray[cmdNum];
@@ -907,6 +884,7 @@ void SendUnAck() {
   uint8_t txSum = 0,txDoubleSum = 0,temp;
   float_u outFloat;
   int16_u outInt16;
+  
   RadioWrite(0XAA);
   RadioWrite(groundStationID);
   switch (typeNum) {
@@ -1108,29 +1086,6 @@ void SendUnAck() {
   }
 }
 
-/*void SendUnMis() {
- 
- uint8_t txSum = 0,txDoubleSum = 0,temp;
- 
- RadioWrite(0xAA);
- RadioWrite(groundStationID);
- RadioWrite(3);
- RadioWrite(0xF8);
- txSum += 0xF8;
- txDoubleSum += txSum;
- temp = localPacketNumberUn & 0x00FF;
- RadioWrite(temp);
- txSum += temp;
- txDoubleSum += txSum;
- temp = (localPacketNumberUn >> 8) & 0x00FF;
- RadioWrite(temp);
- txSum += temp;
- txDoubleSum += txSum;
- RadioWrite(txSum);
- RadioWrite(txDoubleSum);
- 
- }*/
-
 void UnReliableTransmit() {
   uint8_t txSum = 0, txDoubleSum = 0;
   float_u outFloat;
@@ -1205,14 +1160,11 @@ void HandShake() {
     packetTemp[1] = EEPROMRead(PKT_LOCAL_ORD_M);//msb for packetNumberLocalOrdered
     localPacketNumberOrdered = (packetTemp[1] << 8) | packetTemp[0];
     groundStationID = EEPROMRead(GS_ID_INDEX);
-    /*packetTemp[0] = EEPROMRead(PKT_LOCAL_UN_L);//lsb for packetNumberLocalUnOrdered
-     packetTemp[1] = EEPROMRead(PKT_LOCAL_UN_M);//msb for packetNumberLocalUnOrdered
-     localPacketNumberUn = (packetTemp[1] << 8) | packetTemp[0];*/
+
     handShake = true;
     return;
   }
   localPacketNumberOrdered = 0;
-  //localPacketNumberUn = 0;
   while (RadioAvailable() > 0) {
     RadioRead();//clear any data in the buffer
   }
@@ -1226,20 +1178,17 @@ void HandShake() {
   if (handShake == false) {
     return;
   }
+  
   handShake = false;
   calibrationModeESCs = false;
   gsCTRL = false;
   calibrationMode = false;
-  while (millis() - radioTimer < 1000 && handShake == false) { //***
-
-    if (RadioAvailable() > 0) { //---
-
-      while (RadioAvailable() > 0) { //+++
-
+  
+  while (millis() - radioTimer < 1000 && handShake == false) { 
+    if (RadioAvailable() > 0) { 
+      while (RadioAvailable() > 0) { 
         radioByte = RadioRead();
-
-        switch (handShakeState) { //^^^
-
+        switch (handShakeState) { 
         case START_BYTE://check for 0xAA
           rxSum = 0;
           rxDoubleSum = 0;
@@ -1252,7 +1201,6 @@ void HandShake() {
           groundStationID = radioByte;
           handShakeState = LENGTH;
           break;
-
         case LENGTH://get and verify the length
           if (radioByte == 0x02) { //len will always be 2 for the HS
             handShakeState = CMD_BYTE;
@@ -1261,7 +1209,6 @@ void HandShake() {
             handShakeState = START_BYTE;
           }
           break;
-
         case CMD_BYTE://check for correct command byte
           if (radioByte == 0xFF) {
             rxSum += radioByte;
@@ -1272,7 +1219,6 @@ void HandShake() {
             handShakeState = START_BYTE;
           }
           break;
-
         case HS_TYPE://check handshake type
           if (radioByte == 0x04){
             calibrationModeESCs = true;
@@ -1311,9 +1257,7 @@ void HandShake() {
             break;
           }
           handShakeState = START_BYTE;
-
           break;
-
         case HS_SUM_1://verify sum
           if (radioByte == rxSum) {
             handShakeState = HS_SUM_2;
@@ -1321,7 +1265,6 @@ void HandShake() {
           }
           handShakeState = START_BYTE;
           break;
-
         case HS_SUM_2://verify double sum
           if (radioByte == rxDoubleSum) {
             SendHandShakeResponse();
@@ -1332,15 +1275,10 @@ void HandShake() {
 
           handShakeState = START_BYTE;
           break;
-
-        }//^^^
-
-      }//+++
-
-    }//---
-
-  }//***
-
+        }
+      }
+    }
+  }
   if (handShake == false) {
     calibrationModeESCs = false;
     gsCTRL = false;
@@ -1455,81 +1393,61 @@ void SendCalData() {
   switch (calibrationNumber) {
   case 0:
     RadioWrite(7);
-
-
     RadioWrite((uint8_t)0x00);
     txSum += 0;
     txDoubleSum += txSum;
-
     RadioWrite(magX.buffer[0]);
     txSum += magX.buffer[0];
     txDoubleSum += txSum;
-
     RadioWrite(magX.buffer[1]);
     txSum += magX.buffer[1];
     txDoubleSum += txSum;
-
     RadioWrite(magY.buffer[0]);
     txSum += magY.buffer[0];
     txDoubleSum += txSum;
-
     RadioWrite(magY.buffer[1]);
     txSum += magY.buffer[1];
     txDoubleSum += txSum;
-
     RadioWrite(magZ.buffer[0]);
     txSum += magZ.buffer[0];
     txDoubleSum += txSum;
-
     RadioWrite(magZ.buffer[1]);
     txSum += magZ.buffer[1];
     txDoubleSum += txSum;
-
     RadioWrite(txSum);
     RadioWrite(txDoubleSum);
     break;
   case 1:
     RadioWrite(7);
-
-
     RadioWrite(1);
     txSum += 1;
     txDoubleSum += txSum;
-
     RadioWrite(accX.buffer[0]);
     txSum += accX.buffer[0];
     txDoubleSum += txSum;
-
     RadioWrite(accX.buffer[1]);
     txSum += accX.buffer[1];
     txDoubleSum += txSum;
-
     RadioWrite(accY.buffer[0]);
     txSum += accY.buffer[0];
     txDoubleSum += txSum;
-
     RadioWrite(accY.buffer[1]);
     txSum += accY.buffer[1];
     txDoubleSum += txSum;
-
     RadioWrite(accZ.buffer[0]);
     txSum += accZ.buffer[0];
     txDoubleSum += txSum;
-
     RadioWrite(accZ.buffer[1]);
     txSum += accZ.buffer[1];
     txDoubleSum += txSum;
-
     RadioWrite(txSum);
     RadioWrite(txDoubleSum);
     break;
   case 2:
     RadioWrite(17);
-
     RadioWrite(2);
     txSum += 2;
     txDoubleSum += txSum;
-
     temp.val = rcData[0].rcvd;
     RadioWrite(temp.buffer[0]);
     txSum += temp.buffer[0];
@@ -1537,7 +1455,6 @@ void SendCalData() {
     RadioWrite(temp.buffer[1]);
     txSum += temp.buffer[1];
     txDoubleSum += txSum;
-
     temp.val = rcData[1].rcvd;
     RadioWrite(temp.buffer[0]);
     txSum += temp.buffer[0];
@@ -1545,7 +1462,6 @@ void SendCalData() {
     RadioWrite(temp.buffer[1]);
     txSum += temp.buffer[1];
     txDoubleSum += txSum;
-
     temp.val = rcData[2].rcvd;
     RadioWrite(temp.buffer[0]);
     txSum += temp.buffer[0];
@@ -1553,7 +1469,6 @@ void SendCalData() {
     RadioWrite(temp.buffer[1]);
     txSum += temp.buffer[1];
     txDoubleSum += txSum;
-
     temp.val = rcData[3].rcvd;
     RadioWrite(temp.buffer[0]);
     txSum += temp.buffer[0];
@@ -1561,7 +1476,6 @@ void SendCalData() {
     RadioWrite(temp.buffer[1]);
     txSum += temp.buffer[1];
     txDoubleSum += txSum;
-
     temp.val = rcData[4].rcvd;
     RadioWrite(temp.buffer[0]);
     txSum += temp.buffer[0];
@@ -1569,7 +1483,6 @@ void SendCalData() {
     RadioWrite(temp.buffer[1]);
     txSum += temp.buffer[1];
     txDoubleSum += txSum;
-
     temp.val = rcData[5].rcvd;
     RadioWrite(temp.buffer[0]);
     txSum += temp.buffer[0];
@@ -1577,7 +1490,6 @@ void SendCalData() {
     RadioWrite(temp.buffer[1]);
     txSum += temp.buffer[1];
     txDoubleSum += txSum;
-
     temp.val = rcData[6].rcvd;
     RadioWrite(temp.buffer[0]);
     txSum += temp.buffer[0];
@@ -1585,7 +1497,6 @@ void SendCalData() {
     RadioWrite(temp.buffer[1]);
     txSum += temp.buffer[1];
     txDoubleSum += txSum;
-
     temp.val = rcData[7].rcvd;
     RadioWrite(temp.buffer[0]);
     txSum += temp.buffer[0];
@@ -1593,34 +1504,9 @@ void SendCalData() {
     RadioWrite(temp.buffer[1]);
     txSum += temp.buffer[1];
     txDoubleSum += txSum;
-
     RadioWrite(txSum);
     RadioWrite(txDoubleSum);
     break;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

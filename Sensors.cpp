@@ -24,9 +24,8 @@ void BatteryInfoInit(){
 }
 
 void ReadBatteryInfo(float *dt){
-
-
   float amps;
+  
   ampCount = analogRead(7);
   voltCount = analogRead(6);
   LPF(&smoothAmpCount,&ampCount,dt,RC_CONST_ADC);
@@ -129,7 +128,6 @@ void StartUP(uint8_t*);
 unsigned long ReadUP(uint8_t*) ;
 //v1 vars
 //barometer variables
-//int32_t pres;
 short temperature;
 uint32_t baroTimer;
 int pressureState;
@@ -322,19 +320,6 @@ void BaroInit() {
 
   //CheckCRC(); //no need to call as it will pass the check if there is no sensor attached
 
-
-  /*baroPollTimer = millis();
-   baroCount = 0;
-   baroSum = 0;
-   while (baroCount < 10) { //use a while instead of a for loop because the for loop runs too fast
-   PollPressure();
-   if (newBaro == true) {
-   newBaro = false;
-   baroCount++;
-   baroSum += pressure;
-   }
-   }
-   initialPressure = baroSum / 10;*/
   GetInitialPressure();
 
 }
@@ -347,7 +332,6 @@ void CheckCRC() {
   uint16_t n_prom[8] = {
     promSetup.val, C1.val, C2.val, C3.val, C4.val, C5.val, C6.val, promCRC.val
   };
-  //uint16_t n_prom[8] = {0,0,0,0,0,0,0,0};
   n_rem = 0x00;
 
   crc_read = n_prom[7];
@@ -381,10 +365,8 @@ void CheckCRC() {
     baroFS = true;
   }
   if ((0x000F & crc_read) == (n_rem ^ 0x00)) {
-    //Serial << "CRC passed\r\n";
   }
   else {
-    //Serial << "CRC failed\r\n";
     baroFS = true;
   }
 }
@@ -541,7 +523,7 @@ void BaroInit(void) {
   newBaro = false;
   i2cTimeOutStatus = I2CRead(BMP085_ADDRESS, 0xAA, 22);
   if (i2cTimeOutStatus != 0){
-    Serial<<"baro failed 5\r\n";
+    //Serial<<"baro failed 5\r\n";
   }
   msb = I2CReceive();
   lsb = I2CReceive();
@@ -587,24 +569,7 @@ void BaroInit(void) {
   lsb = I2CReceive();
   md = (msb << 8) | lsb;
 
-  //I2CRead(BMP085_ADDRESS,0xD0,1);
-  //this is to get the ground pressure for relative altitude
-  //lower pressure than this means positive altitude
-  //higher pressure than this means negative altitude
-  /* baroPollTimer = millis();
-   baroCount = 0;
-   baroSum = 0;
-   while (baroCount < 10) { //use a while instead of a for loop because the for loop runs too fast
-   PollPressure();
-   if (newBaro == true) {
-   newBaro = false;
-   baroCount++;
-   baroSum += pressure;
-   }
-   }
-   initialPressure = baroSum / 10;*/
   GetInitialPressure();
-
 
 }
 
@@ -685,9 +650,6 @@ void GetAcc() {
     accX.val = tempX;
     accY.val = tempY;
   }
-
-
-
 
 }
 #endif//#ifdef V1
@@ -784,10 +746,7 @@ void MagInit() {
   I2CWrite((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_CRB_REG, (uint8_t)0x60);
   I2CWrite((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_MR_REG, (uint8_t)0x80);
 
-
   VerifyMag();
-
-
 
   I2CRead(MAG_ADDRESS, HMC5983_OUT_X_H, 6);
   magX.buffer[1] = I2CReceive();//X

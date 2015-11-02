@@ -65,81 +65,80 @@ uint8_t initProgress = 0;
 uint8_t modeArray[9] = {
   RATE,L1,ATT,ATT,ATT,ATT_TRIM,RATE,RATE,L0};
 
-float kp_pitch_rate;//52
-float ki_pitch_rate;//56
-float kd_pitch_rate;//60
-float fc_pitch_rate;//64
+float kp_pitch_rate;
+float ki_pitch_rate;
+float kd_pitch_rate;
+float fc_pitch_rate;
 
-float kp_roll_rate;//68
-float ki_roll_rate;//72
-float kd_roll_rate;//76
-float fc_roll_rate;//80
+float kp_roll_rate;
+float ki_roll_rate;
+float kd_roll_rate;
+float fc_roll_rate;
 
-float kp_yaw_rate;//84
-float ki_yaw_rate;//88
-float kd_yaw_rate;//92
-float fc_yaw_rate;//96
+float kp_yaw_rate;
+float ki_yaw_rate;
+float kd_yaw_rate;
+float fc_yaw_rate;
 
-float kp_pitch_attitude;//100
-float ki_pitch_attitude;//104
-float kd_pitch_attitude;//108
-float fc_pitch_attitude;//112
+float kp_pitch_attitude;
+float ki_pitch_attitude;
+float kd_pitch_attitude;
+float fc_pitch_attitude;
 
-float kp_roll_attitude;//116
-float ki_roll_attitude;//120
-float kd_roll_attitude;//124
-float fc_roll_attitude;//128
+float kp_roll_attitude;
+float ki_roll_attitude;
+float kd_roll_attitude;
+float fc_roll_attitude;
 
-float kp_yaw_attitude;//132
-float ki_yaw_attitude;//136
-float kd_yaw_attitude;//140
-float fc_yaw_attitude;//144
+float kp_yaw_attitude;
+float ki_yaw_attitude;
+float kd_yaw_attitude;
+float fc_yaw_attitude;
 
-float kp_altitude_position;//148
-float ki_altitude_position;//152
-float kd_altitude_position;//156
-float fc_altitude_position;//160
+float kp_altitude_position;
+float ki_altitude_position;
+float kd_altitude_position;
+float fc_altitude_position;
 
-float kp_altitude_velocity;//164
-float ki_altitude_velocity;//168
-float kd_altitude_velocity;//172
-float fc_altitude_velocity;///176
-//float mul_altitude_velocity;
+float kp_altitude_velocity;
+float ki_altitude_velocity;
+float kd_altitude_velocity;
+float fc_altitude_velocity;
 
-float kp_loiter_pos_x;//180
-float ki_loiter_pos_x;//184
-float kd_loiter_pos_x;//188
-float fc_loiter_pos_x;//192
+float kp_loiter_pos_x;
+float ki_loiter_pos_x;
+float kd_loiter_pos_x;
+float fc_loiter_pos_x;
 
-float kp_loiter_velocity_x;//196
-float ki_loiter_velocity_x;//200
-float kd_loiter_velocity_x;//204
-float fc_loiter_velocity_x;//208
+float kp_loiter_velocity_x;
+float ki_loiter_velocity_x;
+float kd_loiter_velocity_x;
+float fc_loiter_velocity_x;
 
-float kp_loiter_pos_y;//212
-float ki_loiter_pos_y;//216
-float kd_loiter_pos_y;//220
-float fc_loiter_pos_y;//224
+float kp_loiter_pos_y;
+float ki_loiter_pos_y;
+float kd_loiter_pos_y;
+float fc_loiter_pos_y;
 
-float kp_loiter_velocity_y;//228
-float ki_loiter_velocity_y;//232
-float kd_loiter_velocity_y;//236
-float fc_loiter_velocity_y;//240
+float kp_loiter_velocity_y;
+float ki_loiter_velocity_y;
+float kd_loiter_velocity_y;
+float fc_loiter_velocity_y;
 
-float kp_waypoint_position;//244
-float ki_waypoint_position;//248
-float kd_waypoint_position;//252
-float fc_waypoint_position;//256
+float kp_waypoint_position;
+float ki_waypoint_position;
+float kd_waypoint_position;
+float fc_waypoint_position;
 
-float kp_waypoint_velocity;//260
-float ki_waypoint_velocity;//264
-float kd_waypoint_velocity;//268
-float fc_waypoint_velocity;//272
+float kp_waypoint_velocity;
+float ki_waypoint_velocity;
+float kd_waypoint_velocity;
+float fc_waypoint_velocity;
 
-float kp_cross_track;//276
-float ki_cross_track;//280
-float kd_cross_track;//284
-float fc_cross_track;//288
+float kp_cross_track;
+float ki_cross_track;
+float kd_cross_track;
+float fc_cross_track;
 
 float pitchSetPoint;
 float rollSetPoint;
@@ -219,9 +218,9 @@ void _100HzTask(uint32_t loopTime){
       case GET_GYRO:
         //Serial<<mAh<<"\r\n";
         /*baroErrorLim = kp_waypoint_velocity;
-        countsOff = ki_waypoint_velocity;
-        countsOn = kd_waypoint_velocity;
-        landErrorLim = fc_waypoint_velocity;*/
+         countsOff = ki_waypoint_velocity;
+         countsOn = kd_waypoint_velocity;
+         landErrorLim = fc_waypoint_velocity;*/
 
         lowRateCounter++;
         if (lowRateCounter >= LOW_RATE_DIVIDER){
@@ -424,25 +423,25 @@ void FailSafeHandler(){
       gsCTRL = false;
       if (rcDetected == false || RCFailSafe == true){
         LEDPatternSet(0,3,0,1);
-        MotorShutDown();
-        /*if (txLossRTB == 0){
-         LEDPatternSet(0,3,0,1);
-         MotorShutDown();
-         }
-         else{
-         if (magDetected == false){
-         LEDPatternSet(0,6,0,1);
-         MotorShutDown();
-         }
-         if (baroFS == true){
-         LEDPatternSet(0,7,0,1);
-         MotorShutDown();
-         }
-         if (flightMode != RTB) {
-         enterState = true;
-         flightMode = RTB;
-         }
-         }*/
+        //MotorShutDown();
+        if (txLossRTB == 0){
+          LEDPatternSet(0,3,0,1);
+          MotorShutDown();
+        }
+        else{
+          if (magDetected == false){
+            LEDPatternSet(0,6,0,1);
+            MotorShutDown();
+          }
+          if (baroFS == true){
+            LEDPatternSet(0,7,0,1);
+            MotorShutDown();
+          }
+          if (flightMode != RTB) {
+            enterState = true;
+            flightMode = RTB;
+          }
+        }
 
       }
 
@@ -453,25 +452,25 @@ void FailSafeHandler(){
   else{
     if (RCFailSafe == true){
       LEDPatternSet(0,2,0,1);
-      MotorShutDown();
-      /*if (txLossRTB == 0) {
-       LEDPatternSet(0,2,0,1);
-       MotorShutDown();
-       }
-       else{
-       if (magDetected == false){
-       LEDPatternSet(0,4,0,1);
-       MotorShutDown();
-       }
-       if (baroFS == true){
-       LEDPatternSet(0,5,0,1);
-       MotorShutDown();
-       }
-       if (flightMode != RTB) {
-       enterState = true;
-       flightMode = RTB;
-       }
-       }*/
+      //MotorShutDown();
+      if (txLossRTB == 0) {
+        LEDPatternSet(0,2,0,1);
+        MotorShutDown();
+      }
+      else{
+        if (magDetected == false){
+          LEDPatternSet(0,4,0,1);
+          MotorShutDown();
+        }
+        if (baroFS == true){
+          LEDPatternSet(0,5,0,1);
+          MotorShutDown();
+        }
+        if (flightMode != RTB) {
+          enterState = true;
+          flightMode = RTB;
+        }
+      }
     }
   }
 
@@ -829,9 +828,7 @@ void StartCalibration(){
 }
 
 void LoiterSM(){
-  //static uint32_t waitTimer;
   float absVelX,absVelY;
-  //float bodyVelX,bodyVelY;
   float limitedPitch,limitedRoll;
   float maxPitch,maxRoll;
   int16_t rcDifference;
@@ -859,9 +856,7 @@ void LoiterSM(){
         ZLoiterState = LAND;
         motorState = LANDING;
         velSetPointZ = LAND_VEL;
-        //break;
       }
-
       break;
     case RCINPUT:
       if (throttleCheckFlag == true){
@@ -994,7 +989,6 @@ void LoiterSM(){
         //#endif        
         if (fabs(rollSetPointTX) < 0.5 && fabs(pitchSetPointTX) < 0.5){
           XYLoiterState = WAIT;
-          //waitTimer = millis();
           velSetPointX = velX;
           velSetPointY = velY;
         }
@@ -1016,11 +1010,6 @@ void LoiterSM(){
           xTarget = XEst;
           yTarget = YEst;
         }
-        /*if (millis() - waitTimer > 100){//250){
-         XYLoiterState = LOITERING;
-         xTarget = XEst;
-         yTarget = YEst;
-         }*/
         break;
 
       }  
@@ -1694,46 +1683,4 @@ void ProcessModes() {
     enterState = true;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -198,8 +198,7 @@ void GetBaroZ(){
 void CorrectZ(){
   static float pressurePrevious;
   static uint8_t errorCorrectCount;
-  //float accelBiasXEF = 0,accelBiasYEF = 0,accelBiasZEF = 0;
-  //initialPressure = takeOffPressure;
+
   GetBaroZ();
 
   zPosError = ZEstHist[lagIndex_z] + baroZ;
@@ -220,7 +219,6 @@ void CorrectZ(){
           prevBaro = baroZ;
           ZEstUp = baroZ;
           ZEst = -1.0 * ZEstUp;
-
           return;
         }
       }
@@ -252,8 +250,6 @@ void CorrectZ(){
     HandleBaroFeedBack();
   }
 
-
-
   pressurePrevious = pressure;
 }
 void HandleBaroFeedBack(){
@@ -262,7 +258,12 @@ void HandleBaroFeedBack(){
   accelBiasYEF = R12_*accelBiasX + R22_*accelBiasY + R32_*accelBiasZ;
   accelBiasZEF = R13_*accelBiasX + R23_*accelBiasY + R33_*accelBiasZ;
 
-#ifdef NEW_BARO_FEEDBACK
+  ZEst = ZEst - kPosBaro * zPosError;
+  velZ = velZ - kVelBaro * zVelError - kPosVelBaro * zPosError;
+
+  accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError + kPosBiasBaro * zPosError;
+  
+/*#ifdef NEW_BARO_FEEDBACK
   ZEst = ZEst - kPosBaro * zPosError;
   velZ = velZ - kVelBaro * zVelError - kPosVelBaro * zPosError;
 
@@ -272,7 +273,7 @@ void HandleBaroFeedBack(){
   velZ = velZ - kVelBaro * zVelError;
 
   accelBiasZEF = accelBiasZEF + kBiasBaro * zVelError;
-#endif
+#endif*/
 
 
   accelBiasX = R11_*accelBiasXEF + R12_*accelBiasYEF + R13_*accelBiasZEF;

@@ -21,7 +21,7 @@
 //#define AUX3_ROLL
 //#define AUX3_VEL
 //#define AUX3_POS
-#define AUX3_FORCE_ATT_RESET
+//#define AUX3_FORCE_ATT_RESET
 //#define AUX3_RESET_BIAS 
 //------------------------
 #ifdef AUX3_RATEX
