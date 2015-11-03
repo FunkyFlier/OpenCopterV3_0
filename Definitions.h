@@ -3,6 +3,8 @@
 
 #define SPEED_LIMIT
 
+#define RAW_PRES_FILT
+
 //#define SPEED_TILT_OFF_LIMIT 1.0
 
 #define BARO_ERR_LIMIT 0.5

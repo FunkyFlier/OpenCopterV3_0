@@ -1,6 +1,7 @@
 #include "Sensors.h"
 #include "Math.h"
 #include "FlightControl.h"
+#include "Inertial.h"
 
 boolean rotateSensor45Deg = false;
 float batteryPercent,cellVoltage,mAh;
@@ -114,7 +115,7 @@ void GetGro() {
 
 //baro---------------------------------
 
-float initialPressure, pressure, alti,takeOffPressure;
+float initialPressure, pressure = 0, alti,takeOffPressure;
 boolean newBaro = false;
 
 #ifdef V1
@@ -237,7 +238,7 @@ void PollPressure() {
 
 
 void GetBaro() {
-
+  
 
   dT = D2 - (((uint32_t)C5.val) << 8);
   TEMP = (dT * C6.val) / 8388608;
@@ -257,7 +258,15 @@ void GetBaro() {
 
   P = (D1 * SENS / 2097152 - OFF) / 32768;
   temperature = TEMP + 2000;
+#ifdef RAW_PRES_FILT
+  if (pressure == 0){
+    pressure = P;
+  }else{
+    LPF(&pressure,&P,&baroDT,RC_CONST_BARO);
+  }
+#else
   pressure = P;
+#endif    
   if (pressure < 30000 || pressure > 110000){ 
     baroFS = true;
   }

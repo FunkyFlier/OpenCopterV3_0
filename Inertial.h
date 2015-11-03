@@ -2,9 +2,14 @@
 #define INERTIAL_H
 
 #include <Arduino.h>
-
+#include "Definitions.h"
 #define LAG_SIZE 32
+#ifdef RAW_PRES_FILT
+#define LAG_SIZE_BARO 14  
+#else
 #define LAG_SIZE_BARO 14
+#endif  
+
 
 
 
@@ -33,5 +38,6 @@ extern float kPosBiasBaro,kPosVelBaro;
 
 extern boolean baroGlitchHandling;
 extern uint32_t takeOffBaroGlitchTimer;
+extern float baroDT;
 #endif
 

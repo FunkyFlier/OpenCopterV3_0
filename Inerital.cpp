@@ -33,6 +33,7 @@ float xPosOutput,yPosOutput,zPosOutput,xVelOutput,yVelOutput,zVelOutput;
 
 boolean baroGlitchHandling;
 uint32_t takeOffBaroGlitchTimer;
+float baroDT = 0.01;
 
 void HandleBaroFeedBack();
 
@@ -177,8 +178,8 @@ void CorrectXY(){
 
 void GetBaroZ(){
   static uint32_t baroTimer = 0;
-
-  float baroDT;
+  static float filteredPressure = 0;
+  
 
   baroDT = (millis() - baroTimer) * 0.001;
   baroTimer = millis();
@@ -186,6 +187,7 @@ void GetBaroZ(){
   if (baroDT >= 0.1 || baroDT <= 0) {
     baroDT = 0.1;
   }
+
   GetAltitude(&pressure, &initialPressure, &baroAlt);
   LPF(&baroZ,&baroAlt,&baroDT,RC_CONST_BARO);
   baroRate = (baroZ - prevBaro) / baroDT;
