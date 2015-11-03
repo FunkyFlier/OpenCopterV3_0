@@ -22,9 +22,9 @@ float xPosError,yPosError,xVelError,yVelError;
 float baroAlt,baroRate;
 //-------------------
 float inertialZGrav;
-int16_t currentEstIndex,lagIndex,currentEstIndex_z,lagIndex_z;  
-float XEstHist[LAG_SIZE],YEstHist[LAG_SIZE],ZEstHist[LAG_SIZE_BARO];
-float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO];
+int16_t currentEstIndex,lagIndex,currentEstIndex_z,lagIndex_z,currentEstIndex_zVel,lagIndex_zVel;  
+float XEstHist[LAG_SIZE],YEstHist[LAG_SIZE],ZEstHist[LAG_SIZE_BARO_POS];
+float XVelHist[LAG_SIZE],YVelHist[LAG_SIZE],ZVelHist[LAG_SIZE_BARO_VEL];
 
 float kPosGPS,kVelGPS,kBiasGPS,kPosBaro,kVelBaro,kBiasBaro;
 float kPosBiasBaro,kPosVelBaro;
@@ -108,10 +108,10 @@ void Predict(float dt){
   yVelOutput = YVelHist[lagIndex];
 
   ZEstHist[currentEstIndex_z] = ZEst;
-  ZVelHist[currentEstIndex_z] = velZ;
+  ZVelHist[currentEstIndex_zVel] = velZ;
 
   zPosOutput = -1.0 * ZEstHist[lagIndex_z];
-  zVelOutput = -1.0 * ZVelHist[lagIndex_z];
+  zVelOutput = -1.0 * ZVelHist[lagIndex_zVel];
 
   ZEstUp = -1.0 * ZEst;
   velZUp = -1.0 * velZ;
@@ -204,7 +204,7 @@ void CorrectZ(){
   GetBaroZ();
 
   zPosError = ZEstHist[lagIndex_z] + baroZ;
-  zVelError = ZVelHist[lagIndex_z] + baroVel;
+  zVelError = ZVelHist[lagIndex_zVel] + baroVel;
 
   if (baroGlitchHandling == true || motorState == LAND){
     if (millis() - takeOffBaroGlitchTimer > BARO_GLITCH_TIME){
@@ -319,14 +319,25 @@ void UpdateLagIndex(){
 
 
   currentEstIndex_z++;
-  if (currentEstIndex_z >= (LAG_SIZE_BARO) || currentEstIndex_z < 0){
+  if (currentEstIndex_z >= (LAG_SIZE_BARO_POS) || currentEstIndex_z < 0){
     currentEstIndex_z = 0;
   }
-  lagIndex_z = currentEstIndex_z - (LAG_SIZE_BARO- 1);
+  lagIndex_z = currentEstIndex_z - (LAG_SIZE_BARO_POS- 1);
 
   if (lagIndex_z < 0){
-    lagIndex_z = LAG_SIZE_BARO + lagIndex_z;
+    lagIndex_z = LAG_SIZE_BARO_POS + lagIndex_z;
   }
+  
+  currentEstIndex_zVel++;
+  if (currentEstIndex_zVel >= (LAG_SIZE_BARO_VEL) || currentEstIndex_zVel < 0){
+    currentEstIndex_zVel = 0;
+  }
+  lagIndex_zVel = currentEstIndex_zVel - (LAG_SIZE_BARO_VEL- 1);
+
+  if (lagIndex_zVel < 0){
+    lagIndex_zVel = LAG_SIZE_BARO_VEL + lagIndex_zVel;
+  }  
+  
 }
 
 

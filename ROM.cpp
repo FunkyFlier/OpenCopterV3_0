@@ -207,7 +207,7 @@ void AssignPointerArray() {
 
   floatPointerArray[DIST_TO_WP] = &distToWayPoint;//flight control
   floatPointerArray[TARGET_VEL_WP] = &landingThroAdjustment;
-  floatPointerArray[MOTOR_CMD_1] = &bodyVelX;//motors
+  floatPointerArray[MOTOR_CMD_1] = &P;//motors
   floatPointerArray[MOTOR_CMD_2] = &bodyVelY;
   floatPointerArray[MOTOR_CMD_3] = &motorCommand3;
   floatPointerArray[MOTOR_CMD_4] = &motorCommand4;

@@ -309,9 +309,12 @@
 #define FC_ACC 5.0
 #define RC_CONST_ACC 1.0/(2.0 * 3.14 * FC_ACC)
 
-#define FC_BARO 4.0
+#define FC_BARO 3.75
 //#define FC_BARO 2.0
 #define RC_CONST_BARO 1.0/(2.0 * 3.14 * FC_BARO)
+
+#define FC_PRESS 1.0
+#define RC_CONST_PRESS 1.0/(2.0 * 3.14 * FC_PRESS)
 
 #define DEC_START 328
 #define DEC_END 331

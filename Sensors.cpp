@@ -174,12 +174,12 @@ void CheckCRC();
 uint16_u C1, C2, C3, C4, C5, C6, promSetup, promCRC;
 uint32_u D_rcvd;
 float D1, D2;
-float pres, temperature, dT, TEMP, OFF, SENS, P;
+float pres, temperature, dT, TEMP, OFF, SENS;//, P;
 int baroCount;
 float baroSum;
 uint8_t baroState;
 uint32_t baroPollTimer, baroDelayTimer;
-
+float P;
 
 #endif//#ifdef V2
 //end barometer
@@ -262,7 +262,7 @@ void GetBaro() {
   if (pressure == 0){
     pressure = P;
   }else{
-    LPF(&pressure,&P,&baroDT,RC_CONST_BARO);
+    LPF(&pressure,&P,&baroDT,RC_CONST_PRESS);
   }
 #else
   pressure = P;

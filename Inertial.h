@@ -5,9 +5,12 @@
 #include "Definitions.h"
 #define LAG_SIZE 32
 #ifdef RAW_PRES_FILT
-#define LAG_SIZE_BARO 14  
+#define LAG_SIZE_BARO_POS 23
+#define LAG_SIZE_BARO_VEL 23
 #else
-#define LAG_SIZE_BARO 14
+//#define LAG_SIZE_BARO 14
+#define LAG_SIZE_BARO_POS 14
+#define LAG_SIZE_BARO_VEL 14
 #endif  
 
 

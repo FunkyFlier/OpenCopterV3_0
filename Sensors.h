@@ -45,6 +45,7 @@ extern short temperature;
 #endif
 #ifdef V2
 extern float temperature;
+extern float P;
 #endif
 
 
