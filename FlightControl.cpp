@@ -175,8 +175,8 @@ PID_2 LoiterYVelocity(&velSetPointY, &velY, &tiltAngleY, &integrate, &kp_loiter_
 PID_2 AltHoldPosition(&zTarget, &ZEstUp, &velSetPointZ, &integrate, &kp_altitude_position, &ki_altitude_position, &kd_altitude_position, &fc_altitude_position, &lowRateDT, 1.5, 1.5);
 PID_2 AltHoldVelocity(&velSetPointZ, &velZUp, &throttleAdjustment, &integrate, &kp_altitude_velocity, &ki_altitude_velocity, &kd_altitude_velocity, &fc_altitude_velocity, &lowRateDT, 1000, 1000);
 
-PID_2 WPPosition(&zero, &distToWayPoint, &wpVelSetPoint, &integrate, &kp_waypoint_position, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 5,5);
-PID_2 WPVelocity(&wpVelSetPoint, &wpPathVelocity,&wpTilX, &integrate, &kp_waypoint_velocity, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 12,12);
+PID_2 WPPosition(&zero, &distToWayPoint, &wpVelSetPoint, &integrate, &kp_waypoint_position, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 4,4);
+PID_2 WPVelocity(&wpVelSetPoint, &wpPathVelocity,&wpTilX, &integrate, &kp_waypoint_velocity, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 15,15);
 
 PID_2 WPCrossTrack(&zero, &wpCrossTrackVelocity, &wpTiltY, &integrate, &kp_cross_track ,&ki_cross_track, &kd_cross_track,&fc_cross_track , &lowRateDT, 15,15);
 
@@ -185,10 +185,8 @@ void highRateTasks() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
-    D22High();
     highRateDT =  (_400HzTime - _400HzTimer) * 0.000001; 
     _400HzTimer = _400HzTime;
-
     PollAcc();
     PollGro();
     if (flightMode == RTB){
@@ -202,26 +200,17 @@ void highRateTasks() {
     PitchRate.calculate();
     RollRate.calculate();
     YawRate.calculate();
-    D22Low();
   }
 }
 
 void _100HzTask(uint32_t loopTime){
   static uint8_t _100HzState = 0;
   if (loopTime - _100HzTimer >= 13300){
-    //if (loopTime - _100HzTimer >= 10000){
-    D23High();
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
     while(_100HzState < LAST_100HZ_TASK){
       switch (_100HzState){
       case GET_GYRO:
-        //Serial<<mAh<<"\r\n";
-        /*baroErrorLim = kp_waypoint_velocity;
-         countsOff = ki_waypoint_velocity;
-         countsOn = kd_waypoint_velocity;
-         landErrorLim = fc_waypoint_velocity;*/
-
         lowRateCounter++;
         if (lowRateCounter >= LOW_RATE_DIVIDER){
           lowRateDT = (millis() - lowRateTimer) * 0.001;
@@ -289,11 +278,9 @@ void _100HzTask(uint32_t loopTime){
           baroFS = true;
         }
         if (newBaro == true && baroFS == false) {
-          D24High();
           baroFSCount = 0;
           newBaro = false;
           CorrectZ();
-          D24Low();
         }
         _100HzState = FLIGHT_STATE_MACHINE;
         break;
@@ -367,7 +354,6 @@ void _100HzTask(uint32_t loopTime){
 
     }
     _100HzState = GET_GYRO;
-    D23Low();
   }
 
 
@@ -423,7 +409,6 @@ void FailSafeHandler(){
       gsCTRL = false;
       if (rcDetected == false || RCFailSafe == true){
         LEDPatternSet(0,3,0,1);
-        //MotorShutDown();
         if (txLossRTB == 0){
           LEDPatternSet(0,3,0,1);
           MotorShutDown();
@@ -452,7 +437,6 @@ void FailSafeHandler(){
   else{
     if (RCFailSafe == true){
       LEDPatternSet(0,2,0,1);
-      //MotorShutDown();
       if (txLossRTB == 0) {
         LEDPatternSet(0,2,0,1);
         MotorShutDown();
@@ -945,10 +929,7 @@ void LoiterSM(){
       case RCINPUT:
         //              end angle      start angle      x in            y in            x out            y out
         Rotate2dVector(&yawInDegrees,&controlBearing,&pitchSetPointTX,&rollSetPointTX,&pitchSetPoint,&rollSetPoint);
-        //#ifdef SPEED_LIMIT
-
         Rotate2dVector(&zero,&yawInDegrees,&velX,&velY,&bodyVelX,&bodyVelY);
-
         if (pitchSetPoint < 0.0){
           maxPitch = -1.0 * (4.0 - bodyVelX) * 7.0;
           if (maxPitch > 0){
@@ -985,8 +966,6 @@ void LoiterSM(){
             rollSetPoint = maxRoll;
           }
         }
-
-        //#endif        
         if (fabs(rollSetPointTX) < 0.5 && fabs(pitchSetPointTX) < 0.5){
           XYLoiterState = WAIT;
           velSetPointX = velX;
@@ -1411,12 +1390,7 @@ void ProcessModes() {
     cmdRudd = RCValue[RUDD];
     throCommand = RCValue[THRO];
     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
-    //MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
     MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
-    /*if (rollSetPoint < 1 && rollSetPoint > -1) {
-     rollSetPoint = 0;
-     }*/
-
     rollSetPoint = STEP_ATT;
     if (pitchSetPoint < 1 && pitchSetPoint > -1) {
       pitchSetPoint = 0;

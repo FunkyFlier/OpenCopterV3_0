@@ -8,16 +8,8 @@
 #include "Sensors.h"
 #include <Arduino.h> 
 
-//#define KP_ACC 1.0
-//#define KI_ACC 0.0
-//#define KP_MAG 1.0
-//#define KI_MAG 0.0
-//#define FEEDBACK_LIMIT 0.1
-#define SAMPLES_FOR_ACC_MAGNITUDE 200
 
-//extern float KP_ACC;
-//extern float KP_MAG;
-//extern float FEEDBACK_LIMIT;
+#define SAMPLES_FOR_ACC_MAGNITUDE 200
 
 void AHRSupdate(float);
 void SetInitialQuaternion();

@@ -5,8 +5,6 @@
 
 #define RAW_PRES_FILT
 
-//#define SPEED_TILT_OFF_LIMIT 1.0
-
 #define BARO_ERR_LIMIT 0.5
 #define BARO_ERR_COUNTS_OFF 25
 #define BARO_ERR_COUNTS_ON 35
@@ -17,7 +15,7 @@
 #define NEW_BARO_FEEDBACK
 //------------------------
 
-//#define AUX3_RTB
+#define AUX3_RTB
 
 //#define AUX3_RATEX
 //#define AUX3_ROLL
