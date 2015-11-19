@@ -286,8 +286,8 @@ void AssignPointerArray() {
   floatPointerArray[X_ERROR_VEL] = &xVelOutput;
   floatPointerArray[Y_ERROR_POS] = &yPosOutput;
   floatPointerArray[Y_ERROR_VEL] = &yVelOutput;
-  floatPointerArray[Z_ERROR_POS] = &zPosOutput;
-  floatPointerArray[Z_ERROR_VEL] = &zVelOutput;
+  floatPointerArray[Z_ERROR_POS] = &zPosError;
+  floatPointerArray[Z_ERROR_VEL] = &zVelError;
   floatPointerArray[ACC_ERROR_X] = &exa;
   floatPointerArray[ACC_ERROR_Y] = &eya;
   floatPointerArray[ACC_ERROR_Z] = &eza;

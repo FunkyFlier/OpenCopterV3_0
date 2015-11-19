@@ -20,7 +20,6 @@ float inertialXBiased,inertialYBiased,inertialZBiased;
 
 float xPosError,yPosError,xVelError,yVelError;
 float baroAlt,baroRate;
-//-------------------
 float inertialZGrav;
 int16_t currentEstIndex,lagIndex,currentEstIndex_z,lagIndex_z,currentEstIndex_zVel,lagIndex_zVel;  
 float XEstHist[LAG_SIZE],YEstHist[LAG_SIZE],ZEstHist[LAG_SIZE_BARO_POS];
