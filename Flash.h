@@ -22,15 +22,15 @@ void FlashInit();
 void LoggingInit();
 
 uint8_t FlashGetByte(uint16_t,uint8_t);
-boolean FlashGetArray(uint16_t,uint8_t,uint8_t, uint8_t*);
-boolean FlashGetPage(uint16_t,uint16_t,uint8_t*);
+void FlashGetArray(uint16_t,uint8_t,uint8_t, uint8_t*);
+void FlashGetPage(uint16_t,uint8_t*);
 
-boolean FlashWriteByte(uint16_t,uint8_t, uint8_t);
-boolean FlashWriteByteBlocking(uint16_t,uint8_t, uint8_t);
-boolean FlashWritePartialPage(uint16_t,uint8_t, uint8_t, uint8_t*);
-boolean FlashWritePage(uint16_t, uint16_t, uint8_t*);
+void FlashWriteByte(uint16_t,uint8_t, uint8_t);
+void FlashWriteByteBlocking(uint16_t,uint8_t, uint8_t);
+void FlashWritePartialPage(uint16_t,uint8_t, uint8_t, uint8_t*);
+void FlashWritePage(uint16_t, uint8_t*);
 
-boolean ClearPage(uint16_t);
+void ClearPage(uint16_t);
 boolean FlashEraseBlock4k(uint16_t);
 boolean FlashEraseBlock32k(uint16_t);
 boolean FlashEraseBlock64k(uint16_t);
@@ -40,6 +40,7 @@ boolean VerifyWriteReady();
 boolean CheckForSuccessfulWrite();
 uint8_t GetStatusReg();
 void DispStatRegs();
+//to do move after debugging
 extern uint8_t loggingState;
 extern boolean startNewLog,endCurrentLog,writePageStarted,loggingReady;
 

@@ -19,6 +19,7 @@
 #include "Rom.h"
 #include "Radio.h"
 #include "ISR.h"
+#include "Flash.h"
 
 uint32_t loopTime;
 
