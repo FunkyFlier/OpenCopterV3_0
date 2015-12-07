@@ -1,11 +1,12 @@
 #include "Flash.h"
-#include "Defines.h"
-#include "SPI.h"
-#include <Streaming.h>
+#include "Definitions.h"
+#include "Enums.h"
+#include "Comm.h"
+#include <SPI.h>
+#include "Types.h"
 #include <Arduino.h> 
 
 uint16_t currentRecordNumber, currentRecordAddress, currentPageAddress, lowestRecordNumber, lowestRecordAddress;
-uint32_u currentTime;
 
 uint8_t writeBuffer[256];
 
@@ -160,7 +161,22 @@ void LoggingStateMachine(){
 
 
 void LogHandler(){
+  uint32_t logTime;
+  static uint32_t previousHighRate,previousMedRate,previousLowRate;
+  if (loggingReady == true){
+    logTime = millis();
+    if (logTime - previousHighRate > HIGH_RATE_INTERVAL){
+      previousHighRate = logTime;
+    }
+    if (logTime - previousMedRate > MED_RATE_INTERVAL){
+      previousMedRate = logTime;
 
+    }
+    if (logTime - previousLowRate > LOW_RATE_INTERVAL){
+      previousLowRate = logTime;
+
+    }
+  }
 }
 
 void WriteBufferRemainder(){
@@ -278,11 +294,11 @@ void SearchForLastRecord(){
     //for(uint16_t i = 0; i <= 0x00FF; i++){
     fullAddress.val = (uint32_t)i << 8;
     FlashSSLow();
-    SPI.transfer(READ_ARRAY);
-    SPI.transfer(fullAddress.buffer[2]);
-    SPI.transfer(fullAddress.buffer[1]);
-    SPI.transfer(fullAddress.buffer[0]);
-    firstByte = SPI.transfer(0);
+    SPITransfer(READ_ARRAY);
+    SPITransfer(fullAddress.buffer[2]);
+    SPITransfer(fullAddress.buffer[1]);
+    SPITransfer(fullAddress.buffer[0]);
+    firstByte = SPITransfer(0);
     FlashSSHigh();
 
     if (firstByte == WRITE_COMPLETE_REC_START || firstByte == WRITE_COMPLETE_REC_START_END){
@@ -467,12 +483,12 @@ boolean GetRecordNumber(uint16_t index, uint16_t *recordNumber, uint16_t *endAdd
 
   fullAddress.val = ((uint32_t)index << 8) + 1;
   FlashSSLow();
-  SPI.transfer(READ_ARRAY);
-  SPI.transfer(fullAddress.buffer[2]);
-  SPI.transfer(fullAddress.buffer[1]);
-  SPI.transfer(fullAddress.buffer[0]);
+  SPITransfer(READ_ARRAY);
+  SPITransfer(fullAddress.buffer[2]);
+  SPITransfer(fullAddress.buffer[1]);
+  SPITransfer(fullAddress.buffer[0]);
   for(uint8_t i = 0; i < START_OF_REC_LEN; i++){
-    inByte = SPI.transfer(0);
+    inByte = SPITransfer(0);
     switch(i){
     case 0:
       inInt16.buffer[0] = inByte;
@@ -521,11 +537,11 @@ void FlashInit(){
   } 
 
   FlashSSLow();
-  SPI.transfer(WRITE_ENABLE);
+  SPITransfer(WRITE_ENABLE);
   FlashSSHigh();
   FlashSSLow();
-  SPI.transfer(STATUS_WRITE);
-  SPI.transfer(0x00);
+  SPITransfer(STATUS_WRITE);
+  SPITransfer(0x00);
   FlashSSHigh();
   while(VerifyWriteReady() == false){
   } 
@@ -537,11 +553,11 @@ uint8_t FlashGetByte(uint16_t pageAddress, uint8_t byteAddress){
   uint8_t inByte;
   addressOutput.val = ((uint32_t)pageAddress << 8) + (uint32_t)byteAddress;
   FlashSSLow();
-  SPI.transfer(READ_ARRAY);
-  SPI.transfer(addressOutput.buffer[2]);
-  SPI.transfer(addressOutput.buffer[1]);
-  SPI.transfer(addressOutput.buffer[0]);
-  inByte = SPI.transfer(0);
+  SPITransfer(READ_ARRAY);
+  SPITransfer(addressOutput.buffer[2]);
+  SPITransfer(addressOutput.buffer[1]);
+  SPITransfer(addressOutput.buffer[0]);
+  inByte = SPITransfer(0);
   FlashSSHigh();
   return inByte;
 }
@@ -550,18 +566,18 @@ void FlashGetArray(uint16_t pageAddress, uint8_t byteAddress,uint8_t numBytes, u
   //returns an array of arbitrary length
   //to do make non blocking
   uint32_u addressOutput;
-  
+
   if (numBytes > (256 - byteAddress) ){
     numBytes = 256 - byteAddress;
   }
   addressOutput.val = ((uint32_t)pageAddress << 8) + (uint32_t)byteAddress;
   FlashSSLow();
-  SPI.transfer(READ_ARRAY);
-  SPI.transfer(addressOutput.buffer[2]);
-  SPI.transfer(addressOutput.buffer[1]);
-  SPI.transfer(addressOutput.buffer[0]);
+  SPITransfer(READ_ARRAY);
+  SPITransfer(addressOutput.buffer[2]);
+  SPITransfer(addressOutput.buffer[1]);
+  SPITransfer(addressOutput.buffer[0]);
   for(uint16_t i = 0; i < numBytes; i++){
-    readBuffer[i] = SPI.transfer(0x00);
+    readBuffer[i] = SPITransfer(0x00);
   }
   FlashSSHigh();
 }
@@ -572,12 +588,12 @@ void FlashGetPage(uint16_t pageAddress,uint8_t readBuffer[]){
   addressOutput.val = ((uint32_t)pageAddress << 8);
 
   FlashSSLow();
-  SPI.transfer(READ_ARRAY);
-  SPI.transfer(addressOutput.buffer[2]);
-  SPI.transfer(addressOutput.buffer[1]);
-  SPI.transfer(addressOutput.buffer[0]);
+  SPITransfer(READ_ARRAY);
+  SPITransfer(addressOutput.buffer[2]);
+  SPITransfer(addressOutput.buffer[1]);
+  SPITransfer(addressOutput.buffer[0]);
   for(uint16_t i = 0; i < 256; i++){
-    readBuffer[i] = SPI.transfer(0x00);
+    readBuffer[i] = SPITransfer(0x00);
   }
   FlashSSHigh();
 
@@ -589,11 +605,11 @@ void FlashWriteByte(uint16_t pageAddress, uint8_t byteAddress, uint8_t writeByte
 
   addressOutput.val = ((uint32_t)pageAddress << 8) + (uint32_t)byteAddress;
   FlashSSLow();
-  SPI.transfer(PROGRAM_PAGE);
-  SPI.transfer(addressOutput.buffer[2]);
-  SPI.transfer(addressOutput.buffer[1]);
-  SPI.transfer(addressOutput.buffer[0]);
-  SPI.transfer(writeByte);
+  SPITransfer(PROGRAM_PAGE);
+  SPITransfer(addressOutput.buffer[2]);
+  SPITransfer(addressOutput.buffer[1]);
+  SPITransfer(addressOutput.buffer[0]);
+  SPITransfer(writeByte);
   FlashSSHigh();
 }
 //todo return for write functions? 
@@ -604,11 +620,11 @@ void FlashWriteByteBlocking(uint16_t pageAddress, uint8_t byteAddress, uint8_t w
   }
   addressOutput.val = ((uint32_t)pageAddress << 8) + (uint32_t)byteAddress;
   FlashSSLow();
-  SPI.transfer(PROGRAM_PAGE);
-  SPI.transfer(addressOutput.buffer[2]);
-  SPI.transfer(addressOutput.buffer[1]);
-  SPI.transfer(addressOutput.buffer[0]);
-  SPI.transfer(writeByte);
+  SPITransfer(PROGRAM_PAGE);
+  SPITransfer(addressOutput.buffer[2]);
+  SPITransfer(addressOutput.buffer[1]);
+  SPITransfer(addressOutput.buffer[0]);
+  SPITransfer(writeByte);
   FlashSSHigh();
 }
 void FlashWritePartialPage(uint16_t pageAddress, uint8_t byteAddress, uint8_t numBytes, uint8_t writeBuffer[]){
@@ -619,12 +635,12 @@ void FlashWritePartialPage(uint16_t pageAddress, uint8_t byteAddress, uint8_t nu
   }
   addressOutput.val = ((uint32_t)pageAddress << 8) + (uint32_t)byteAddress;
   FlashSSLow();
-  SPI.transfer(PROGRAM_PAGE);
-  SPI.transfer(addressOutput.buffer[2]);
-  SPI.transfer(addressOutput.buffer[1]);
-  SPI.transfer(addressOutput.buffer[0]);
+  SPITransfer(PROGRAM_PAGE);
+  SPITransfer(addressOutput.buffer[2]);
+  SPITransfer(addressOutput.buffer[1]);
+  SPITransfer(addressOutput.buffer[0]);
   for(uint16_t i = 0; i < numBytes; i++){
-    SPI.transfer(writeBuffer[i]);
+    SPITransfer(writeBuffer[i]);
   }
   FlashSSHigh();
 }
@@ -636,12 +652,12 @@ void FlashWritePage(uint16_t pageAddress, uint8_t writeBuffer[]){
 
   addressOutput.val = ((uint32_t)pageAddress << 8);
   FlashSSLow();
-  SPI.transfer(PROGRAM_PAGE);
-  SPI.transfer(addressOutput.buffer[2]);
-  SPI.transfer(addressOutput.buffer[1]);
-  SPI.transfer(addressOutput.buffer[0]);
+  SPITransfer(PROGRAM_PAGE);
+  SPITransfer(addressOutput.buffer[2]);
+  SPITransfer(addressOutput.buffer[1]);
+  SPITransfer(addressOutput.buffer[0]);
   for(uint16_t i = 0; i < 256; i++){
-    SPI.transfer(writeBuffer[i]);
+    SPITransfer(writeBuffer[i]);
   }
   FlashSSHigh();
 }
@@ -652,12 +668,12 @@ void ClearPage(uint16_t pageAddress){
 
   addressOutput.val = ((uint32_t)pageAddress << 8);
   FlashSSLow();
-  SPI.transfer(PROGRAM_PAGE);
-  SPI.transfer(addressOutput.buffer[2]);
-  SPI.transfer(addressOutput.buffer[1]);
-  SPI.transfer(addressOutput.buffer[0]);
+  SPITransfer(PROGRAM_PAGE);
+  SPITransfer(addressOutput.buffer[2]);
+  SPITransfer(addressOutput.buffer[1]);
+  SPITransfer(addressOutput.buffer[0]);
   for(uint16_t i = 0; i < 256; i++){
-    SPI.transfer(0x00);
+    SPITransfer(0x00);
   }
   FlashSSHigh();
 }
@@ -672,13 +688,13 @@ boolean FlashEraseBlock4k(uint16_t blockAddress){
   if ((blockAddress & BLOCK_MASK_4K) == 0x0000){
     addressOutput.val = ((uint32_t)blockAddress << 8);
     FlashSSLow();
-    SPI.transfer(WRITE_ENABLE);
+    SPITransfer(WRITE_ENABLE);
     FlashSSHigh();
     FlashSSLow();
-    SPI.transfer(ERASE_4K);
-    SPI.transfer(addressOutput.buffer[2]);
-    SPI.transfer(addressOutput.buffer[1]);
-    SPI.transfer(addressOutput.buffer[0]);
+    SPITransfer(ERASE_4K);
+    SPITransfer(addressOutput.buffer[2]);
+    SPITransfer(addressOutput.buffer[1]);
+    SPITransfer(addressOutput.buffer[0]);
     FlashSSHigh();
     return true;
   }
@@ -697,13 +713,13 @@ boolean FlashEraseBlock32k(uint16_t blockAddress){
   if ((blockAddress & BLOCK_MASK_32K) == 0x0000 ){
     addressOutput.val = ((uint32_t)blockAddress << 8);
     FlashSSLow();
-    SPI.transfer(WRITE_ENABLE);
+    SPITransfer(WRITE_ENABLE);
     FlashSSHigh();
     FlashSSLow();
-    SPI.transfer(ERASE_32K);
-    SPI.transfer(addressOutput.buffer[2]);
-    SPI.transfer(addressOutput.buffer[1]);
-    SPI.transfer(addressOutput.buffer[0]);
+    SPITransfer(ERASE_32K);
+    SPITransfer(addressOutput.buffer[2]);
+    SPITransfer(addressOutput.buffer[1]);
+    SPITransfer(addressOutput.buffer[0]);
     FlashSSHigh();
     return true;
   }
@@ -721,13 +737,13 @@ boolean FlashEraseBlock64k(uint16_t blockAddress){
   if ((blockAddress & BLOCK_MASK_64K) == 0x0000){
     addressOutput.val = ((uint32_t)blockAddress << 8);
     FlashSSLow();
-    SPI.transfer(WRITE_ENABLE);
+    SPITransfer(WRITE_ENABLE);
     FlashSSHigh();
     FlashSSLow();
-    SPI.transfer(ERASE_64K);
-    SPI.transfer(addressOutput.buffer[2]);
-    SPI.transfer(addressOutput.buffer[1]);
-    SPI.transfer(addressOutput.buffer[0]);
+    SPITransfer(ERASE_64K);
+    SPITransfer(addressOutput.buffer[2]);
+    SPITransfer(addressOutput.buffer[1]);
+    SPITransfer(addressOutput.buffer[0]);
     FlashSSHigh();
     return true;
   }
@@ -739,18 +755,18 @@ boolean FlashEraseChip(){
   //sets entire chip to 0xFF
   while(VerifyWriteReady() == false){
   }
-  
+
   FlashSSLow();
-  SPI.transfer(WRITE_ENABLE);
+  SPITransfer(WRITE_ENABLE);
   FlashSSHigh();
 
   FlashSSLow();
-  SPI.transfer(ERASE_CHIP);
+  SPITransfer(ERASE_CHIP);
   FlashSSHigh();
-  
+
   while(VerifyWriteReady() == false){
   }
-  
+
   if (CheckForSuccessfulWrite() == true){
     return true;
   }
@@ -774,9 +790,9 @@ uint8_t GetStatusReg(){
   //returns the first byte of the status registers
   uint8_t inByte1;//,inByte2;
   FlashSSLow();
-  SPI.transfer(READ_STATUS_REG);
-  inByte1 = SPI.transfer(0);
-  //inByte2 = SPI.transfer(0);
+  SPITransfer(READ_STATUS_REG);
+  inByte1 = SPITransfer(0);
+  //inByte2 = SPITransfer(0);
   FlashSSHigh(); 
   return inByte1;
   //return 0 device ready write not enabled
@@ -792,7 +808,7 @@ boolean VerifyWriteReady(){
   switch(statusReg){
   case 0://device ready write not enabled
     FlashSSLow();
-    SPI.transfer(WRITE_ENABLE);
+    SPITransfer(WRITE_ENABLE);
     FlashSSHigh();
     return true;
     break;
@@ -809,19 +825,6 @@ boolean VerifyWriteReady(){
     return false;
     break;
   }
-}
-
-
-
-void DispStatRegs(){
-  //todo remove after debugging is complete
-  uint8_t inByte1,inByte2;
-  FlashSSLow();
-  SPI.transfer(READ_STATUS_REG);
-  inByte1 = SPI.transfer(0);
-  inByte2 = SPI.transfer(0);
-  FlashSSHigh(); 
-  Serial<<"SB1: "<<_HEX(inByte1)<<"\r\nSB2: "<<_HEX(inByte2)<<"\r\n";
 }
 
 

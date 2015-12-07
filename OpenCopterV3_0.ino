@@ -57,6 +57,9 @@ void setup() {
   MagInit();
   BaroInit();
   GyroInit();
+  FlashInit();
+  LoggingInit();
+  
 
   if (calibrationMode == true){
     CalibrateSensors();

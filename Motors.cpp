@@ -324,6 +324,7 @@ void MotorHandler(){
 
   switch(motorState){
   case HOLD:
+    
     if (cmdElev < 1250 && cmdAile > 1750){
       displayFSData = true;  
     }
@@ -371,6 +372,7 @@ void MotorHandler(){
       if (abs(cmdRudd - 1500) < 50){
         rudderFlag = false;
         motorState = TO;
+        startNewLog = true;
         takeOffPressure = pressure;
         initialPressure = pressure;
         homeBaseXOffset = XEst;
@@ -400,9 +402,11 @@ void MotorHandler(){
 
     if (cmdRudd > 1700){
       motorState = HOLD;
+      endCurrentLog = true;
     }
     if (flightMode == RTB){
       motorState = HOLD;
+      endCurrentLog = true;
     }
 
     if (flightMode == RATE || flightMode == ATT){
@@ -450,6 +454,7 @@ void MotorHandler(){
         throttleCommand = propIdleCommand;
         if (cmdRudd > 1700){
           motorState = HOLD;
+          endCurrentLog = true;
         }
         motorState = TO;
 
@@ -483,12 +488,14 @@ void MotorHandler(){
       CommandAllMotors((float)pwmLow);
       landDetected = false;
       motorState = HOLD;
+      endCurrentLog = true;
       break;
     }
     if (cmdRudd > 1700){
       CommandAllMotors((float)pwmLow);
       landDetected = false;
       motorState = HOLD;
+      endCurrentLog = true;
       break;
     }
 
@@ -504,6 +511,7 @@ void MotorHandler(){
         CommandAllMotors((float)pwmLow);
         landDetected = false;
         motorState = HOLD;
+        endCurrentLog = true;
       } 
     }
     CalculateMotorMixing();
