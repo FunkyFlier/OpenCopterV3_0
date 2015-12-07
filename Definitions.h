@@ -228,6 +228,38 @@
 #define PKT_LOCAL_UN_L 4
 #define PKT_LOCAL_UN_M 5
 
+#define BLOCK_MASK_4K 0x000F
+#define BLOCK_MASK_32K 0x007F
+#define BLOCK_MASK_64K 0x00FF
+
+#define READ_ARRAY 0x03
+#define ERASE_4K 0x20
+#define ERASE_32K 0x52
+#define ERASE_64K 0xD8
+#define ERASE_CHIP 0x60
+#define PROGRAM_PAGE 0x02
+
+#define WRITE_ENABLE 0x06
+
+#define READ_STATUS_REG 0x05
+
+#define STATUS_WRITE 0x01
+
+#define TOP_ADDRESS 0x3FF000
+
+#define WRITE_ERROR_MASK 0x20
+
+//first byte flags
+#define ERASED 0XFF
+#define WRITE_STARTED 0x7F
+#define WRITE_STARTED_REC_START 0x5F
+#define WRITE_STARTED_REC_END 0x6F
+#define WRITE_COMPLETE 0x3F
+#define WRITE_COMPLETE_REC_START 0x1F
+#define WRITE_COMPLETE_REC_END 0x2F
+#define WRITE_COMPLETE_REC_START_END 0x0F
+#define TO_ERASE 0x00
+#define START_OF_REC_LEN 5
 
 
 //V1 defines
