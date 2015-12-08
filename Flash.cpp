@@ -183,10 +183,6 @@ void LogHandler(){
         break;
       case MOTOR_MIX:
         MotorMixToFlash();
-        startOfRecordOutputState = SYSTEM_FLAGS;
-        break;
-      case SYSTEM_FLAGS:
-        SysFlagsToFlash();
         startOfRecordOutputState = GAINS;
         startOfRecordDataToFlash = false;
         break;
@@ -353,6 +349,7 @@ void GainsToFlash(){
 
 void MotorMixToFlash(){
   float_u outFloat;
+ 
   outFloat.val = m1X;
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = m1Y;
@@ -401,11 +398,12 @@ void MotorMixToFlash(){
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = m8Z;
   WriteBufferHandler(4,outFloat.buffer);
+  WriteBufferHandler(1,&txLossRTB);
+  WriteBufferHandler(1,&magDetected);
+  WriteBufferHandler(1,&GPSDetected);
 }
 
-void SysFlagsToFlash(){
-  
-}
+
 
 void HighRateLog(uint32_t time){
   uint32_u currentTime;

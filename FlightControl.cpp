@@ -339,8 +339,13 @@ void _100HzTask(uint32_t loopTime){
         break;
       case LED_HANDLE:
         LEDPatternHandler(loopTime);
-        _100HzState = MOTOR_HANDLER;
+        _100HzState = FLASH_LOGGING;
         break;
+      case FLASH_LOGGING:
+      LoggingStateMachine();
+      LogHandler();
+      _100HzState = MOTOR_HANDLER;
+      break;
       case MOTOR_HANDLER:
         MotorHandler();
         tuningTrasnmitOK = true;

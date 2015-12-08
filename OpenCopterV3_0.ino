@@ -57,10 +57,14 @@ void setup() {
   MagInit();
   BaroInit();
   GyroInit();
-  
+
   FlashInit();
-  LoggingInit();
-  
+  if (getFlashMode == true){
+    LogOutput();
+  }
+  else{
+    LoggingInit();
+  }
 
   if (calibrationMode == true){
     CalibrateSensors();
@@ -140,6 +144,7 @@ void SetPinModes(){
   LEDInit();
 
 }
+
 
 
 
