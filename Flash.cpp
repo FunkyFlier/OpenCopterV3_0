@@ -20,6 +20,7 @@ uint8_t writeBuffer[256];
 uint8_t writeBufferIndex = 0;
 
 boolean startNewLog = false,endCurrentLog = false,writePageStarted = false,loggingReady=false;
+boolean startOfRecordDataToFlash = false;
 
 uint8_t loggingState = WRITE_READY;
 
@@ -62,6 +63,7 @@ void LoggingStateMachine(){
     if (startNewLog == true){
       endCurrentLog = false;
       startNewLog = false;
+      startOfRecordDataToFlash = true;
       loggingState = START_NEW_LOG;
       break;
     }
@@ -169,22 +171,240 @@ void LoggingStateMachine(){
 
 void LogHandler(){
   uint32_t logTime;
+  static uint8_t startOfRecordOutputState = 0;
   static uint32_t previousHighRate,previousMedRate,previousLowRate;
   if (loggingReady == true){
     logTime = millis();
-    if (logTime - previousHighRate > HIGH_RATE_INTERVAL){
-      previousHighRate = logTime;
-      HighRateLog(logTime);
+    if (startOfRecordDataToFlash == true){
+      switch (startOfRecordOutputState){
+      case GAINS:
+        GainsToFlash();
+        startOfRecordOutputState = MOTOR_MIX;
+        break;
+      case MOTOR_MIX:
+        MotorMixToFlash();
+        startOfRecordOutputState = SYSTEM_FLAGS;
+        break;
+      case SYSTEM_FLAGS:
+        SysFlagsToFlash();
+        startOfRecordOutputState = GAINS;
+        startOfRecordDataToFlash = false;
+        break;
+      }
     }
-    if (logTime - previousMedRate > MED_RATE_INTERVAL){
-      previousMedRate = logTime;
-      MedRateLog(logTime);
-    }
-    if (logTime - previousLowRate > LOW_RATE_INTERVAL){
-      previousLowRate = logTime;
-      LowRateLog(logTime);
+    else{
+      if (logTime - previousHighRate > HIGH_RATE_INTERVAL){
+        previousHighRate = logTime;
+        HighRateLog(logTime);
+      }
+      if (logTime - previousMedRate > MED_RATE_INTERVAL){
+        previousMedRate = logTime;
+        MedRateLog(logTime);
+      }
+      if (logTime - previousLowRate > LOW_RATE_INTERVAL){
+        previousLowRate = logTime;
+        LowRateLog(logTime);
+      }
     }
   }
+}
+
+void GainsToFlash(){
+  float_u outFloat;
+  
+  uint8_t outByte = 0;
+  WriteBufferHandler(1,&outByte);
+
+  outFloat.val = kp_pitch_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_pitch_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_pitch_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_pitch_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_roll_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_roll_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_roll_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_roll_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_yaw_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_yaw_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_yaw_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_yaw_rate;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_pitch_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_pitch_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_pitch_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_pitch_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_roll_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_roll_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_roll_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_roll_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_yaw_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_yaw_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_yaw_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_yaw_attitude;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_altitude_position;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_altitude_position;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_altitude_position;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_altitude_position;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_altitude_velocity;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_altitude_velocity;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_altitude_velocity;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_altitude_velocity;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_loiter_pos_x;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_loiter_pos_x;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_loiter_pos_x;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_loiter_pos_x;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_loiter_velocity_x;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_loiter_velocity_x;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_loiter_velocity_x;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_loiter_velocity_x;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_loiter_pos_y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_loiter_pos_y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_loiter_pos_y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_loiter_pos_y;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_loiter_velocity_y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_loiter_velocity_y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_loiter_velocity_y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_loiter_velocity_y;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_waypoint_position;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_waypoint_position;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_waypoint_position;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_waypoint_position;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_waypoint_velocity;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_waypoint_velocity;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_waypoint_velocity;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_waypoint_velocity;
+  WriteBufferHandler(4,outFloat.buffer);
+
+  outFloat.val = kp_cross_track;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ki_cross_track;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = kd_cross_track;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = fc_cross_track;
+  WriteBufferHandler(4,outFloat.buffer);
+}
+
+void MotorMixToFlash(){
+  float_u outFloat;
+  outFloat.val = m1X;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m1Y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m1Z;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m2X;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m2Y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m2Z;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m3X;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m3Y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m3Z;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m4X;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m4Y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m4Z;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m5X;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m5Y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m5Z;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m6X;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m6Y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m6Z;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m7X;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m7Y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m7Z;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m8X;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m8Y;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = m8Z;
+  WriteBufferHandler(4,outFloat.buffer);
+}
+
+void SysFlagsToFlash(){
+  
 }
 
 void HighRateLog(uint32_t time){
@@ -960,6 +1180,9 @@ boolean VerifyWriteReady(){
     break;
   }
 }
+
+
+
 
 
 
