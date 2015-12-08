@@ -266,7 +266,7 @@ void Radio() {
           }
           EEPROMWrite(PR_FLAG, 0xAA);
         }
-        if (calibrationMode == true) {
+        if (calibrationMode == true || getFlashMode == true) {
           if (typeNum == START_CAL_DATA) {
             sendCalibrationData = true;
             calibrationNumber = cmdNum;
