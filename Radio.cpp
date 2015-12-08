@@ -40,7 +40,7 @@ void TryHandShake(){
   LEDPatternSet(3,0,0,3);
   AssignRadioUART();
   HandShake();
-
+  USBFlag = false;
   if (handShake == false) {
     USBFlag = true;
     AssignRadioUSB();
@@ -809,7 +809,7 @@ void OrderedSet() {
 
 void SendOrdAck() {
   uint8_t txSum = 0,txDoubleSum = 0,temp;
-  
+
   RadioWrite(0xAA);
   RadioWrite(groundStationID);
   RadioWrite(3);
@@ -854,7 +854,7 @@ void SendOrdMis() {
 void OrderedQuery() {
   float_u outFloat;
   int16_u outInt16;
-  
+
   switch (typeNum) {
   case FLOAT:
     outFloat.val = *floatPointerArray[cmdNum];
@@ -884,7 +884,7 @@ void SendUnAck() {
   uint8_t txSum = 0,txDoubleSum = 0,temp;
   float_u outFloat;
   int16_u outInt16;
-  
+
   RadioWrite(0XAA);
   RadioWrite(groundStationID);
   switch (typeNum) {
@@ -1151,9 +1151,11 @@ void HandShake() {
   if (EEPROMRead(HS_FLAG) == 0xAA || EEPROMRead(HS_FLAG) == 0xBB) { //Check for handshake from calibration
     if (EEPROMRead(HS_FLAG) == 0xBB) {
       AssignRadioUSB();
+      USBFlag = true;
     }
     else{
       AssignRadioUART();
+      USBFlag = false;
     }
     EEPROMWrite(HS_FLAG, 0xFF);
     packetTemp[0] = EEPROMRead(PKT_LOCAL_ORD_L);//lsb for packetNumberLocalOrdered
@@ -1178,12 +1180,13 @@ void HandShake() {
   if (handShake == false) {
     return;
   }
-  
+
   handShake = false;
   calibrationModeESCs = false;
   gsCTRL = false;
   calibrationMode = false;
-  
+  getFlashMode = false; 
+
   while (millis() - radioTimer < 1000 && handShake == false) { 
     if (RadioAvailable() > 0) { 
       while (RadioAvailable() > 0) { 
@@ -1220,6 +1223,13 @@ void HandShake() {
           }
           break;
         case HS_TYPE://check handshake type
+          if (radioByte == 0x05){
+            getFlashMode = true;
+            rxSum += radioByte;
+            rxDoubleSum += rxSum;
+            handShakeState = HS_SUM_1;
+            break;
+          }
           if (radioByte == 0x04){
             calibrationModeESCs = true;
             rxSum += radioByte;
@@ -1292,95 +1302,57 @@ void HandShake() {
 
 void SendHandShakeResponse() {
   uint8_t txSum = 0, txDoubleSum = 0;
-  RadioWrite(0xAA);
-  RadioWrite(groundStationID);
-  RadioWrite(0x04);//packet length
-  if (calibrationMode == true) {
+  uint8_t responseBuffer[];
 
-    RadioWrite(0xF7);//cmd byte
+
+  responseBuffer[0] = 0xAA;
+  responseBuffer[1] = groundStationID;
+  responseBuffer[2] = 0x04;
+  if (calibrationMode == true){
+    responseBuffer[3] = 0xF7;//cmd byte
     txSum += 0xF7;
     txDoubleSum += txSum;
-    RadioWrite(PROTOCOL_VER_NUM);//version number
-    txSum += 1;
-    txDoubleSum += txSum;
-    RadioWrite(PROTOCOL_VER_SUB_NUM);//sub version number
-    txSum += 1;
-    txDoubleSum += txSum;
-    RadioWrite(NUM_WAY_POINTS);
-    txSum += NUM_WAY_POINTS;
-    txDoubleSum += txSum;
-    RadioWrite(txSum);
-    RadioWrite(txDoubleSum);
-    for (uint8_t i = 0; i < 15; i++) {
-      RadioWrite(0xAA);
-      RadioWrite(groundStationID);
-      RadioWrite(0x04);//packet length
-      RadioWrite(0xF7);//cmd byte
-      RadioWrite(1);//version number
-      RadioWrite(1);//sub version number
-      RadioWrite(NUM_WAY_POINTS);
-      RadioWrite(txSum);
-      RadioWrite(txDoubleSum);
-    }
-
   }
-  else {
-    if(calibrationModeESCs == true){
-      RadioWrite(0xF6);//cmd byte
+  else{
+    if (calibrationModeESCs == true){
+      responseBuffer[3] = 0xF6;//cmd byte
       txSum += 0xF6;
       txDoubleSum += txSum;
-      RadioWrite(1);//version number
-      txSum += 1;
-      txDoubleSum += txSum;
-      RadioWrite(1);//sub version number
-      txSum += 1;
-      txDoubleSum += txSum;
-      RadioWrite(NUM_WAY_POINTS);
-      txSum += NUM_WAY_POINTS;
-      txDoubleSum += txSum;
-      RadioWrite(txSum);
-      RadioWrite(txDoubleSum);
-      for (uint8_t i = 0; i < 15; i++) {
-        RadioWrite(0xAA);
-        RadioWrite(groundStationID);
-        RadioWrite(0x04);//packet length
-        RadioWrite(0xFE);//cmd byte
-        RadioWrite(1);//version number
-        RadioWrite(1);//sub version number
-        RadioWrite(NUM_WAY_POINTS);
-        RadioWrite(txSum);
-        RadioWrite(txDoubleSum);
-      }
     }
     else{
-      RadioWrite(0xFE);//cmd byte
-      txSum += 0xFE;
-      txDoubleSum += txSum;
-      RadioWrite(1);//version number
-      txSum += 1;
-      txDoubleSum += txSum;
-      RadioWrite(1);//sub version number
-      txSum += 1;
-      txDoubleSum += txSum;
-      RadioWrite(NUM_WAY_POINTS);
-      txSum += NUM_WAY_POINTS;
-      txDoubleSum += txSum;
-      RadioWrite(txSum);
-      RadioWrite(txDoubleSum);
-      for (uint8_t i = 0; i < 15; i++) {
-        RadioWrite(0xAA);
-        RadioWrite(groundStationID);
-        RadioWrite(0x04);//packet length
-        RadioWrite(0xFE);//cmd byte
-        RadioWrite(1);//version number
-        RadioWrite(1);//sub version number
-        RadioWrite(NUM_WAY_POINTS);
-        RadioWrite(txSum);
-        RadioWrite(txDoubleSum);
+      if (getFlashMode == true){
+        responseBuffer[3] = 0xF5;//cmd byte
+        txSum += 0xF5;
+        txDoubleSum += txSum;
+      }
+      else{
+        responseBuffer[3] = 0xFE;//cmd byte
+        txSum += 0xFE;
+        txDoubleSum += txSum;
       }
     }
-
   }
+
+  responseBuffer[4] = PROTOCOL_VER_NUM;
+  txSum += 1;
+  txDoubleSum += txSum;
+  responseBuffer[5] = PROTOCOL_VER_SUB_NUM;
+  txSum += 1;
+  txDoubleSum += txSum;
+  responseBuffer[6] = NUM_WAY_POINTS;
+  txSum += 1;
+  txDoubleSum += txSum;
+  responseBuffer[7] = txSum;
+  responseBuffer[8] = txDoubleSum;
+
+  for (uint8_t i = 0; i < 15; i++) {
+    for(uint8_t j = 0; j < 9; j++){
+      RadioWrite(responseBuffer[j]);
+    }
+  }
+
+
+
 }
 
 void SendCalData() {
@@ -1509,4 +1481,9 @@ void SendCalData() {
     break;
   }
 }
+
+
+
+
+
 

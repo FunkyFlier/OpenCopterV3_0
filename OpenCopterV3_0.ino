@@ -57,6 +57,7 @@ void setup() {
   MagInit();
   BaroInit();
   GyroInit();
+  
   FlashInit();
   LoggingInit();
   
