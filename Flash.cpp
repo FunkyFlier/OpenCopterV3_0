@@ -10,6 +10,7 @@
 #include "Sensors.h"
 #include "RCSignals.h"
 #include "FlightControl.h"
+#include "Radio.h"
 #include <Arduino.h> 
 
 
@@ -21,12 +22,64 @@ uint8_t writeBufferIndex = 0;
 
 boolean startNewLog = false,endCurrentLog = false,writePageStarted = false,loggingReady=false;
 boolean startOfRecordDataToFlash = false;
-
+boolean eraseLogs = false, dumpLogs = false;
 uint8_t loggingState = WRITE_READY;
 
 void HighRateLog(uint32_t);
 void MedRateLog(uint32_t);
 void LowRateLog(uint32_t);
+void LogDump();
+
+void LogOutput(){
+  while(1){
+    Radio();
+    if (eraseLogs == true){
+      if(VerifyWriteReady() == true){
+        eraseLogs = false;
+        FlashEraseChip();
+        SendEraseComplete();
+      }
+    }
+    if (dumpLogs == true){
+      LogDump();
+      SendDumpComplete();
+      dumpLogs = false;
+    }
+  }
+}
+void LogDump(){
+  uint32_u fullAddress;
+  uint8_t  firstByte;
+  uint16_t recordNumber,lastPageAddress;
+  boolean validRecord,recordComplete;
+  
+  for(uint16_t i = 0; i <= 0x3FFF; i++){
+    Radio();
+    fullAddress.val = (uint32_t)i << 8;
+    FlashSSLow();
+    SPI.transfer(READ_ARRAY);
+    SPI.transfer(fullAddress.buffer[2]);
+    SPI.transfer(fullAddress.buffer[1]);
+    SPI.transfer(fullAddress.buffer[0]);
+    firstByte = SPI.transfer(0);
+    FlashSSHigh();
+    
+    if (firstByte == WRITE_COMPLETE_REC_START || firstByte == WRITE_COMPLETE_REC_START_END){
+      GetRecordNumber(i,&recordNumber,&lastPageAddress,&recordComplete);
+      if (recordComplete == false){
+        CompleteRecord(i,&recordNumber,&lastPageAddress);
+      }
+      OutputRecord(i,lastPageAddress);
+      
+    }
+    
+  }
+  
+}
+
+void OutputRecord(uint16_t startAddress,uint16_t endAddress){
+  
+}
 
 void LoggingStateMachine(){
 

@@ -241,6 +241,12 @@ void Radio() {
           radioState = SB_CHECK;
           break;
         }
+        if (typeNum == ERASE_ALL_LOGS){
+          eraseLogs = true;
+        }
+        if (typeNum == GET_ALL_LOGS){
+          dumpLogs = true;
+        }
         if (typeNum == RESET_PR_OFFSET){
           pitchOffset = 0;
           rollOffset = 0;
@@ -1481,6 +1487,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 

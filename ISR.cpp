@@ -27,7 +27,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
     baroFSCount++;
   }
   else{
-    if (handShake == true && calibrationMode == false){
+    if (handShake == true && calibrationMode == false && getFlashMode == false){
       Radio();
       TuningTransmitter(); 
     }

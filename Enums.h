@@ -72,7 +72,10 @@ enum TypeNums{
   GS_CONTROL,
   ESC_CAL,
   GS_PING,
-  RESET_PR_OFFSET
+  RESET_PR_OFFSET,
+  ERASE_ALL_LOGS,
+  GET_ALL_LOGS
+  
 };
 enum HandShakeStates{
   START_BYTE,
