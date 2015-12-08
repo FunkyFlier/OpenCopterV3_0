@@ -1,6 +1,12 @@
 #ifndef Definitions_h
 #define Definitions_h
 
+
+
+#define HIGH_RATE_INTERVAL 10
+#define MED_RATE_INTERVAL 50
+#define LOW_RATE_INTERVAL 200
+
 #define SPEED_LIMIT
 
 #define RAW_PRES_FILT

@@ -2,9 +2,16 @@
 #include "Definitions.h"
 #include "Enums.h"
 #include "Comm.h"
-#include <SPI.h>
 #include "Types.h"
+#include "Inertial.h"
+#include "GPS.h"
+#include "Calibration.h"
+#include "Attitude.h"
+#include "Sensors.h"
+#include "RCSignals.h"
+#include "FlightControl.h"
 #include <Arduino.h> 
+
 
 uint16_t currentRecordNumber, currentRecordAddress, currentPageAddress, lowestRecordNumber, lowestRecordAddress;
 
@@ -15,6 +22,10 @@ uint8_t writeBufferIndex = 0;
 boolean startNewLog = false,endCurrentLog = false,writePageStarted = false,loggingReady=false;
 
 uint8_t loggingState = WRITE_READY;
+
+void HighRateLog(uint32_t);
+void MedRateLog(uint32_t);
+void LowRateLog(uint32_t);
 
 void LoggingStateMachine(){
 
@@ -132,8 +143,6 @@ void LoggingStateMachine(){
     if(VerifyWriteReady() == false){
       break;
     }
-    startNewLog = false;
-    endCurrentLog = false;
     writePageStarted = false;
     loggingReady = false;
     currentPageAddress += 1;
@@ -158,8 +167,6 @@ void LoggingStateMachine(){
 
 
 
-
-
 void LogHandler(){
   uint32_t logTime;
   static uint32_t previousHighRate,previousMedRate,previousLowRate;
@@ -167,16 +174,147 @@ void LogHandler(){
     logTime = millis();
     if (logTime - previousHighRate > HIGH_RATE_INTERVAL){
       previousHighRate = logTime;
+      HighRateLog(logTime);
     }
     if (logTime - previousMedRate > MED_RATE_INTERVAL){
       previousMedRate = logTime;
-
+      MedRateLog(logTime);
     }
     if (logTime - previousLowRate > LOW_RATE_INTERVAL){
       previousLowRate = logTime;
-
+      LowRateLog(logTime);
     }
   }
+}
+
+void HighRateLog(uint32_t time){
+  uint32_u currentTime;
+  float_u outFloat;
+  uint8_t outByte;
+
+  currentTime.val = time;
+
+  outByte = 1;
+  WriteBufferHandler(1,&outByte);
+  WriteBufferHandler(4,currentTime.buffer);
+  //gyro------------------------------------------
+  outFloat.val = degreeGyroX;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = degreeGyroY;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = degreeGyroZ;
+  WriteBufferHandler(4,outFloat.buffer);
+  //acc-------------------------------------------
+  outFloat.val = filtAccX;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = filtAccY;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = filtAccZ;
+  WriteBufferHandler(4,outFloat.buffer);
+  //mag--------------------------------------------
+  outFloat.val = scaledMagX;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = scaledMagY;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = scaledMagZ;
+  WriteBufferHandler(4,outFloat.buffer);
+  //att--------------------------------------------
+  outFloat.val = yawInDegrees;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = pitchInDegrees;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = rollInDegrees;
+  WriteBufferHandler(4,outFloat.buffer);
+  //pos--------------------------------------------
+  outFloat.val = XEst;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = YEst;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = ZEst;
+  WriteBufferHandler(4,outFloat.buffer);
+  //vel--------------------------------------------
+  outFloat.val = velX;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = velY;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = velZ;
+  WriteBufferHandler(4,outFloat.buffer);
+  //inertial--------------------------------------------
+  outFloat.val = inertialX;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = inertialY;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = inertialZ;
+  WriteBufferHandler(4,outFloat.buffer);
+  //inertial--------------------------------------------
+  outFloat.val = accelBiasX;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = accelBiasY;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = accelBiasZ;
+  WriteBufferHandler(4,outFloat.buffer);
+}
+void MedRateLog(uint32_t time){
+  uint32_u currentTime;
+  float_u outFloat;
+  int16_u outInt16;
+  uint8_t outByte;
+  currentTime.val = time;
+
+  outByte = 2;
+  WriteBufferHandler(1,&outByte);
+  WriteBufferHandler(4,currentTime.buffer);
+  outFloat.val = pressure;
+  WriteBufferHandler(4,outFloat.buffer);
+  WriteBufferHandler(1,&baroFS);
+  outInt16.val = RCValue[0];
+  WriteBufferHandler(2,outInt16.buffer);
+  outInt16.val = RCValue[1];
+  WriteBufferHandler(2,outInt16.buffer);
+  outInt16.val = RCValue[2];
+  WriteBufferHandler(2,outInt16.buffer);
+  outInt16.val = RCValue[3];
+  WriteBufferHandler(2,outInt16.buffer);
+  outInt16.val = RCValue[4];
+  WriteBufferHandler(2,outInt16.buffer);
+  outInt16.val = RCValue[5];
+  WriteBufferHandler(2,outInt16.buffer);
+  outInt16.val = RCValue[6];
+  WriteBufferHandler(2,outInt16.buffer);
+  outInt16.val = RCValue[7];
+  WriteBufferHandler(2,outInt16.buffer);
+
+}
+
+
+
+void LowRateLog(uint32_t time){
+  uint32_u currentTime;
+  float_u outFloat;
+  uint8_t outByte;
+
+  currentTime.val = time;
+  outByte = 3;
+  WriteBufferHandler(1,&outByte);
+  WriteBufferHandler(4,currentTime.buffer);
+  outFloat.val = floatLat;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = floatLon;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = homeLatFloat;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = homeLonFloat;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = velN;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = velE;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = hAcc;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = sAcc;
+  WriteBufferHandler(4,outFloat.buffer);
+  outFloat.val = floatLat;
+  WriteBufferHandler(1,&gpsFailSafe);
 }
 
 void WriteBufferRemainder(){
@@ -202,10 +340,9 @@ void WriteBufferRemainder(){
 }
 
 
-boolean WriteBufferHandler(uint8_t numBytes, uint8_t inputBuffer[]){//make void?
+void WriteBufferHandler(uint8_t numBytes, uint8_t inputBuffer[]){
   //takes data from the loghandler and writes it to the flash memory
   uint16_u outInt16;
-  boolean bufferToFlash = false;
 
   for(uint16_t i = 0; i < numBytes; i++){
     writeBuffer[writeBufferIndex] = inputBuffer[i];
@@ -219,12 +356,9 @@ boolean WriteBufferHandler(uint8_t numBytes, uint8_t inputBuffer[]){//make void?
       writeBuffer[2] = outInt16.buffer[1];
       writeBufferIndex = 4;
       loggingReady = false;
-      bufferToFlash = true;
-
     }
   }
 
-  return bufferToFlash;
 }
 
 void LoggingInit(){
@@ -826,6 +960,14 @@ boolean VerifyWriteReady(){
     break;
   }
 }
+
+
+
+
+
+
+
+
 
 
 

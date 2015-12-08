@@ -15,6 +15,7 @@
 #include "Radio.h"
 #include <EEPROM.h>
 #include "GPS.h"
+#include "Flash.h"
 
 void SaveGains();
 void ResetPIDs();
