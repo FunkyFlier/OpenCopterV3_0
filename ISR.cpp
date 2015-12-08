@@ -6,6 +6,7 @@
 #include "GPS.h"
 #include "Enums.h"
 #include "Radio.h"
+#include "Flash.h"
 
 volatile boolean watchDogStartCount = false;
 

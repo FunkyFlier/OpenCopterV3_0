@@ -11,6 +11,7 @@
 #include "RCSignals.h"
 #include "FlightControl.h"
 #include "Radio.h"
+#include "Motors.h"
 #include <Arduino.h> 
 
 
@@ -29,6 +30,9 @@ void HighRateLog(uint32_t);
 void MedRateLog(uint32_t);
 void LowRateLog(uint32_t);
 void LogDump();
+void OutputRecord(uint16_t ,uint16_t);
+void GainsToFlash();
+void MotorMixToFlash();
 
 void LogOutput(){
   while(1){
@@ -41,6 +45,7 @@ void LogOutput(){
       }
     }
     if (dumpLogs == true){
+      flashOutputPacketNumber.val = 0;
       LogDump();
       SendDumpComplete();
       dumpLogs = false;
@@ -52,7 +57,7 @@ void LogDump(){
   uint8_t  firstByte;
   uint16_t recordNumber,lastPageAddress;
   boolean validRecord,recordComplete;
-  
+
   for(uint16_t i = 0; i <= 0x3FFF; i++){
     Radio();
     fullAddress.val = (uint32_t)i << 8;
@@ -63,22 +68,42 @@ void LogDump(){
     SPI.transfer(fullAddress.buffer[0]);
     firstByte = SPI.transfer(0);
     FlashSSHigh();
-    
+
     if (firstByte == WRITE_COMPLETE_REC_START || firstByte == WRITE_COMPLETE_REC_START_END){
       GetRecordNumber(i,&recordNumber,&lastPageAddress,&recordComplete);
       if (recordComplete == false){
         CompleteRecord(i,&recordNumber,&lastPageAddress);
       }
       OutputRecord(i,lastPageAddress);
-      
+
     }
-    
+
   }
-  
+
 }
 
 void OutputRecord(uint16_t startAddress,uint16_t endAddress){
-  
+  uint8_t pageBuffer[256];
+  uint16_t numPagesToOutput,currentOutputAddress;
+  currentOutputAddress = startAddress;
+  if (endAddress < startAddress){
+    numPagesToOutput = (endAddress + 0x4001) - startAddress;
+  }
+  else{
+    numPagesToOutput = endAddress - startAddress + 1;
+  }
+
+  for(uint16_t i = 0; i < numPagesToOutput; i++){
+    while(VerifyWriteReady() == false){
+    }
+    FlashGetPage(currentOutputAddress,pageBuffer);
+    SendPage(pageBuffer);
+    currentOutputAddress++;
+    if (currentOutputAddress > 0x3FFF){
+      currentOutputAddress = 0;
+    }
+  }
+
 }
 
 void LoggingStateMachine(){
@@ -229,17 +254,19 @@ void LogHandler(){
   if (loggingReady == true){
     logTime = millis();
     if (startOfRecordDataToFlash == true){
-      switch (startOfRecordOutputState){
-      case GAINS:
-        GainsToFlash();
-        startOfRecordOutputState = MOTOR_MIX;
-        break;
-      case MOTOR_MIX:
-        MotorMixToFlash();
-        startOfRecordOutputState = GAINS;
-        startOfRecordDataToFlash = false;
-        break;
-      }
+      GainsToFlash();
+      MotorMixToFlash();//340 bytes total
+      /*switch (startOfRecordOutputState){
+       case GAINS:
+       GainsToFlash();
+       startOfRecordOutputState = MOTOR_MIX;
+       break;
+       case MOTOR_MIX:
+       MotorMixToFlash();
+       startOfRecordOutputState = GAINS;
+       startOfRecordDataToFlash = false;
+       break;
+       }*/
     }
     else{
       if (logTime - previousHighRate > HIGH_RATE_INTERVAL){
@@ -260,7 +287,7 @@ void LogHandler(){
 
 void GainsToFlash(){
   float_u outFloat;
-  
+
   uint8_t outByte = 0;
   WriteBufferHandler(1,&outByte);
 
@@ -402,7 +429,7 @@ void GainsToFlash(){
 
 void MotorMixToFlash(){
   float_u outFloat;
- 
+
   outFloat.val = m1X;
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = m1Y;
@@ -1231,6 +1258,8 @@ boolean VerifyWriteReady(){
     break;
   }
 }
+
+
 
 
 

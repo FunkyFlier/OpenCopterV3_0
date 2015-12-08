@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+void LogOutput();
+
 void LoggingStateMachine();
 void LogHandler();
 
@@ -42,6 +44,8 @@ void DispStatRegs();
 //to do move after debugging
 extern uint8_t loggingState;
 extern boolean startNewLog,endCurrentLog,writePageStarted,loggingReady;
+extern boolean getFlashMode;
+extern boolean eraseLogs, dumpLogs;
 
 #endif
 //

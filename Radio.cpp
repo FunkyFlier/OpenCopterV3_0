@@ -10,6 +10,8 @@
 #include "Motors.h"
 #include "Enums.h"
 #include "LED.h"
+#include "Flash.h"
+
 
 boolean USBFlag=false,handShake=false,calibrationMode=false,gsCTRL=false;
 
@@ -35,6 +37,8 @@ uint16_t localPacketNumberOrdered, remotePacketNumberOrdered, remotePacketNumber
 boolean hsTX,lsTX,sendCalibrationData;
 uint32_t hsMillis,lsMillis;
 uint8_t groundStationID;
+uint16_u flashOutputPacketNumber;
+boolean getFlashMode;
 
 void TryHandShake(){
   LEDPatternSet(3,0,0,3);
@@ -353,6 +357,71 @@ void Radio() {
     }
   }
 
+}
+
+
+void SendPage(uint8_t ouputBuffer[]){
+  uint8_t txSum = 0,txDoubleSum = 0;
+  RadioWrite(0xAA);
+  RadioWrite(131);
+  RadioWrite(flashOutputPacketNumber.buffer[0]);
+  txSum += flashOutputPacketNumber.buffer[0];
+  txDoubleSum += txSum;
+  RadioWrite(flashOutputPacketNumber.buffer[1]);
+  txSum += flashOutputPacketNumber.buffer[1];
+  txDoubleSum += txSum;
+  for(uint16_t i = 0; i < 128; i++){
+    RadioWrite(ouputBuffer[i]);
+    txSum += ouputBuffer[i];
+    txDoubleSum += txSum;
+  }
+  RadioWrite(txSum);
+  RadioWrite(txDoubleSum);
+  
+  txSum = 0;
+  txDoubleSum = 0;
+  flashOutputPacketNumber.val +=1;
+  
+  RadioWrite(0xAA);
+  RadioWrite(131);
+  RadioWrite(flashOutputPacketNumber.buffer[0]);
+  txSum += flashOutputPacketNumber.buffer[0];
+  txDoubleSum += txSum;
+  RadioWrite(flashOutputPacketNumber.buffer[1]);
+  txSum += flashOutputPacketNumber.buffer[1];
+  txDoubleSum += txSum;
+  for(uint16_t i = 128; i < 256; i++){
+    RadioWrite(ouputBuffer[i]);
+    txSum += ouputBuffer[i];
+    txDoubleSum += txSum;
+  }
+  RadioWrite(txSum);
+  RadioWrite(txDoubleSum);
+  
+  flashOutputPacketNumber.val +=1;
+  
+}
+
+void SendEraseComplete(){
+  uint8_t txSum = 0,txDoubleSum = 0;
+  RadioWrite(0xAA);
+  RadioWrite(1);
+  RadioWrite(0xD0);
+  txSum += 0xD0;
+  txDoubleSum += txSum;
+  RadioWrite(txSum);
+  RadioWrite(txDoubleSum);
+}
+
+void SendDumpComplete(){
+  uint8_t txSum = 0,txDoubleSum = 0;
+  RadioWrite(0xAA);
+  RadioWrite(1);
+  RadioWrite(0xD2);
+  txSum += 0xD2;
+  txDoubleSum += txSum;
+  RadioWrite(txSum);
+  RadioWrite(txDoubleSum);
 }
 
 void CalibrateSensors() {
@@ -1308,7 +1377,7 @@ void HandShake() {
 
 void SendHandShakeResponse() {
   uint8_t txSum = 0, txDoubleSum = 0;
-  uint8_t responseBuffer[];
+  uint8_t responseBuffer[9];
 
 
   responseBuffer[0] = 0xAA;
@@ -1487,6 +1556,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 
