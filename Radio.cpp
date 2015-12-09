@@ -1374,6 +1374,100 @@ void HandShake() {
   }
 
 }
+/*
+void SendHandShakeResponse() {
+  uint8_t txSum = 0, txDoubleSum = 0;
+  RadioWrite(0xAA);
+  RadioWrite(groundStationID);
+  RadioWrite(0x04);//packet length
+  if (calibrationMode == true) {
+
+    RadioWrite(0xF7);//cmd byte
+    txSum += 0xF7;
+    txDoubleSum += txSum;
+    RadioWrite(PROTOCOL_VER_NUM);//version number
+    txSum += 1;
+    txDoubleSum += txSum;
+    RadioWrite(PROTOCOL_VER_SUB_NUM);//sub version number
+    txSum += 1;
+    txDoubleSum += txSum;
+    RadioWrite(NUM_WAY_POINTS);
+    txSum += NUM_WAY_POINTS;
+    txDoubleSum += txSum;
+    RadioWrite(txSum);
+    RadioWrite(txDoubleSum);
+    for (uint8_t i = 0; i < 15; i++) {
+      RadioWrite(0xAA);
+      RadioWrite(groundStationID);
+      RadioWrite(0x04);//packet length
+      RadioWrite(0xF7);//cmd byte
+      RadioWrite(1);//version number
+      RadioWrite(1);//sub version number
+      RadioWrite(NUM_WAY_POINTS);
+      RadioWrite(txSum);
+      RadioWrite(txDoubleSum);
+    }
+
+  }
+  else {
+    if(calibrationModeESCs == true){
+      RadioWrite(0xF6);//cmd byte
+      txSum += 0xF6;
+      txDoubleSum += txSum;
+      RadioWrite(1);//version number
+      txSum += 1;
+      txDoubleSum += txSum;
+      RadioWrite(1);//sub version number
+      txSum += 1;
+      txDoubleSum += txSum;
+      RadioWrite(NUM_WAY_POINTS);
+      txSum += NUM_WAY_POINTS;
+      txDoubleSum += txSum;
+      RadioWrite(txSum);
+      RadioWrite(txDoubleSum);
+      for (uint8_t i = 0; i < 15; i++) {
+        RadioWrite(0xAA);
+        RadioWrite(groundStationID);
+        RadioWrite(0x04);//packet length
+        RadioWrite(0xFE);//cmd byte
+        RadioWrite(1);//version number
+        RadioWrite(1);//sub version number
+        RadioWrite(NUM_WAY_POINTS);
+        RadioWrite(txSum);
+        RadioWrite(txDoubleSum);
+      }
+    }
+    else{
+      RadioWrite(0xFE);//cmd byte
+      txSum += 0xFE;
+      txDoubleSum += txSum;
+      RadioWrite(1);//version number
+      txSum += 1;
+      txDoubleSum += txSum;
+      RadioWrite(1);//sub version number
+      txSum += 1;
+      txDoubleSum += txSum;
+      RadioWrite(NUM_WAY_POINTS);
+      txSum += NUM_WAY_POINTS;
+      txDoubleSum += txSum;
+      RadioWrite(txSum);
+      RadioWrite(txDoubleSum);
+      for (uint8_t i = 0; i < 15; i++) {
+        RadioWrite(0xAA);
+        RadioWrite(groundStationID);
+        RadioWrite(0x04);//packet length
+        RadioWrite(0xFE);//cmd byte
+        RadioWrite(1);//version number
+        RadioWrite(1);//sub version number
+        RadioWrite(NUM_WAY_POINTS);
+        RadioWrite(txSum);
+        RadioWrite(txDoubleSum);
+      }
+    }
+
+  }
+}*/
+
 
 void SendHandShakeResponse() {
   uint8_t txSum = 0, txDoubleSum = 0;
@@ -1409,13 +1503,13 @@ void SendHandShakeResponse() {
   }
 
   responseBuffer[4] = PROTOCOL_VER_NUM;
-  txSum += 1;
+  txSum += PROTOCOL_VER_NUM;
   txDoubleSum += txSum;
   responseBuffer[5] = PROTOCOL_VER_SUB_NUM;
-  txSum += 1;
+  txSum += PROTOCOL_VER_SUB_NUM;
   txDoubleSum += txSum;
   responseBuffer[6] = NUM_WAY_POINTS;
-  txSum += 1;
+  txSum += NUM_WAY_POINTS;
   txDoubleSum += txSum;
   responseBuffer[7] = txSum;
   responseBuffer[8] = txDoubleSum;
