@@ -40,7 +40,13 @@ void LogOutput(){
     if (eraseLogs == true){
       if(VerifyWriteReady() == true){
         eraseLogs = false;
+        while(VerifyWriteReady() == false){
+          Radio();
+        }
         FlashEraseChip();
+        while(VerifyWriteReady() == false){
+          Radio();
+        }
         SendEraseComplete();
       }
     }
@@ -307,29 +313,21 @@ void GainsToFlash(){
   WriteBufferHandler(1,&outByte);
 
   outFloat.val = kp_pitch_rate;
-  Serial<<outFloat.val<<","<<kp_pitch_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = ki_pitch_rate;
-  Serial<<outFloat.val<<","<<ki_pitch_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = kd_pitch_rate;
-  Serial<<outFloat.val<<","<<kd_pitch_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = fc_pitch_rate;
-  Serial<<outFloat.val<<","<<fc_pitch_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
 
   outFloat.val = kp_roll_rate;
-  Serial<<outFloat.val<<","<<kp_roll_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = ki_roll_rate;
-  Serial<<outFloat.val<<","<<ki_roll_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = kd_roll_rate;
-  Serial<<outFloat.val<<","<<kd_roll_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = fc_roll_rate;
-  Serial<<outFloat.val<<","<<fc_roll_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
 
   outFloat.val = kp_yaw_rate;
@@ -672,9 +670,9 @@ void WriteBufferHandler(uint8_t numBytes, uint8_t inputBuffer[]){
       outInt16.val = currentRecordNumber;
       FlashWritePage(currentPageAddress,writeBuffer);
       /*for(uint8_t i = 0 ; i < 256; i++){
-        Serial<<_HEX(writeBuffer[i])<<",";
-      }
-      Serial<<"\r\n";*/
+       Serial<<_HEX(writeBuffer[i])<<",";
+       }
+       Serial<<"\r\n";*/
       loggingState = COMPLETE_PAGE;
       writeBuffer[0] = WRITE_STARTED;
       writeBuffer[1] = outInt16.buffer[0];
@@ -1210,10 +1208,10 @@ boolean FlashEraseBlock64k(uint16_t blockAddress){
     return false;
   } 
 }
-boolean FlashEraseChip(){
+void FlashEraseChip(){
   //sets entire chip to 0xFF
-  while(VerifyWriteReady() == false){
-  }
+  /*while(VerifyWriteReady() == false){
+   }*/
 
   FlashSSLow();
   SPITransfer(WRITE_ENABLE);
@@ -1223,13 +1221,13 @@ boolean FlashEraseChip(){
   SPITransfer(ERASE_CHIP);
   FlashSSHigh();
 
-  while(VerifyWriteReady() == false){
-  }
-
-  if (CheckForSuccessfulWrite() == true){
-    return true;
-  }
-  return false;
+  /*while(VerifyWriteReady() == false){
+   }
+   
+   if (CheckForSuccessfulWrite() == true){
+   //return true;
+   }*/
+  //return false;
 
 }
 //status
@@ -1285,6 +1283,7 @@ boolean VerifyWriteReady(){
     break;
   }
 }
+
 
 
 

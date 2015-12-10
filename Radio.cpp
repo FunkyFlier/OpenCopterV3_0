@@ -197,7 +197,7 @@ void Radio() {
       rxSum += radioByte;
       rxDoubleSum += rxSum;
       numRXbytes++;
-      if (typeNum == GS_PING || typeNum == RESET_PR_OFFSET){
+      if (typeNum == GS_PING || typeNum == RESET_PR_OFFSET  || typeNum == ERASE_ALL_LOGS || typeNum == GET_ALL_LOGS){
         radioState = REL_SET_SUM1;
         break;
       }
@@ -363,7 +363,11 @@ void Radio() {
 void SendPage(uint8_t ouputBuffer[]){
   uint8_t txSum = 0,txDoubleSum = 0;
   RadioWrite(0xAA);
+  RadioWrite(groundStationID);
   RadioWrite(131);
+  RadioWrite(0xD1);
+  txSum += 0xD1;
+  txDoubleSum += txSum;
   RadioWrite(flashOutputPacketNumber.buffer[0]);
   txSum += flashOutputPacketNumber.buffer[0];
   txDoubleSum += txSum;
@@ -383,7 +387,11 @@ void SendPage(uint8_t ouputBuffer[]){
   flashOutputPacketNumber.val +=1;
   
   RadioWrite(0xAA);
+  RadioWrite(groundStationID);
   RadioWrite(131);
+  RadioWrite(0xD1);
+  txSum += 0xD1;
+  txDoubleSum += txSum;
   RadioWrite(flashOutputPacketNumber.buffer[0]);
   txSum += flashOutputPacketNumber.buffer[0];
   txDoubleSum += txSum;
@@ -405,6 +413,7 @@ void SendPage(uint8_t ouputBuffer[]){
 void SendEraseComplete(){
   uint8_t txSum = 0,txDoubleSum = 0;
   RadioWrite(0xAA);
+  RadioWrite(groundStationID);
   RadioWrite(1);
   RadioWrite(0xD0);
   txSum += 0xD0;
@@ -416,6 +425,7 @@ void SendEraseComplete(){
 void SendDumpComplete(){
   uint8_t txSum = 0,txDoubleSum = 0;
   RadioWrite(0xAA);
+  RadioWrite(groundStationID);
   RadioWrite(1);
   RadioWrite(0xD2);
   txSum += 0xD2;

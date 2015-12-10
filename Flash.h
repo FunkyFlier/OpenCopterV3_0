@@ -35,7 +35,7 @@ void ClearPage(uint16_t);
 boolean FlashEraseBlock4k(uint16_t);
 boolean FlashEraseBlock32k(uint16_t);
 boolean FlashEraseBlock64k(uint16_t);
-boolean FlashEraseChip();
+void FlashEraseChip();
 
 boolean VerifyWriteReady();
 boolean CheckForSuccessfulWrite();

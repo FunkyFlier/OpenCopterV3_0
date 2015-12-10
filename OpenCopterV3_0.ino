@@ -59,12 +59,14 @@ void setup() {
   GyroInit();
 
   FlashInit();
+  LoggingInit();
   if (getFlashMode == true){
+    
     LogOutput();
   }
-  else{
+  /*else{
     LoggingInit();
-  }
+  }*/
 
   if (calibrationMode == true){
     CalibrateSensors();
