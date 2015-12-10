@@ -21,7 +21,7 @@ uint8_t writeBuffer[256];
 
 uint8_t writeBufferIndex = 0;
 
-boolean startNewLog = false,endCurrentLog = false,writePageStarted = false,loggingReady=false;
+boolean startNewLog = false,endCurrentLog = false,writePageStarted = false,loggingReady=false,logEnabled = false;
 boolean startOfRecordDataToFlash = false;
 boolean eraseLogs = false, dumpLogs = false;
 uint8_t loggingState = WRITE_READY;
@@ -138,7 +138,9 @@ void LoggingStateMachine(){
     if(VerifyWriteReady() == false){
       break;
     }
+    loggingReady = true;
     if (startNewLog == true){
+      logEnabled = true;
       endCurrentLog = false;
       startNewLog = false;
       startOfRecordDataToFlash = true;
@@ -146,19 +148,21 @@ void LoggingStateMachine(){
       break;
     }
     if (endCurrentLog == true){
+      logEnabled = false;
       endCurrentLog = false;
       startNewLog = false;
       loggingState = END_CURRENT_LOG;
+      loggingReady = false;
       break;
     }
-    if (startNewLog == false && endCurrentLog == false){
-      loggingReady = true;
-      if (writePageStarted == true){
-        loggingState = COMPLETE_PAGE;
-        loggingReady = false;
-        writePageStarted = false;
-      }
-    }
+    /*if (startNewLog == false && endCurrentLog == false){
+     loggingReady = true;
+     if (writePageStarted == true){
+     loggingState = COMPLETE_PAGE;
+     loggingReady = false;
+     writePageStarted = false;
+     }
+     }*/
     break;
   case COMPLETE_PAGE:
     if(VerifyWriteReady() == false){
@@ -194,6 +198,7 @@ void LoggingStateMachine(){
     FlashWritePartialPage(currentPageAddress,0,6,writeBuffer);
     writeBufferIndex = 6;
     loggingState = WRITE_READY;
+    loggingReady = true;
     break;
   case END_CURRENT_LOG:
     if(VerifyWriteReady() == false){
@@ -251,38 +256,46 @@ void LogHandler(){
   uint32_t logTime;
   static uint8_t startOfRecordOutputState = 0;
   static uint32_t previousHighRate,previousMedRate,previousLowRate;
-  if (loggingReady == true){
-    logTime = millis();
-    if (startOfRecordDataToFlash == true){
-      GainsToFlash();
-      MotorMixToFlash();//340 bytes total
-      /*switch (startOfRecordOutputState){
-       case GAINS:
-       GainsToFlash();
-       startOfRecordOutputState = MOTOR_MIX;
-       break;
-       case MOTOR_MIX:
-       MotorMixToFlash();
-       startOfRecordOutputState = GAINS;
-       startOfRecordDataToFlash = false;
-       break;
-       }*/
-    }
-    else{
-      if (logTime - previousHighRate > HIGH_RATE_INTERVAL){
-        previousHighRate = logTime;
-        HighRateLog(logTime);
+  if (logEnabled == true){
+    if (loggingReady == true){
+      D25High();
+      logTime = millis();
+      if (startOfRecordDataToFlash == true){
+        D26High();
+        GainsToFlash();
+        MotorMixToFlash();//340 bytes total
+        D26Low();
+        startOfRecordDataToFlash = false;
+        /*switch (startOfRecordOutputState){
+         case GAINS:
+         GainsToFlash();
+         startOfRecordOutputState = MOTOR_MIX;
+         break;
+         case MOTOR_MIX:
+         MotorMixToFlash();
+         startOfRecordOutputState = GAINS;
+         startOfRecordDataToFlash = false;
+         break;
+         }*/
       }
-      if (logTime - previousMedRate > MED_RATE_INTERVAL){
-        previousMedRate = logTime;
-        MedRateLog(logTime);
+      else{
+        if (logTime - previousHighRate > HIGH_RATE_INTERVAL){
+          previousHighRate = logTime;
+          HighRateLog(logTime);
+        }
+        if (logTime - previousMedRate > MED_RATE_INTERVAL){
+          previousMedRate = logTime;
+          MedRateLog(logTime);
+        }
+        if (logTime - previousLowRate > LOW_RATE_INTERVAL){
+          previousLowRate = logTime;
+          LowRateLog(logTime);
+        }
       }
-      if (logTime - previousLowRate > LOW_RATE_INTERVAL){
-        previousLowRate = logTime;
-        LowRateLog(logTime);
-      }
+      D25Low();
     }
   }
+
 }
 
 void GainsToFlash(){
@@ -1258,6 +1271,7 @@ boolean VerifyWriteReady(){
     break;
   }
 }
+
 
 
 

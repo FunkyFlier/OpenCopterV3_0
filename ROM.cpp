@@ -13,6 +13,7 @@
 #include "Radio.h"
 #include "RCSignals.h"
 #include "Types.h"
+#include "Flash.h"
 
 #include <EEPROM.h>
 
@@ -317,16 +318,16 @@ void AssignPointerArray() {
   bytePointerArray[XY_LOIT_STATE] = &XYLoiterState;//flight control
   bytePointerArray[Z_LOIT_STATE] = &ZLoiterState;//flight control
 
-  bytePointerArray[RTB_STATE] = &RTBState;//flight control
+  bytePointerArray[RTB_STATE] = &startNewLog;//flight control
   bytePointerArray[MOTOR_STATE] = &motorState;//motors
-  bytePointerArray[TELEM_FS] = &telemFailSafe;//flight control
-  bytePointerArray[GPS_FS] = &gpsFailSafe;//gps
-  bytePointerArray[SWITCH_POS] = &switchPositions;//RC
+  bytePointerArray[TELEM_FS] = &endCurrentLog;//flight control
+  bytePointerArray[GPS_FS] = &loggingReady;//gps
+  bytePointerArray[SWITCH_POS] = &startOfRecordDataToFlash;//RC
 
 
   bytePointerArray[IDLE_PERCENT] = &propIdlePercent;//rom
   bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
-  bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
+  bytePointerArray[TX_LOSS_RTB] = &logEnabled;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
 

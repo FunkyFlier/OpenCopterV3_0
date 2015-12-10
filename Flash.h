@@ -43,8 +43,9 @@ uint8_t GetStatusReg();
 void DispStatRegs();
 //to do move after debugging
 extern uint8_t loggingState;
-extern boolean startNewLog,endCurrentLog,writePageStarted,loggingReady;
+extern boolean startNewLog,endCurrentLog,writePageStarted,loggingReady,logEnabled;
 extern boolean getFlashMode;
+extern boolean startOfRecordDataToFlash;
 extern boolean eraseLogs, dumpLogs;
 
 #endif
