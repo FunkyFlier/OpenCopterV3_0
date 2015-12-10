@@ -140,7 +140,7 @@ void LoggingStateMachine(){
     }
     loggingReady = true;
     if (startNewLog == true){
-      logEnabled = true;
+      //logEnabled = true;
       endCurrentLog = false;
       startNewLog = false;
       startOfRecordDataToFlash = true;
@@ -198,7 +198,8 @@ void LoggingStateMachine(){
     FlashWritePartialPage(currentPageAddress,0,6,writeBuffer);
     writeBufferIndex = 6;
     loggingState = WRITE_READY;
-    loggingReady = true;
+    logEnabled = true;
+    loggingReady = false;
     break;
   case END_CURRENT_LOG:
     if(VerifyWriteReady() == false){
@@ -300,26 +301,35 @@ void LogHandler(){
 
 void GainsToFlash(){
   float_u outFloat;
-
+  //uint8_t 
   uint8_t outByte = 0;
+  //WriteBufferHandler(6,writeBuffer);
   WriteBufferHandler(1,&outByte);
 
   outFloat.val = kp_pitch_rate;
+  Serial<<outFloat.val<<","<<kp_pitch_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = ki_pitch_rate;
+  Serial<<outFloat.val<<","<<ki_pitch_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = kd_pitch_rate;
+  Serial<<outFloat.val<<","<<kd_pitch_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = fc_pitch_rate;
+  Serial<<outFloat.val<<","<<fc_pitch_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
 
   outFloat.val = kp_roll_rate;
+  Serial<<outFloat.val<<","<<kp_roll_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = ki_roll_rate;
+  Serial<<outFloat.val<<","<<ki_roll_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = kd_roll_rate;
+  Serial<<outFloat.val<<","<<kd_roll_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = fc_roll_rate;
+  Serial<<outFloat.val<<","<<fc_roll_rate<<"\r\n";
   WriteBufferHandler(4,outFloat.buffer);
 
   outFloat.val = kp_yaw_rate;
@@ -661,6 +671,10 @@ void WriteBufferHandler(uint8_t numBytes, uint8_t inputBuffer[]){
     if (writeBufferIndex == 0){
       outInt16.val = currentRecordNumber;
       FlashWritePage(currentPageAddress,writeBuffer);
+      /*for(uint8_t i = 0 ; i < 256; i++){
+        Serial<<_HEX(writeBuffer[i])<<",";
+      }
+      Serial<<"\r\n";*/
       loggingState = COMPLETE_PAGE;
       writeBuffer[0] = WRITE_STARTED;
       writeBuffer[1] = outInt16.buffer[0];
