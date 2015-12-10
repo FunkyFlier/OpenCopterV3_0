@@ -62,6 +62,7 @@ void LogDump(){
   uint32_u fullAddress;
   uint8_t  firstByte;
   uint16_t recordNumber,lastPageAddress;
+  uint8_t pageBuffer[256];
   boolean validRecord,recordComplete;
 
   for(uint16_t i = 0; i <= 0x3FFF; i++){
@@ -75,12 +76,14 @@ void LogDump(){
     firstByte = SPI.transfer(0);
     FlashSSHigh();
 
-    if (firstByte == WRITE_COMPLETE_REC_START || firstByte == WRITE_COMPLETE_REC_START_END){
-      GetRecordNumber(i,&recordNumber,&lastPageAddress,&recordComplete);
+    if (firstByte == WRITE_COMPLETE_REC_START || firstByte == WRITE_COMPLETE_REC_START_END || firstByte == WRITE_COMPLETE_REC_END || firstByte == WRITE_COMPLETE){
+      FlashGetPage(i,pageBuffer);
+      SendPage(pageBuffer);
+      /*GetRecordNumber(i,&recordNumber,&lastPageAddress,&recordComplete);
       if (recordComplete == false){
         CompleteRecord(i,&recordNumber,&lastPageAddress);
       }
-      OutputRecord(i,lastPageAddress);
+      OutputRecord(i,lastPageAddress);*/
 
     }
 
@@ -88,7 +91,7 @@ void LogDump(){
 
 }
 
-void OutputRecord(uint16_t startAddress,uint16_t endAddress){
+/*void OutputRecord(uint16_t startAddress,uint16_t endAddress){
   uint8_t pageBuffer[256];
   uint16_t numPagesToOutput,currentOutputAddress;
   currentOutputAddress = startAddress;
@@ -110,7 +113,7 @@ void OutputRecord(uint16_t startAddress,uint16_t endAddress){
     }
   }
 
-}
+}*/
 
 void LoggingStateMachine(){
 
