@@ -648,15 +648,11 @@ void WriteBufferHandler(uint8_t numBytes, uint8_t inputBuffer[]){
     if (writeBufferIndex == 0){
       outInt16.val = currentRecordNumber;
       FlashWritePage(currentPageAddress,writeBuffer);
-      /*for(uint8_t i = 0 ; i < 256; i++){
-       Serial<<_HEX(writeBuffer[i])<<",";
-       }
-       Serial<<"\r\n";*/
       loggingState = COMPLETE_PAGE;
       writeBuffer[0] = WRITE_STARTED;
       writeBuffer[1] = outInt16.buffer[0];
       writeBuffer[2] = outInt16.buffer[1];
-      writeBufferIndex = 4;
+      writeBufferIndex = 3;
       loggingReady = false;
     }
   }

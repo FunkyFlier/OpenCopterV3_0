@@ -342,10 +342,10 @@ void _100HzTask(uint32_t loopTime){
         _100HzState = FLASH_LOGGING;
         break;
       case FLASH_LOGGING:
-      LoggingStateMachine();
-      LogHandler();
-      _100HzState = MOTOR_HANDLER;
-      break;
+        LoggingStateMachine();
+        LogHandler();
+        _100HzState = MOTOR_HANDLER;
+        break;
       case MOTOR_HANDLER:
         MotorHandler();
         tuningTrasnmitOK = true;
@@ -360,31 +360,48 @@ void _100HzTask(uint32_t loopTime){
     }
     _100HzState = GET_GYRO;
   }
-  
+
 
 
 
 }
 
 
-
+uint8_t wayPointState;
 void WayPointStateMachine(){
   //switches between traveling and loitering 
-  
+  switch (wayPointState){
+  case WP_TRAVEL:
+    break;
+  case WP_LOITER:
+    break;
+  case WP_LAND:
+    break;
+  }
 }
 
-void WayPointUpdate(float lat, float lon, float alt){
+void WayPointUpdate(float lat, float lon, float alt, float yaw){
+  //called by radio.cpp
   //updates the wp from the ground station
   //sets the correct state
-} 
 
+} 
+void WayPointLookAt(float lat, float lon, float lookAt){
+  //called by radio.cpp
+  //if lookAt false or too close the craft use yaw from last wp
+}
+void WayPointTakeOff(){
+  //called by motors when operator takes throttle to mid stick
+  
+}
 void WayPointStop(){
+  //called by radio.cpp
   //called from ground station
   //sets loiter to current position
 }
 
 void WayPointLand(){
-  
+  //called by radio.cpp
 }
 
 
@@ -1685,4 +1702,6 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
