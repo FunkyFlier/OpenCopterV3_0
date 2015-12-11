@@ -365,6 +365,29 @@ void _100HzTask(uint32_t loopTime){
 
 
 }
+
+
+
+void WayPointStateMachine(){
+  //switches between traveling and loitering 
+  
+}
+
+void WayPointUpdate(float lat, float lon, float alt){
+  //updates the wp from the ground station
+  //sets the correct state
+} 
+
+void WayPointStop(){
+  //called from ground station
+  //sets loiter to current position
+}
+
+void WayPointLand(){
+  
+}
+
+
 void MotorShutDown(){
   TIMSK5 = (0 << OCIE5A);
   Motor1WriteMicros(0);
