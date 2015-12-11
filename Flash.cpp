@@ -80,10 +80,10 @@ void LogDump(){
       FlashGetPage(i,pageBuffer);
       SendPage(pageBuffer);
       /*GetRecordNumber(i,&recordNumber,&lastPageAddress,&recordComplete);
-      if (recordComplete == false){
-        CompleteRecord(i,&recordNumber,&lastPageAddress);
-      }
-      OutputRecord(i,lastPageAddress);*/
+       if (recordComplete == false){
+       CompleteRecord(i,&recordNumber,&lastPageAddress);
+       }
+       OutputRecord(i,lastPageAddress);*/
 
     }
 
@@ -92,28 +92,28 @@ void LogDump(){
 }
 
 /*void OutputRecord(uint16_t startAddress,uint16_t endAddress){
-  uint8_t pageBuffer[256];
-  uint16_t numPagesToOutput,currentOutputAddress;
-  currentOutputAddress = startAddress;
-  if (endAddress < startAddress){
-    numPagesToOutput = (endAddress + 0x4001) - startAddress;
-  }
-  else{
-    numPagesToOutput = endAddress - startAddress + 1;
-  }
-
-  for(uint16_t i = 0; i < numPagesToOutput; i++){
-    while(VerifyWriteReady() == false){
-    }
-    FlashGetPage(currentOutputAddress,pageBuffer);
-    SendPage(pageBuffer);
-    currentOutputAddress++;
-    if (currentOutputAddress > 0x3FFF){
-      currentOutputAddress = 0;
-    }
-  }
-
-}*/
+ uint8_t pageBuffer[256];
+ uint16_t numPagesToOutput,currentOutputAddress;
+ currentOutputAddress = startAddress;
+ if (endAddress < startAddress){
+ numPagesToOutput = (endAddress + 0x4001) - startAddress;
+ }
+ else{
+ numPagesToOutput = endAddress - startAddress + 1;
+ }
+ 
+ for(uint16_t i = 0; i < numPagesToOutput; i++){
+ while(VerifyWriteReady() == false){
+ }
+ FlashGetPage(currentOutputAddress,pageBuffer);
+ SendPage(pageBuffer);
+ currentOutputAddress++;
+ if (currentOutputAddress > 0x3FFF){
+ currentOutputAddress = 0;
+ }
+ }
+ 
+ }*/
 
 void LoggingStateMachine(){
 
@@ -149,7 +149,6 @@ void LoggingStateMachine(){
     }
     loggingReady = true;
     if (startNewLog == true){
-      //logEnabled = true;
       endCurrentLog = false;
       startNewLog = false;
       startOfRecordDataToFlash = true;
@@ -164,14 +163,6 @@ void LoggingStateMachine(){
       loggingReady = false;
       break;
     }
-    /*if (startNewLog == false && endCurrentLog == false){
-     loggingReady = true;
-     if (writePageStarted == true){
-     loggingState = COMPLETE_PAGE;
-     loggingReady = false;
-     writePageStarted = false;
-     }
-     }*/
     break;
   case COMPLETE_PAGE:
     if(VerifyWriteReady() == false){
@@ -268,25 +259,11 @@ void LogHandler(){
   static uint32_t previousHighRate,previousMedRate,previousLowRate;
   if (logEnabled == true){
     if (loggingReady == true){
-      D25High();
       logTime = millis();
       if (startOfRecordDataToFlash == true){
-        D26High();
         GainsToFlash();
-        MotorMixToFlash();//340 bytes total
-        D26Low();
+        MotorMixToFlash();
         startOfRecordDataToFlash = false;
-        /*switch (startOfRecordOutputState){
-         case GAINS:
-         GainsToFlash();
-         startOfRecordOutputState = MOTOR_MIX;
-         break;
-         case MOTOR_MIX:
-         MotorMixToFlash();
-         startOfRecordOutputState = GAINS;
-         startOfRecordDataToFlash = false;
-         break;
-         }*/
       }
       else{
         if (logTime - previousHighRate > HIGH_RATE_INTERVAL){
@@ -302,7 +279,6 @@ void LogHandler(){
           LowRateLog(logTime);
         }
       }
-      D25Low();
     }
   }
 
@@ -1286,6 +1262,7 @@ boolean VerifyWriteReady(){
     break;
   }
 }
+
 
 
 

@@ -185,7 +185,6 @@ void highRateTasks() {
 
   _400HzTime = micros();
   if ( _400HzTime - _400HzTimer  >= 2500) {
-    D22High();
     highRateDT =  (_400HzTime - _400HzTimer) * 0.000001; 
     _400HzTimer = _400HzTime;
     PollAcc();
@@ -201,14 +200,12 @@ void highRateTasks() {
     PitchRate.calculate();
     RollRate.calculate();
     YawRate.calculate();
-    D22Low();
   }
 }
 
 void _100HzTask(uint32_t loopTime){
   static uint8_t _100HzState = 0;
   if (loopTime - _100HzTimer >= 13300){
-    D23High();
     _100HzDt = (loopTime - _100HzTimer) * 0.000001;
     _100HzTimer = loopTime;
     while(_100HzState < LAST_100HZ_TASK){
@@ -345,10 +342,8 @@ void _100HzTask(uint32_t loopTime){
         _100HzState = FLASH_LOGGING;
         break;
       case FLASH_LOGGING:
-      D24High();
       LoggingStateMachine();
       LogHandler();
-      D24Low();
       _100HzState = MOTOR_HANDLER;
       break;
       case MOTOR_HANDLER:
@@ -364,7 +359,6 @@ void _100HzTask(uint32_t loopTime){
 
     }
     _100HzState = GET_GYRO;
-    D23Low();
   }
   
 

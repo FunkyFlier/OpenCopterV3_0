@@ -64,9 +64,6 @@ void setup() {
     
     LogOutput();
   }
-  /*else{
-    LoggingInit();
-  }*/
 
   if (calibrationMode == true){
     CalibrateSensors();
