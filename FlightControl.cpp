@@ -366,7 +366,7 @@ void _100HzTask(uint32_t loopTime){
 
 }
 
-
+/*
 uint8_t wayPointState;
 void WayPointStateMachine(){
   //switches between traveling and loitering 
@@ -403,7 +403,7 @@ void WayPointStop(){
 void WayPointLand(){
   //called by radio.cpp
 }
-
+*/
 
 void MotorShutDown(){
   TIMSK5 = (0 << OCIE5A);

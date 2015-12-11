@@ -611,7 +611,6 @@ void LowRateLog(uint32_t time){
   WriteBufferHandler(4,outFloat.buffer);
   outFloat.val = sAcc;
   WriteBufferHandler(4,outFloat.buffer);
-  outFloat.val = floatLat;
   WriteBufferHandler(1,&gpsFailSafe);
 }
 
