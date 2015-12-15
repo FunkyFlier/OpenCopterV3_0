@@ -368,8 +368,22 @@ void _100HzTask(uint32_t loopTime){
 
 
 uint8_t wayPointState;
+
+
+boolean lookAtFlag = false, newWayPointFlag = false;
+int32_t wpLat,wpLon,
+float wpYaw,wpX,wpY,wpZ;
+float yawSetPointWP;
+int32_t lookAtLat,lookAtLon;
+float lookAtYaw;
+
+
 void WayPointStateMachine(){
   //switches between traveling and loitering 
+
+  if (motorState == HOLD || motorState == TO) {
+    return;
+  }
   switch (wayPointState){
   case WP_TAKE_OFF:
     //loiter at 0,0,2 until 2 meters reached
@@ -377,43 +391,104 @@ void WayPointStateMachine(){
     Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
     AltHoldPosition.calculate();
     AltHoldVelocity.calculate();
+    HeadingHold();
     if (fabs(ZEst - zTarget) < 0.25){
       wayPointState = WP_LOITER;
     }
     break;
   case WP_TRAVEL:
+    if (lookAtFlag == true){
+      UpdateLookAtHeading();
+    }
+    HeadingHold();
     break;
   case WP_LOITER:
+    if (lookAtFlag == true){
+      UpdateLookAtHeading();
+    }
+    HeadingHold();
     break;
   case WP_LAND:
     break;
   }
 }
-
+void UpdateLookAtHeading(){
+  static uint32_t lookAtTimer = 0;
+  float tempX,tempY,tempDist;
+  if (millis() - lookAtTimer >= 1000){
+    lookAtTimer = millis();
+    DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPointWP);
+    if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+      yawSetPointWP = wpYaw;
+    } 
+  }
+}
 void WayPointUpdate(float lat, float lon, float alt, float yaw){
   //called by radio.cpp
   //updates the wp from the ground station
   //sets the correct state
-
+  float tempDist,tempYaw;
+  wpLat = (int32_t)(lat * 10000000);
+  wpLon = (int32_t)(lon * 10000000);
+  wpZ = alt;
+  wpYaw = yaw;
+  DistBearing(&homeLat,&homeLon,&lat,&lon,&wpX,&wpY,&tempDist,&tempYaw);
+  if (lookAtFlag == true){
+    DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPointWP);
+    if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+      yawSetPointWP = wpYaw;
+    }
+  }
+  else{
+    yawSetPointWP = wpYaw;
+  }
 } 
 void WayPointLookAt(float lat, float lon, boolean lookAt ){
   //called by radio.cpp
   //if lookAt false or too close the craft use yaw from last wp
-  //need new function to do only direct bearing
+  float tempX,tempY,tempDist;
+  //float yawSetPointWP;
 
+  lookAtLat = (int32_t)(lat * 10000000);
+  lookAtLon = (int32_t)(lon * 10000000);
+  lookAtFlag = lookAt;
+  if (lookAtFlag == true){
+    DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPointWP);
+    if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+      yawSetPointWP = wpYaw;
+    } 
+  }
+  else{
+    yawSetPointWP = wpYaw;
+  }
 }
 void WayPointTakeOff(){
   //called by motors when operator takes throttle to mid stick
   wayPointState = WP_TAKE_OFF;
   xTarget = XEst;
   yTarget = YEst;
-  zTarget = TAKE_OFF_ALT;
 
+  zTarget = TAKE_OFF_ALT;
+  wpX = xTarget;
+  wpY = yTarget;
+  wpZ = zTarget;
+  wpYaw = yawInDegrees;
+  yawSetPoint = wpYaw;
+  newWayPointFlag = false
 }
 void WayPointStop(){
   //called by radio.cpp
   //called from ground station
   //sets loiter to current position
+  wayPointState = WP_LOITER;
+  xTarget = XEst;
+  yTarget = YEst;
+
+  zTarget = ZEst;
+  xTargetWP = xTarget;
+  yTargetWP = yTarget;
+  zTargetWP = zTarget;
+  newWayPointFlag = false
 }
 
 void WayPointLand(){
@@ -1683,8 +1758,8 @@ void ProcessModes() {
   case WP:
     if (motorState == HOLD){
       flightMode = WP;
-      setTrim = false;
-      trimComplete = false;
+      //setTrim = false;
+      //trimComplete = false;
       MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
       MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
       MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
@@ -1700,8 +1775,8 @@ void ProcessModes() {
     }
     else{
       if (flightMode == WP){
-        setTrim = false;
-        trimComplete = false;
+        //setTrim = false;
+        //trimComplete = false;
         MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
         MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
         MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
@@ -1775,6 +1850,9 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
 
 
 
