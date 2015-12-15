@@ -366,11 +366,21 @@ void _100HzTask(uint32_t loopTime){
 
 }
 
-/*
+
 uint8_t wayPointState;
 void WayPointStateMachine(){
   //switches between traveling and loitering 
   switch (wayPointState){
+  case WP_TAKE_OFF:
+    //loiter at 0,0,2 until 2 meters reached
+    LoiterCalculations();
+    Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
+    AltHoldPosition.calculate();
+    AltHoldVelocity.calculate();
+    if (fabs(ZEst - zTarget) < 0.25){
+      wayPointState = WP_LOITER;
+    }
+    break;
   case WP_TRAVEL:
     break;
   case WP_LOITER:
@@ -386,13 +396,19 @@ void WayPointUpdate(float lat, float lon, float alt, float yaw){
   //sets the correct state
 
 } 
-void WayPointLookAt(float lat, float lon, float lookAt){
+void WayPointLookAt(float lat, float lon, boolean lookAt ){
   //called by radio.cpp
   //if lookAt false or too close the craft use yaw from last wp
+  //need new function to do only direct bearing
+
 }
 void WayPointTakeOff(){
   //called by motors when operator takes throttle to mid stick
-  
+  wayPointState = WP_TAKE_OFF;
+  xTarget = XEst;
+  yTarget = YEst;
+  zTarget = TAKE_OFF_ALT;
+
 }
 void WayPointStop(){
   //called by radio.cpp
@@ -402,8 +418,11 @@ void WayPointStop(){
 
 void WayPointLand(){
   //called by radio.cpp
+  //called by motors.cpp when stick is lowered
 }
-*/
+void WayPointReturnToBase(){
+  //called by radio.cpp
+}
 
 void MotorShutDown(){
   TIMSK5 = (0 << OCIE5A);
@@ -572,12 +591,12 @@ void FlightSM() {
     LoiterSM();
     break;
   case FOLLOW:
-    if (enterState == true) {
-      LEDPatternSet(1,0,4,0);
-      enterState = false;
-      yawSetPoint = yawInDegrees;
-    }
-    break;
+    /*if (enterState == true) {
+     LEDPatternSet(1,0,4,0);
+     enterState = false;
+     yawSetPoint = yawInDegrees;
+     }
+     break;*/
   case WP:
 
     if (enterState == true) {
@@ -585,6 +604,7 @@ void FlightSM() {
       yawSetPoint = yawInDegrees;
       LEDPatternSet(1,0,5,0);
     }
+    WayPointStateMachine();
     break;
   case RTB:
     if (enterState == true) {
@@ -1644,38 +1664,91 @@ void ProcessModes() {
     }
     break;
   case FOLLOW: //TBD impliment FOLLOW and WP modes currently operate as ATT
-    flightMode = ATT;
-    setTrim = false;
-    trimComplete = false;
-    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
-    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
-    if (rollSetPoint < 1 && rollSetPoint > -1) {
-      rollSetPoint = 0;
-    }
-    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
-      pitchSetPoint = 0;
-    }
-    if (yawInput < 5 && yawInput > -5) {
-      yawInput = 0;
-    }
-    break;
+    /*flightMode = ATT;
+     setTrim = false;
+     trimComplete = false;
+     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+     MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+     MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+     if (rollSetPoint < 1 && rollSetPoint > -1) {
+     rollSetPoint = 0;
+     }
+     if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+     pitchSetPoint = 0;
+     }
+     if (yawInput < 5 && yawInput > -5) {
+     yawInput = 0;
+     }
+     break;*/
   case WP:
-    flightMode = ATT;
-    setTrim = false;
-    trimComplete = false;
-    MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
-    MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
-    MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
-    if (rollSetPoint < 1 && rollSetPoint > -1) {
-      rollSetPoint = 0;
+    if (motorState == HOLD){
+      flightMode = WP;
+      setTrim = false;
+      trimComplete = false;
+      MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
+      MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
+      MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+      if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+        rollSetPointTX = 0;
+      }
+      if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+        pitchSetPointTX = 0;
+      }
+      if (yawInput < 5 && yawInput > -5) {
+        yawInput = 0;
+      }
     }
-    if (pitchSetPoint < 1 && pitchSetPoint > -1) {
-      pitchSetPoint = 0;
+    else{
+      if (flightMode == WP){
+        setTrim = false;
+        trimComplete = false;
+        MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, -60, 60);
+        MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, -60, 60);
+        MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+        if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+          rollSetPointTX = 0;
+        }
+        if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+          pitchSetPointTX = 0;
+        }
+        if (yawInput < 5 && yawInput > -5) {
+          yawInput = 0;
+        }
+      }
+      else{
+        flightMode = ATT;
+        setTrim = false;
+        trimComplete = false;
+        MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+        MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+        MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+        if (rollSetPoint < 1 && rollSetPoint > -1) {
+          rollSetPoint = 0;
+        }
+        if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+          pitchSetPoint = 0;
+        }
+        if (yawInput < 5 && yawInput > -5) {
+          yawInput = 0;
+        }
+
+      }
     }
-    if (yawInput < 5 && yawInput > -5) {
-      yawInput = 0;
-    }
+    /*flightMode = ATT;
+     setTrim = false;
+     trimComplete = false;
+     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+     MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+     MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+     if (rollSetPoint < 1 && rollSetPoint > -1) {
+     rollSetPoint = 0;
+     }
+     if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+     pitchSetPoint = 0;
+     }
+     if (yawInput < 5 && yawInput > -5) {
+     yawInput = 0;
+     }*/
     break;
   case RTB:
     flightMode = RTB;
@@ -1691,9 +1764,9 @@ void ProcessModes() {
     if (yawInput < 5 && yawInput > -5) {
       yawInput = 0;
     }
-    if (flightMode != previousFlightMode) {
-      enterState = true;
-    }
+    /*if (flightMode != previousFlightMode) {
+     enterState = true;
+     }*/
     break;
 
   }
@@ -1702,6 +1775,11 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
+
 
 
 
