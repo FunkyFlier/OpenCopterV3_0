@@ -400,6 +400,9 @@ void WayPointStateMachine(){
     if (lookAtFlag == true){
       UpdateLookAtHeading();
     }
+    if (newWayPointFlag == true){
+      UpdateWPTarget();
+    }
     HeadingHold();
     break;
   case WP_LOITER:
@@ -412,6 +415,27 @@ void WayPointStateMachine(){
     break;
   }
 }
+
+void UpdateWPTarget(){
+  float xDist,yDist;
+  
+  xTarget = wpX;
+  yTarget = wpY;
+
+  zTarget = wpZ;
+  if (lookAtFlag == false){
+    yawSetPoint = wpYaw;
+  }
+  
+  xDist = XEst - xTarget;
+  yDist = YEst - yTarget;
+  if (sqrt(xDist * xDist +  yDist * yDist) <  MIN_RTB_DIST){
+    wayPointState = WP_LOITER;
+  }else{
+    wayPointState = WP_TRAVEL;
+  }
+}
+
 void UpdateLookAtHeading(){
   static uint32_t lookAtTimer = 0;
   float tempX,tempY,tempDist;
@@ -442,6 +466,7 @@ void WayPointUpdate(float lat, float lon, float alt, float yaw){
   else{
     yawSetPointWP = wpYaw;
   }
+  newWayPointFlag = true;
 } 
 void WayPointLookAt(float lat, float lon, boolean lookAt ){
   //called by radio.cpp
