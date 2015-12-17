@@ -491,7 +491,7 @@ void MotorHandler(){
       }
     }
     throttleCommand = hoverCommand;
-    if ( (throttleAdjustment + throttleCommand) < (propIdleCommand) &&  landDetected == false){
+    if ( (throttleAdjustment + throttleCommand) < (propIdleCommand) ){// &&  landDetected == false){
       CommandAllMotors((float)pwmLow);
       landDetected = false;
       motorState = HOLD;

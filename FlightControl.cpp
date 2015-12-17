@@ -659,7 +659,7 @@ void FailSafeHandler(){
 
   if (magDetected == false){
     GPSDetected = false;
-    gpsFailSafe = false;
+    gpsFailSafe = true;
     batteryFSOverride = true;
     if (flightMode > ATT){
       flightMode = ATT;
@@ -671,7 +671,7 @@ void FailSafeHandler(){
   }
   if (baroFS == true){
     GPSDetected = false;
-    gpsFailSafe = false;
+    gpsFailSafe = true;
     batteryFSOverride = true;
     if (flightMode > ATT){
       flightMode = ATT;
