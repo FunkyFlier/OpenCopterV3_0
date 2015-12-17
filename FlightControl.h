@@ -10,6 +10,15 @@ void ProcessChannels();
 void StartCalibration();
 void Rotate2dVector(float*, float*, float*, float*, float*, float*);
 
+void WayPointUpdate(float lat, float lon, float alt, float yaw);
+void WayPointLookAt(float lat, float lon, boolean lookAt );
+void WayPointStateMachine();
+void WayPointTakeOff();
+void WayPointStop();
+void WayPointLandGS();
+void WayPointLandTX();
+void WayPointReturnToBase();
+
 extern uint8_t flightMode;
 extern uint32_t _100HzTimer,_400HzTimer;
 extern volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount,baroFSCount;
@@ -153,3 +162,4 @@ extern PID_2 WPCrossTrack;
 
 
 #endif
+

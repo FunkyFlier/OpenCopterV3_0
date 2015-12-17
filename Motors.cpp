@@ -325,7 +325,7 @@ void MotorHandler(){
 
   switch(motorState){
   case HOLD:
-    
+
     if (cmdElev < 1250 && cmdAile > 1750){
       displayFSData = true;  
     }
@@ -426,19 +426,20 @@ void MotorHandler(){
         throttleAdjustment = 0;
         xTarget = XEst;
         yTarget = YEst;
-        LoiterXPosition.reset();
-        LoiterXVelocity.reset();
-        LoiterYPosition.reset();
-        LoiterYVelocity.reset();
-        AltHoldPosition.reset();
-        AltHoldVelocity.reset();
         baroGlitchHandling = true;
         takeOffBaroGlitchTimer = millis();
         integrate = true;
       }
     }
     if (flightMode == WP || flightMode == FOLLOW){
-
+      motorState = FLIGHT;
+      ResetPIDs();
+      enterState = true;
+      throttleAdjustment = 0;
+      baroGlitchHandling = true;
+      takeOffBaroGlitchTimer = millis();
+      integrate = true;
+      WayPointTakeOff();
     }
 
     break;
@@ -468,6 +469,11 @@ void MotorHandler(){
       if (throCommand <= 1600 && throCommand >= 1450){
         throttleCheckFlag = false;
         throttleCommand = hoverCommand;
+      }
+    }
+    if (flightMode == WP || flightMode == FOLLOW){
+      if (throttleCommand < (int16_t)propIdleCommand){
+        WayPointLandTX();
       }
     }
 
@@ -502,20 +508,20 @@ void MotorHandler(){
 
     CalculateMotorMixing();
     /*if (zPosError < LAND_DET_LIM  && landDetected == false){
-      landDetected = true;
-      landRampValue = throttleAdjustment;// - 75;//AltHoldVelocity.iError;//throttleAdjustment - 100;// + throttleCommand;// - 100;
-    }
-    if (landDetected == true){
-      landRampValue = landRampValue - 4.5;
-      throttleAdjustment = landRampValue;
-      if (landRampValue <= 0){
-        CommandAllMotors((float)pwmLow);
-        landDetected = false;
-        motorState = HOLD;
-        endCurrentLog = true;
-      } 
-    }
-    CalculateMotorMixing();*/
+     landDetected = true;
+     landRampValue = throttleAdjustment;// - 75;//AltHoldVelocity.iError;//throttleAdjustment - 100;// + throttleCommand;// - 100;
+     }
+     if (landDetected == true){
+     landRampValue = landRampValue - 4.5;
+     throttleAdjustment = landRampValue;
+     if (landRampValue <= 0){
+     CommandAllMotors((float)pwmLow);
+     landDetected = false;
+     motorState = HOLD;
+     endCurrentLog = true;
+     } 
+     }
+     CalculateMotorMixing();*/
     break;
   }
 
@@ -564,6 +570,7 @@ void WriteMotorPWM(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
 
 
 

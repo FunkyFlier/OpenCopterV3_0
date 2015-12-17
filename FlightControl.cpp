@@ -25,7 +25,9 @@ void Rotate2dVector(float*, float*, float*, float*, float*, float*);
 void HeadingHold();
 
 void ProcessModes();
-
+void WayPointTasks();
+void UpdateWPTarget();
+void UpdateLookAtHeading();
 
 float zero = 0;
 boolean batteryFSOverride = false;
@@ -64,6 +66,15 @@ uint8_t initProgress = 0;
 
 uint8_t modeArray[9] = {
   RATE,L1,ATT,ATT,ATT,ATT_TRIM,RATE,RATE,L0};
+
+
+uint8_t wayPointState;
+boolean lookAtFlag = false, newWayPointFlag = false;
+int32_t wpLat,wpLon,
+float wpYaw,wpX,wpY,wpZ;
+float yawSetPointWP;
+int32_t lookAtLat,lookAtLon;
+float lookAtYaw;
 
 float kp_pitch_rate;
 float ki_pitch_rate;
@@ -361,26 +372,13 @@ void _100HzTask(uint32_t loopTime){
     _100HzState = GET_GYRO;
   }
 
-
-
-
 }
-
-
-uint8_t wayPointState;
-
-
-boolean lookAtFlag = false, newWayPointFlag = false;
-int32_t wpLat,wpLon,
-float wpYaw,wpX,wpY,wpZ;
-float yawSetPointWP;
-int32_t lookAtLat,lookAtLon;
-float lookAtYaw;
 
 
 void WayPointStateMachine(){
   //switches between traveling and loitering 
-
+  static float initialWPVel,commandedWPVel;
+  float xDist,yDist;
   if (motorState == HOLD || motorState == TO) {
     return;
   }
@@ -404,12 +402,62 @@ void WayPointStateMachine(){
       motorState = FLIGHT;
     }
     WayPointTasks();
+    if (wayPointState != WP_TRAVEL){
+      break;
+    }
+    AltHoldPosition.calculate();
+    AltHoldVelocity.calculate();
+    //within min radius switch to lioter 
+    xDist = XEst - xTarget;
+    yDist = YEst - yTarget;
+    distToWayPoint = sqrt(xDist * xDist + yDist * yDist);
+    if (distToWayPoint < MIN_RTB_DIST){
+      wayPointState = WP_LOITER;
+      startSlowing = false;
+      break;
+    }
+    //calculate distance and heading to origin
+
+    headingToWayPoint = ToDeg(atan2(-1.0 * yDist , -1.0 * xDist));
+    if (headingToWayPoint < 0.0){
+      headingToWayPoint += 360.0;
+    }
+    yawSetPoint = headingToWayPoint - 180.0;
+    if(yawSetPoint < 0){
+      yawSetPoint +=360;
+    }
+    //rotate EF velocity to path frame
+    Rotate2dVector(&zero,&headingToWayPoint,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);
+    //wp pos PID
+    WPPosition.calculate(); 
+    wpVelSetPoint *= -1.0;
+    //wp vel PID
+    if (distToWayPoint < LOW_SPEED_RADIUS && startSlowing == false){
+      startSlowing = true;
+      initialWPVel = wpVelSetPoint;
+      commandedWPVel = wpVelSetPoint;
+    }
+    if (startSlowing == true){
+      commandedWPVel = commandedWPVel * RAMP_DOWN_ALPHA + (1 - RAMP_DOWN_ALPHA) * RAMP_DOWN_VEL_RTB;
+      wpVelSetPoint = commandedWPVel;
+    }
+    WPVelocity.calculate(); 
+    wpTilX *= -1.0;
+    //cross track vel PID
+    WPCrossTrack.calculate(); 
+    //rotate wp tilx and tilty to body pitch and roll
+    Rotate2dVector(&yawInDegrees,&headingToWayPoint,&wpTilX,&wpTiltY,&pitchSetPoint,&rollSetPoint);
     break;
   case WP_LOITER:
     if (motorState == LAND){
       motorState = FLIGHT;
     }
     WayPointTasks();
+    if (wayPointState != WP_LOITER){
+      break;
+    }
+    LoiterCalculations();
+    Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
     break;
   case WP_LAND:
     if (motorState == FLIGHT){
@@ -565,7 +613,7 @@ void WayPointReturnToBase(){
   //called by radio.cpp
   LEDPatternSet(1,0,7,0);
   enterState = false;
-  InitLoiter();
+  //InitLoiter();
   xTarget = XEst;
   yTarget = YEst;
   zTarget = ZEstUp + 1;
@@ -587,6 +635,7 @@ void WayPointReturnToBase(){
     zTarget = floorLimit;
   }
   RTBState = RTB_CLIMB;
+  wayPointState = WP_RTB;
 }
 
 void MotorShutDown(){
@@ -893,7 +942,8 @@ void RTBStateMachine() {
       //within min radius switch to lioter 
       xFromTO = XEst - homeBaseXOffset;
       yFromTO = YEst - homeBaseYOffset;
-      if (sqrt(xFromTO * xFromTO + yFromTO * yFromTO) < MIN_RTB_DIST){
+      distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
+      if (distToWayPoint < MIN_RTB_DIST){
         RTBState = RTB_LOITER;
         xTarget = homeBaseXOffset;
         yTarget = homeBaseYOffset;
@@ -903,7 +953,7 @@ void RTBStateMachine() {
 
 
       //calculate distance and heading to origin
-      distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
+
       headingToWayPoint = ToDeg(atan2(-1.0 * yFromTO , -1.0 * xFromTO));
       if (headingToWayPoint < 0.0){
         headingToWayPoint += 360.0;
@@ -942,11 +992,7 @@ void RTBStateMachine() {
       break;
     case RTB_LOITER:
 
-      LoiterXPosition.calculate();
-      LoiterYPosition.calculate();
-      LoiterXVelocity.calculate();
-      tiltAngleX *= -1.0;
-      LoiterYVelocity.calculate();
+      LoiterCalculations();
       Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
@@ -955,11 +1001,7 @@ void RTBStateMachine() {
         RTBState = RTB_LAND;
         motorState = LANDING;
       }
-      /*if (gpsFailSafe == true) {
-       velSetPointZ = LAND_VEL;
-       RTBState = RTB_LAND;
-       motorState = LANDING;
-       }*/
+
       break;
     case RTB_LAND:
       if (gpsFailSafe == true) {
@@ -1833,23 +1875,23 @@ void ProcessModes() {
     }
     break;
   case FOLLOW: //TBD impliment FOLLOW and WP modes currently operate as ATT
-    /*flightMode = ATT;
-     setTrim = false;
-     trimComplete = false;
-     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
-     MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
-     MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
-     if (rollSetPoint < 1 && rollSetPoint > -1) {
-     rollSetPoint = 0;
-     }
-     if (pitchSetPoint < 1 && pitchSetPoint > -1) {
-     pitchSetPoint = 0;
-     }
-     if (yawInput < 5 && yawInput > -5) {
-     yawInput = 0;
-     }
-     break;*/
   case WP:
+    if (gpsFailSafe == true) {
+      flightMode = L0;
+      MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+      MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+      MapVar(&cmdRudd, &yawInput, 1000, 2000, LOIT_YAW_MIN, LOIT_YAW_MAX);
+      if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+        rollSetPointTX = 0;
+      }
+      if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+        pitchSetPointTX = 0;
+      }
+      if (yawInput < 5 && yawInput > -5) {
+        yawInput = 0;
+      }
+      break;
+    }
     if (motorState == HOLD){
       flightMode = WP;
       //setTrim = false;
@@ -1941,6 +1983,10 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
 
 
 
