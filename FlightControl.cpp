@@ -387,6 +387,9 @@ void WayPointStateMachine(){
   switch (wayPointState){
   case WP_TAKE_OFF:
     //loiter at 0,0,2 until 2 meters reached
+    if (motorState == LAND){
+      motorState = FLIGHT;
+    }
     LoiterCalculations();
     Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
     AltHoldPosition.calculate();
@@ -397,28 +400,40 @@ void WayPointStateMachine(){
     }
     break;
   case WP_TRAVEL:
-    if (lookAtFlag == true){
-      UpdateLookAtHeading();
+  if (motorState == LAND){
+      motorState = FLIGHT;
     }
-    if (newWayPointFlag == true){
-      UpdateWPTarget();
-    }
-    HeadingHold();
+    WayPointTasks();
     break;
   case WP_LOITER:
-    if (lookAtFlag == true){
-      UpdateLookAtHeading();
+  if (motorState == LAND){
+      motorState = FLIGHT;
     }
-    HeadingHold();
+    WayPointTasks();
     break;
   case WP_LAND:
+    if (motorState == FLIGHT){
+      motorState = LANDING;
+    }
+    WayPointTasks();
+    LoiterCalculations();
+    Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
+    AltHoldVelocity.calculate();
     break;
   }
 }
-
+void WayPointTasks(){
+  if (lookAtFlag == true){
+    UpdateLookAtHeading();
+  }
+  if (newWayPointFlag == true){
+    UpdateWPTarget();
+  }
+  HeadingHold();
+}
 void UpdateWPTarget(){
   float xDist,yDist;
-  
+
   xTarget = wpX;
   yTarget = wpY;
 
@@ -426,12 +441,13 @@ void UpdateWPTarget(){
   if (lookAtFlag == false){
     yawSetPoint = wpYaw;
   }
-  
+
   xDist = XEst - xTarget;
   yDist = YEst - yTarget;
   if (sqrt(xDist * xDist +  yDist * yDist) <  MIN_RTB_DIST){
     wayPointState = WP_LOITER;
-  }else{
+  }
+  else{
     wayPointState = WP_TRAVEL;
   }
 }
@@ -513,12 +529,32 @@ void WayPointStop(){
   xTargetWP = xTarget;
   yTargetWP = yTarget;
   zTargetWP = zTarget;
-  newWayPointFlag = false
+  newWayPointFlag = false;
 }
 
-void WayPointLand(){
+void WayPointLandGS(){
   //called by radio.cpp
+  motorState = LANDING;
+  wayPointState = WP_LAND;
+  xTarget = XEst;
+  yTarget = YEst;
+
+  zTarget = ZEst;
+  xTargetWP = xTarget;
+  yTargetWP = yTarget;
+  zTargetWP = zTarget;
+
+  velSetPointZ = LAND_VEL;
+  newWayPointFlag = false;
+}
+void WayPointLandTX(){
   //called by motors.cpp when stick is lowered
+  //should switch flight mode to loiter
+  flightMode = L0;
+  InitLoiter();
+  throttleCheckFlag = false;
+  motorState = LANDING;
+  ZLoiterState = LAND;
 }
 void WayPointReturnToBase(){
   //called by radio.cpp
@@ -891,11 +927,11 @@ void RTBStateMachine() {
       RTBState = RTB_LAND;
       motorState = LANDING;
     }
-    if (gpsFailSafe == true) {
-      velSetPointZ = LAND_VEL;
-      RTBState = RTB_LAND;
-      motorState = LANDING;
-    }
+    /*if (gpsFailSafe == true) {
+     velSetPointZ = LAND_VEL;
+     RTBState = RTB_LAND;
+     motorState = LANDING;
+     }*/
     break;
   case RTB_LAND:
     if (gpsFailSafe == true) {
@@ -912,7 +948,7 @@ void RTBStateMachine() {
       Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
     }
     if (motorState == FLIGHT){
-      motorState = LAND;
+      motorState = LANDING;
     }
     AltHoldVelocity.calculate();
     break;
@@ -1063,7 +1099,7 @@ void LoiterSM(){
 
     case LAND:
       if (motorState == FLIGHT){
-        motorState = LAND;
+        motorState = LANDING;
       }
       AltHoldVelocity.calculate();
 
@@ -1816,22 +1852,19 @@ void ProcessModes() {
         }
       }
       else{
-        flightMode = ATT;
-        setTrim = false;
-        trimComplete = false;
-        MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
-        MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
-        MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
-        if (rollSetPoint < 1 && rollSetPoint > -1) {
-          rollSetPoint = 0;
+        flightMode = L0;
+        MapVar(&cmdAile, &rollSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+        MapVar(&cmdElev, &pitchSetPointTX, 1000, 2000, LOIT_TILT_MIN, LOIT_TILT_MAX);
+        MapVar(&cmdRudd, &yawInput, 1000, 2000, LOIT_YAW_MIN, LOIT_YAW_MAX);
+        if (rollSetPointTX < 1 && rollSetPointTX > -1) {
+          rollSetPointTX = 0;
         }
-        if (pitchSetPoint < 1 && pitchSetPoint > -1) {
-          pitchSetPoint = 0;
+        if (pitchSetPointTX < 1 && pitchSetPointTX > -1) {
+          pitchSetPointTX = 0;
         }
         if (yawInput < 5 && yawInput > -5) {
           yawInput = 0;
         }
-
       }
     }
     /*flightMode = ATT;
@@ -1875,6 +1908,10 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
 
 
 
