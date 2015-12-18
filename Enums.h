@@ -1,6 +1,24 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+
+
+enum WP_GS_COMMANDS{
+  UPDATE_WP,
+  LOOK_AT_WP,
+  STOP_WP,
+  LAND_WP,
+  RTB_WP
+};
+
+enum WP_STATES{
+  WP_TAKE_OFF,
+  WP_TRAVEL,
+  WP_LOITER,
+  WP_LAND,
+  WP_RTB
+};
+
 enum LOG_STATES{
   CHECK_4K,
   ERASE,

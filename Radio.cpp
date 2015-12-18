@@ -30,7 +30,7 @@ void UnReliableTransmit();
 void SendHandShakeResponse();
 void SendCalData();
 void HandleGSRCData();
-
+void HandleWayPointCommands();
 
 uint8_t typeNum,cmdNum,itemBuffer[255],calibrationNumber,hsRequestNumber,lsRequestNumber,hsNumItems,lsNumItems, hsList[40], lsList[40];
 uint16_t localPacketNumberOrdered, remotePacketNumberOrdered, remotePacketNumberUn, packetTemp[2];
@@ -217,6 +217,9 @@ void Radio() {
       if (typeNum == END_CAL_DATA && (cmdNum == 3 || cmdNum == 7)) {
         radioState = REL_SET_SUM1;
       }
+      if (typeNum == WP_CTRL && cmdNum > 1 ){
+        radioState = REL_SET_SUM1;
+      }
       break;
 
     case REL_SET_BUFFER://buffer in data
@@ -245,12 +248,13 @@ void Radio() {
           radioState = SB_CHECK;
           break;
         }
-        if (typeNum == ERASE_ALL_LOGS){
-          eraseLogs = true;
-        }
-        if (typeNum == GET_ALL_LOGS){
-          dumpLogs = true;
-        }
+        /*if (typeNum == ERASE_ALL_LOGS){
+         eraseLogs = true;
+         }
+         if (typeNum == GET_ALL_LOGS){
+         dumpLogs = true;
+         }*/
+
         if (typeNum == RESET_PR_OFFSET){
           pitchOffset = 0;
           rollOffset = 0;
@@ -266,7 +270,15 @@ void Radio() {
           }
           EEPROMWrite(PR_FLAG, 0xAA);
         }
+
+
         if (calibrationMode == true || getFlashMode == true) {
+          if (typeNum == ERASE_ALL_LOGS){
+            eraseLogs = true;
+          }
+          if (typeNum == GET_ALL_LOGS){
+            dumpLogs = true;
+          }
           if (typeNum == START_CAL_DATA) {
             sendCalibrationData = true;
             calibrationNumber = cmdNum;
@@ -280,6 +292,9 @@ void Radio() {
           if (typeNum < UINT8) {
             OrderedSet();
           }
+          if (typeNum == WP_CTRL){
+            HandleWayPointCommands();
+          } 
           if (typeNum == HS_DATA || typeNum == LS_DATA) {
             SetTransmissionRate();
           }
@@ -359,6 +374,47 @@ void Radio() {
 
 }
 
+void HandleWayPointCommands(){
+  float_u lat,lon,alt,yaw;
+  uint8_t flag;
+  uint8_t bufferIndex = 0;
+  switch(cmdNum){
+  case UPDATE_WP:
+    for(uint8_t i = 0; i < 4; i ++){
+      lat.buffer[i] = itemBuffer[bufferIndex++];
+    }
+    for(uint8_t i = 0; i < 4; i ++){
+      lon.buffer[i] = itemBuffer[bufferIndex++];
+    }
+    for(uint8_t i = 0; i < 4; i ++){
+      alt.buffer[i] = itemBuffer[bufferIndex++];
+    }
+    for(uint8_t i = 0; i < 4; i ++){
+      yaw.buffer[i] = itemBuffer[bufferIndex++];
+    }
+    WayPointUpdate(lat.val,lon.val,alt.val,yaw.val);
+    break;
+  case LOOK_AT_WP:
+    for(uint8_t i = 0; i < 4; i ++){
+      lat.buffer[i] = itemBuffer[bufferIndex++];
+    }
+    for(uint8_t i = 0; i < 4; i ++){
+      lon.buffer[i] = itemBuffer[bufferIndex++];
+    }
+    flag = itemBuffer[bufferIndex];
+    WayPointLookAt(lat.val,lon.val,flag);
+    break;
+  case STOP_WP:
+    WayPointStop();
+    break;
+  case LAND_WP:
+    WayPointLandGS();  
+    break;
+  case RTB_WP:
+    WayPointReturnToBase();
+    break;
+  }
+}
 
 void SendPage(uint8_t ouputBuffer[]){
   uint8_t txSum = 0,txDoubleSum = 0;
@@ -381,11 +437,11 @@ void SendPage(uint8_t ouputBuffer[]){
   }
   RadioWrite(txSum);
   RadioWrite(txDoubleSum);
-  
+
   txSum = 0;
   txDoubleSum = 0;
   flashOutputPacketNumber.val +=1;
-  
+
   RadioWrite(0xAA);
   RadioWrite(groundStationID);
   RadioWrite(131);
@@ -405,9 +461,9 @@ void SendPage(uint8_t ouputBuffer[]){
   }
   RadioWrite(txSum);
   RadioWrite(txDoubleSum);
-  
+
   flashOutputPacketNumber.val +=1;
-  
+
 }
 
 void SendEraseComplete(){
@@ -1568,6 +1624,9 @@ void SendCalData() {
     break;
   }
 }
+
+
+
 
 
 
