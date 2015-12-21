@@ -107,19 +107,7 @@
 #define MAX_Z_RATE 3.0f
 #define MIN_Z_RATE -3.0f
 //common defines
-#define MODE_FLAG 443
-#define MODE_START 444
-#define MODE_END 452
 
-
-#define PROP_IDLE 435
-#define PROP_IDLE_FLAG 436
-
-#define HOVER_THRO 437
-#define HOVER_THRO_FLAG 438
-
-#define TX_FS_FLAG 439
-#define TX_FS 440
 
 //#define ROT_45
 //LED defines GREEN, YELLOW, BLUE, RED
@@ -222,17 +210,13 @@
 #define Port2 Serial2
 #define gpsPort Serial3
 
-
-//end common defines
-
 #define RADIO_BUF_SIZE 256
 #define NUM_WAY_POINTS 0x14
+//end common defines
 
-#define PKT_LOCAL_ORD_L 2
-#define PKT_LOCAL_ORD_M 3
 
-#define PKT_LOCAL_UN_L 4
-#define PKT_LOCAL_UN_M 5
+
+
 
 #define BLOCK_MASK_4K 0x000F
 #define BLOCK_MASK_32K 0x007F
@@ -358,24 +342,32 @@
 
 #define RC_SS 44
 
-
-
-
 #define RC_SS_Output() DDRH |= 1<<7 
 #define RC_SSHigh() PORTH |= 1<<7 
 #define RC_SSLow() PORTH &= ~(1<<7)
 
 #define CAL_FLAGS 0
+#define HS_FLAG 1
 
+#define PKT_LOCAL_ORD_L 2
+#define PKT_LOCAL_ORD_M 3
+
+#define PKT_LOCAL_UN_L 4
+#define PKT_LOCAL_UN_M 5
 #define PR_FLAG 6
 
+#define ESC_CAL_FLAG 7
+
+#define ACC_CALIB_START 8
 #define ACC_S_X_INDEX 11
 #define ACC_S_Y_INDEX 15
 #define ACC_S_Z_INDEX 19
 #define ACC_O_X_INDEX 23
 #define ACC_O_Y_INDEX 27
 #define ACC_O_Z_INDEX 31
+#define ACC_CALIB_END 31
 
+#define MAG_CALIB_START 32
 #define MAG_OFF_X_INDEX 35
 #define MAG_OFF_Y_INDEX 39
 #define MAG_OFF_Z_INDEX 43
@@ -388,57 +380,7 @@
 #define W_20_INDEX 71
 #define W_21_INDEX 75
 #define W_22_INDEX 79
-
-#define ACC_CALIB_START 8
-#define ACC_CALIB_END 31
-
-#define MAG_CALIB_START 32
 #define MAG_CALIB_END 79
-
-#define RC_DATA_START 332
-#define RC_DATA_END 427
-
-#define MAX_INDEX 333
-#define MIN_INDEX 335
-#define MID_INDEX 337
-#define CHAN_INDEX 338
-#define SCALE_INDEX 342
-#define REV_INDEX 343
-
-#define PWM_FLAG 434
-#define PWM_HIGH_MAX 2000
-#define PWM_LOW_MIN 1000
-
-#define PWM_HIGH_MIN 1900
-#define PWM_LOW_MAX 1200
-
-#define ESC_CALIBRATION_DELAY 4000
-
-#define VER_FLAG_1 428
-#define VER_FLAG_2 429
-
-#define PROTOCOL_VER_NUM 1
-#define PROTOCOL_VER_SUB_NUM 1
-
-#define VER_NUM_1 0x01
-#define VER_NUM_2 0x02
-
-
-#define PWM_LIM_HIGH_START 430
-#define PWM_LIM_HIGH_END 431
-
-#define PWM_LIM_LOW_START 432
-#define PWM_LIM_LOW_END 433
-
-#define ESC_CAL_FLAG 7
-
-#define FREQ 100
-#define PRESCALE 8
-#define PERIOD ((F_CPU/PRESCALE/FREQ) - 1)
-
-#define HS_FLAG 1
-
-#define ESC_CAL_FLAG 7
 
 #define PITCH_OFFSET_START 80
 #define PITCH_OFFSET_END 83
@@ -449,7 +391,43 @@
 #define GAINS_START 88
 #define GAINS_END 327
 
+#define RC_DATA_START 332
+#define MAX_INDEX 333
+#define MIN_INDEX 335
+#define MID_INDEX 337
+#define CHAN_INDEX 338
+#define SCALE_INDEX 342
+#define REV_INDEX 343
+#define RC_DATA_END 427
+
+#define VER_FLAG_1 428
+#define VER_FLAG_2 429
+
+#define PWM_LIM_HIGH_START 430
+#define PWM_LIM_HIGH_END 431
+
+
+
+#define PWM_LIM_LOW_START 432
+#define PWM_LIM_LOW_END 433
+
+
+
+
+#define PWM_FLAG 434
+#define PROP_IDLE 435
+#define PROP_IDLE_FLAG 436
+
+#define HOVER_THRO 437
+#define HOVER_THRO_FLAG 438
+
+#define TX_FS_FLAG 439
+#define TX_FS 440
+
+#define MODE_FLAG 443
+#define MODE_START 444
 #define GS_ID_INDEX 451
+#define MODE_END 452
 
 #define CEILING_FLOOR_FLAG 452
 #define CEILING_START 453
@@ -467,6 +445,47 @@
 
 #define SWIFT_X_FLAG 607
 #define ROT_45 608
+
+#define PWM_HIGH_MAX 2000
+#define PWM_LOW_MIN 1000
+
+#define PWM_HIGH_MIN 1900
+#define PWM_LOW_MAX 1200
+
+#define ESC_CALIBRATION_DELAY 4000
+
+#define PROTOCOL_VER_NUM 1
+#define PROTOCOL_VER_SUB_NUM 1
+
+#define VER_NUM_1 0x01
+#define VER_NUM_2 0x02
+
+
+
+
+
+
+#define FREQ 100
+#define PRESCALE 8
+#define PERIOD ((F_CPU/PRESCALE/FREQ) - 1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif//#ifndef Definitions.h
 

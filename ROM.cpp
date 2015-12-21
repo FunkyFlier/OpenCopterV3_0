@@ -318,15 +318,15 @@ void AssignPointerArray() {
   bytePointerArray[XY_LOIT_STATE] = &XYLoiterState;//flight control
   bytePointerArray[Z_LOIT_STATE] = &flightModeControl;//flight control
 
-  bytePointerArray[RTB_STATE] = &RTBState;//flight control
+    bytePointerArray[RTB_STATE] = &RTBState;//flight control
   bytePointerArray[MOTOR_STATE] = &motorState;//motors
   bytePointerArray[TELEM_FS] = &telemFailSafe;//flight control
   bytePointerArray[GPS_FS] = &gpsFailSafe;//gps
-  
-  bytePointerArray[SWITCH_POS] = &wayPointState;//&switchPositions;//&wayPointState;//RC
+
+  bytePointerArray[SWITCH_POS] = &switchPositions;//&switchPositions;//&wayPointState;//RC
 
 
-  bytePointerArray[IDLE_PERCENT] = &propIdlePercent;//rom
+  bytePointerArray[IDLE_PERCENT] = &wayPointState;//rom
   bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
   bytePointerArray[TX_LOSS_RTB] = &logEnabled;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors
@@ -811,8 +811,17 @@ void LoadDEC() {
 void LoadModes(){
   uint8_t j = 0;
   for(uint16_t i = MODE_START; i <= MODE_END; i++){
-    modeArray[j++] = EEPROMRead(i);
+    //modeArray[j++] = EEPROMRead(i);
+    
+    modeArray[j] = EEPROMRead(i);
+    Serial<<modeArray[j]<<","<<i<<","<<EEPROMRead(i)<<"\r\n";
+    j++;
   }
+ /* for(uint16_t i = 0; i <= (MODE_END - MODE_START); i++){
+    //modeArray[j++] = EEPROMRead(i);
+    //modeArray[j] = EEPROMRead(i);
+    Serial<<modeArray[i]<<"\r\n";
+  }*/
 }
 void LoadCeilingFloor(){
   int16_u outInt16;
@@ -861,6 +870,7 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
 
 
 

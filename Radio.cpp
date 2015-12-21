@@ -871,7 +871,9 @@ void WriteCalibrationDataToRom() {
   case 6://MODES
     EEPROMWrite(MODE_FLAG,0xAA);
     for(uint16_t i = MODE_START; i <= MODE_END; i++){
+      Serial<<itemBuffer[itemIndex]<<","<<i<<"\r\n";
       EEPROMWrite(i,itemBuffer[itemIndex++]);
+      Serial<<EEPROMRead(i)<<"\r\n";
     }
 
     break;//--------------------------------------------
