@@ -474,7 +474,7 @@ void MotorHandler(){
       }
     }
     if (flightMode == WP || flightMode == FOLLOW){
-      if (throttleCommand < (int16_t)propIdleCommand){
+      if (throCommand < (int16_t)propIdleCommand){
         WayPointLandTX();
       }
     }
