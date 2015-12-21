@@ -316,13 +316,14 @@ void AssignPointerArray() {
   bytePointerArray[F_MODE_] = &flightMode;//flight control
   bytePointerArray[GPS_FIX] = &GPSData.vars.gpsFix;//GPS
   bytePointerArray[XY_LOIT_STATE] = &XYLoiterState;//flight control
-  bytePointerArray[Z_LOIT_STATE] = &ZLoiterState;//flight control
+  bytePointerArray[Z_LOIT_STATE] = &flightModeControl;//flight control
 
-  bytePointerArray[RTB_STATE] = &startNewLog;//flight control
+  bytePointerArray[RTB_STATE] = &RTBState;//flight control
   bytePointerArray[MOTOR_STATE] = &motorState;//motors
-  bytePointerArray[TELEM_FS] = &endCurrentLog;//flight control
-  bytePointerArray[GPS_FS] = &loggingReady;//gps
-  bytePointerArray[SWITCH_POS] = &startOfRecordDataToFlash;//RC
+  bytePointerArray[TELEM_FS] = &telemFailSafe;//flight control
+  bytePointerArray[GPS_FS] = &gpsFailSafe;//gps
+  
+  bytePointerArray[SWITCH_POS] = &switchPositions;//&wayPointState;//RC
 
 
   bytePointerArray[IDLE_PERCENT] = &propIdlePercent;//rom

@@ -34,6 +34,7 @@ boolean batteryFSOverride = false;
 
 
 uint8_t flightMode = 0;
+uint8_t flightModeControl=0;
 uint32_t _100HzTimer,_400HzTimer,lowRateTimer;
 uint8_t lowRateCounter;
 boolean lowRateTasks = false;
@@ -279,6 +280,7 @@ void _100HzTask(uint32_t loopTime){
           }
         }
         if (GPSFailSafeCounter > 200) {
+          Serial<<"==========================\r\n";
           gpsFailSafe = true;
         }
         _100HzState = POLL_BARO;
@@ -320,7 +322,7 @@ void _100HzTask(uint32_t loopTime){
             ProcessModes();
           }
         }
-        if (groundFSCount >= 200) {
+        if (groundFSCount >= 6000) {
           telemFailSafe = true;
         }
         _100HzState = HANDLE_FAILSAFES;
@@ -654,6 +656,7 @@ void FailSafeHandler(){
   if (magDetected == false){
     GPSDetected = false;
     gpsFailSafe = true;
+    Serial<<"magdet\r\n";
     batteryFSOverride = true;
     if (flightMode > ATT){
       flightMode = ATT;
@@ -666,6 +669,7 @@ void FailSafeHandler(){
   if (baroFS == true){
     GPSDetected = false;
     gpsFailSafe = true;
+    Serial<<"barofs\r\n";
     batteryFSOverride = true;
     if (flightMode > ATT){
       flightMode = ATT;
@@ -1437,7 +1441,7 @@ void ProcessChannels() {
 
 void ProcessModes() {
   static uint8_t clearBATTRTB=0;
-  uint8_t flightModeControl=0;
+  //uint8_t flightModeControl=0;
   previousFlightMode = flightMode;
 
   if (RCValue[AUX2] > 1750) {
@@ -1731,7 +1735,6 @@ void ProcessModes() {
     cmdRudd = RCValue[RUDD];
     throCommand = RCValue[THRO];
     flightModeControl = modeArray[switchPositions];
-
   }
   else{
     cmdElev = GSRCValue[ELEV];
@@ -1941,21 +1944,7 @@ void ProcessModes() {
         }
       }
     }
-    /*flightMode = ATT;
-     setTrim = false;
-     trimComplete = false;
-     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
-     MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
-     MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
-     if (rollSetPoint < 1 && rollSetPoint > -1) {
-     rollSetPoint = 0;
-     }
-     if (pitchSetPoint < 1 && pitchSetPoint > -1) {
-     pitchSetPoint = 0;
-     }
-     if (yawInput < 5 && yawInput > -5) {
-     yawInput = 0;
-     }*/
+
     break;
   case RTB:
     flightMode = RTB;

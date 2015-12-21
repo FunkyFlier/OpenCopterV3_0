@@ -21,6 +21,7 @@ void WayPointReturnToBase();
 void WayPointTakeOff();
 void WayPointLandTX();
 
+extern uint8_t flightModeControl;
 extern uint8_t flightMode;
 extern uint32_t _100HzTimer,_400HzTimer;
 extern volatile uint32_t RCFailSafeCounter,watchDogFailSafeCounter,groundFSCount,baroFSCount;
@@ -36,6 +37,8 @@ extern float tiltAngleX,tiltAngleY;
 extern float distToWayPoint;
 extern float controlBearing;
 extern boolean telemFailSafe,txFailSafe,tuningTrasnmitOK,baroFS;
+
+extern uint8_t wayPointState;
 
 extern boolean enterState;
 extern float xFromTO,yFromTO;

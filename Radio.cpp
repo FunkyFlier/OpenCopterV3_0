@@ -330,6 +330,7 @@ void Radio() {
 
         }
         SendOrdAck();
+        groundFSCount = 0;
       }
       radioState = SB_CHECK;
       break;
