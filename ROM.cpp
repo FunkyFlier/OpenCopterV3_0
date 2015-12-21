@@ -323,7 +323,7 @@ void AssignPointerArray() {
   bytePointerArray[TELEM_FS] = &telemFailSafe;//flight control
   bytePointerArray[GPS_FS] = &gpsFailSafe;//gps
   
-  bytePointerArray[SWITCH_POS] = &switchPositions;//&wayPointState;//RC
+  bytePointerArray[SWITCH_POS] = &wayPointState;//&switchPositions;//&wayPointState;//RC
 
 
   bytePointerArray[IDLE_PERCENT] = &propIdlePercent;//rom

@@ -432,14 +432,16 @@ void MotorHandler(){
       }
     }
     if (flightMode == WP || flightMode == FOLLOW){
-      motorState = FLIGHT;
-      ResetPIDs();
-      enterState = true;
-      throttleAdjustment = 0;
-      baroGlitchHandling = true;
-      takeOffBaroGlitchTimer = millis();
-      integrate = true;
-      WayPointTakeOff();
+      if (throCommand <= 1600 && throCommand >= 1450){
+        motorState = FLIGHT;
+        ResetPIDs();
+        enterState = true;
+        throttleAdjustment = 0;
+        baroGlitchHandling = true;
+        takeOffBaroGlitchTimer = millis();
+        integrate = true;
+        WayPointTakeOff();
+      }
     }
 
     break;
@@ -570,6 +572,7 @@ void WriteMotorPWM(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
 
 
 

@@ -96,7 +96,8 @@ void GPSStart() {
       case GPS_START_WAIT:
         LEDPatternSet(0,1,6,0);
         gpsStartTimer = millis();
-        while(millis() - gpsStartTimer < 30000){
+        //while(millis() - gpsStartTimer < 30000){
+        while(millis() - gpsStartTimer < 300){  
           GPSMonitor();
           if (GPSData.vars.sAcc * 0.001 > SACC_MAX || GPSData.vars.hAcc * 0.001 > HACC_MAX || GPSData.vars.gpsFix != 0x3){
             gpsStartState = GPS_START_FIX;
