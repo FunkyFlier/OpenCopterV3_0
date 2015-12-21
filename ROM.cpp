@@ -811,17 +811,8 @@ void LoadDEC() {
 void LoadModes(){
   uint8_t j = 0;
   for(uint16_t i = MODE_START; i <= MODE_END; i++){
-    //modeArray[j++] = EEPROMRead(i);
-    
-    modeArray[j] = EEPROMRead(i);
-    Serial<<modeArray[j]<<","<<i<<","<<EEPROMRead(i)<<"\r\n";
-    j++;
-  }
- /* for(uint16_t i = 0; i <= (MODE_END - MODE_START); i++){
-    //modeArray[j++] = EEPROMRead(i);
-    //modeArray[j] = EEPROMRead(i);
-    Serial<<modeArray[i]<<"\r\n";
-  }*/
+    modeArray[j++] = EEPROMRead(i);
+ }
 }
 void LoadCeilingFloor(){
   int16_u outInt16;

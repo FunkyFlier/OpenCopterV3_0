@@ -866,16 +866,12 @@ void WriteCalibrationDataToRom() {
     EEPROMWrite(PWM_LIM_LOW_START, itemBuffer[itemIndex++]);
     EEPROMWrite(PWM_LIM_LOW_END, itemBuffer[itemIndex++]);
     EEPROMWrite(PWM_FLAG, 0xAA);
-
     break;//--------------------------------------------
   case 6://MODES
     EEPROMWrite(MODE_FLAG,0xAA);
     for(uint16_t i = MODE_START; i <= MODE_END; i++){
-      Serial<<itemBuffer[itemIndex]<<","<<i<<"\r\n";
       EEPROMWrite(i,itemBuffer[itemIndex++]);
-      Serial<<EEPROMRead(i)<<"\r\n";
     }
-
     break;//--------------------------------------------
   case 7:
     EEPROMWrite(ESC_CAL_FLAG,0xBB);

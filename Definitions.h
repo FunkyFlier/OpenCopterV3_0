@@ -109,7 +109,6 @@
 //common defines
 
 
-//#define ROT_45
 //LED defines GREEN, YELLOW, BLUE, RED
 #define GREEN 42
 #define YELLOW 40
@@ -337,8 +336,6 @@
 #define FC_PRESS 1.0
 #define RC_CONST_PRESS 1.0/(2.0 * 3.14 * FC_PRESS)
 
-#define DEC_START 328
-#define DEC_END 331
 
 #define RC_SS 44
 
@@ -391,6 +388,9 @@
 #define GAINS_START 88
 #define GAINS_END 327
 
+#define DEC_START 328
+#define DEC_END 331
+
 #define RC_DATA_START 332
 #define MAX_INDEX 333
 #define MIN_INDEX 335
@@ -424,10 +424,11 @@
 #define TX_FS_FLAG 439
 #define TX_FS 440
 
-#define MODE_FLAG 443
-#define MODE_START 444
+#define MODE_FLAG 441
+#define MODE_START 442
+#define MODE_END 450
+
 #define GS_ID_INDEX 451
-#define MODE_END 452
 
 #define CEILING_FLOOR_FLAG 452
 #define CEILING_START 453
@@ -458,14 +459,9 @@
 #define PROTOCOL_VER_SUB_NUM 1
 
 #define VER_NUM_1 0x01
-#define VER_NUM_2 0x02
+#define VER_NUM_2 0x03
 
-
-
-
-
-
-#define FREQ 100
+#define FREQ 400
 #define PRESCALE 8
 #define PERIOD ((F_CPU/PRESCALE/FREQ) - 1)
 
