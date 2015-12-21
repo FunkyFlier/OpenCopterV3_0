@@ -280,7 +280,6 @@ void _100HzTask(uint32_t loopTime){
           }
         }
         if (GPSFailSafeCounter > 200) {
-          Serial<<"==========================\r\n";
           gpsFailSafe = true;
         }
         _100HzState = POLL_BARO;
@@ -656,7 +655,6 @@ void FailSafeHandler(){
   if (magDetected == false){
     GPSDetected = false;
     gpsFailSafe = true;
-    Serial<<"magdet\r\n";
     batteryFSOverride = true;
     if (flightMode > ATT){
       flightMode = ATT;
@@ -669,7 +667,6 @@ void FailSafeHandler(){
   if (baroFS == true){
     GPSDetected = false;
     gpsFailSafe = true;
-    Serial<<"barofs\r\n";
     batteryFSOverride = true;
     if (flightMode > ATT){
       flightMode = ATT;
