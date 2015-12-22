@@ -47,6 +47,9 @@ void DistBearing(int32_t *lat1, int32_t *lon1, int32_t *lat2, int32_t *lon2,floa
   if (*bearing < 360){
     *bearing += 360;
   }
+  if (*bearing > 360){
+    *bearing -= 360;
+  }
 }
 
 void GPSStart() {
