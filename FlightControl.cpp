@@ -462,6 +462,7 @@ void WayPointStateMachine(){
       if (motorState == FLIGHT){
         motorState = LANDING;
       }
+
       WayPointTasks();
       LoiterCalculations();
       Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
@@ -479,6 +480,7 @@ void WayPointTasks(){
     UpdateLookAtHeading();
   }
   if (newWayPointFlag == true){
+    newWayPointFlag = false;
     UpdateWPTarget();
   }
   HeadingHold();
@@ -1569,8 +1571,11 @@ void ProcessModes() {
   if (RCValue[AUX3] > 1750) {
     if (functionCallFlag == false){
       functionCallFlag = true;
-      WayPointStop();
-      Serial<<"wp stop called\r\n";
+      //WayPointStop();
+      //WayPointLandGS();
+      //WayPointReturnToBase();
+      Serial<<"wp called\r\n";
+      WayPointUpdate(floatLat, floatLon, ZEstUp, yawInDegrees);
       /*void WayPointUpdate(float lat, float lon, float alt, float yaw);
        void WayPointLookAt(float lat, float lon, boolean lookAt );
        void WayPointStateMachine();

@@ -492,6 +492,11 @@ void MotorHandler(){
         throttleCheckFlag = false;
       }
     }
+    if (flightMode == WP || flightMode == FOLLOW){
+      if (throCommand < (int16_t)propIdleCommand){
+        WayPointLandTX();
+      }
+    }
     throttleCommand = propIdleCommand;
     if ( (throttleAdjustment + throttleCommand) < (propIdleCommand) ){// &&  landDetected == false){
       CommandAllMotors((float)pwmLow);
