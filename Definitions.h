@@ -1,8 +1,6 @@
 #ifndef Definitions_h
 #define Definitions_h
 
-
-
 #define HIGH_RATE_INTERVAL 13
 #define MED_RATE_INTERVAL 50
 #define LOW_RATE_INTERVAL 200
@@ -92,7 +90,7 @@
 
 #define CEILING 6.0
 #define FLOOR 1.0
-#define TAKE_OFF_ALT 2.0
+#define TAKE_OFF_ALT 1
 
 
 
@@ -406,13 +404,8 @@
 #define PWM_LIM_HIGH_START 430
 #define PWM_LIM_HIGH_END 431
 
-
-
 #define PWM_LIM_LOW_START 432
 #define PWM_LIM_LOW_END 433
-
-
-
 
 #define PWM_FLAG 434
 #define PROP_IDLE 435

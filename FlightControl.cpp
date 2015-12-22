@@ -396,7 +396,7 @@ void WayPointStateMachine(){
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
       HeadingHold();
-      if (fabs(ZEst - zTarget) < 0.25){
+      if (fabs(ZEstUp - zTarget) < 0.25){
         wayPointState = WP_LOITER;
       }
       break;
@@ -577,7 +577,7 @@ void WayPointStop(){
   xTarget = XEst;
   yTarget = YEst;
 
-  zTarget = ZEst;
+  zTarget = ZEstUp;
   newWayPointFlag = false;
 }
 
@@ -588,7 +588,7 @@ void WayPointLandGS(){
   xTarget = XEst;
   yTarget = YEst;
 
-  zTarget = ZEst;
+  zTarget = ZEstUp;
 
   velSetPointZ = LAND_VEL;
   newWayPointFlag = false;
