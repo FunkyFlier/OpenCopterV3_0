@@ -597,11 +597,20 @@ void WayPointLandTX(){
   //called by motors.cpp when stick is lowered
   //should switch flight mode to loiter
   flightMode = L0;
-  InitLoiter();
+
+  if (zTarget < floorLimit) {
+    zTarget = floorLimit;
+  }
+  if (zTarget > ceilingLimit) {
+    zTarget = ceilingLimit;
+  }
+
+  xTarget = XEst;
+  yTarget = YEst;
   throttleCheckFlag = false;
   yawSetPoint = yawInDegrees;
   LEDPatternSet(1,0,1,0);
-  
+
   velSetPointZ = LAND_VEL;
   motorState = LANDING;
   ZLoiterState = LAND;
@@ -1541,8 +1550,27 @@ void ProcessModes() {
    return;
    
    }*/
-
-
+#ifdef AUX3_WP_DEBUG
+  static boolean functionCallFlag = false;
+  if (RCValue[AUX3] > 1750) {
+    if (functionCallFlag == false){
+      functionCallFlag = true;
+      WayPointStop();
+      Serial<<"wp stop called\r\n";
+      /*void WayPointUpdate(float lat, float lon, float alt, float yaw);
+       void WayPointLookAt(float lat, float lon, boolean lookAt );
+       void WayPointStateMachine();
+       
+       void WayPointStop();
+       void WayPointLandGS();
+       void WayPointReturnToBase();
+       */
+    }
+  }
+  else{
+    functionCallFlag = false;
+  }
+#endif
   static uint32_t stepTimer;
   static boolean resetBias = false;
 #ifdef AUX3_RESET_BIAS  
@@ -1970,6 +1998,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 

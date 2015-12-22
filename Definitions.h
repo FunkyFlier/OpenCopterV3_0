@@ -20,7 +20,9 @@
 #define NEW_BARO_FEEDBACK
 //------------------------
 
-#define AUX3_RTB
+#define AUX3_WP_DEBUG
+
+//#define AUX3_RTB
 
 //#define AUX3_RATEX
 //#define AUX3_ROLL
