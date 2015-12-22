@@ -321,7 +321,10 @@ void _100HzTask(uint32_t loopTime){
             ProcessModes();
           }
         }
-        if (groundFSCount >= 6000) {
+        /*if (groundFSCount >= 6000) {
+          telemFailSafe = true;
+        }*/
+        if (groundFSCount >= 200) {
           telemFailSafe = true;
         }
         _100HzState = HANDLE_FAILSAFES;
