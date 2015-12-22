@@ -30,7 +30,7 @@ float motorCommand1, motorCommand2, motorCommand3, motorCommand4,motorCommand5, 
 int16_t pwmHigh, pwmLow;
 int16_t throttleCommand;
 uint8_t motorState;
-uint16_t propIdleCommand, hoverCommand;
+uint16_t propIdleCommand;
 
 float m1X,m1Y,m1Z,m2X,m2Y,m2Z,m3X,m3Y,m3Z,m4X,m4Y,m4Z,m5X,m5Y,m5Z,m6X,m6Y,m6Z,m7X,m7Y,m7Z,m8X,m8Y,m8Z;
 float landRampValue;
@@ -465,12 +465,12 @@ void MotorHandler(){
       }
     }
     if (flightMode >= L0){
-      throttleCommand = hoverCommand;
+      throttleCommand = propIdleCommand;
     }
     if (throttleCheckFlag == true){
       if (throCommand <= 1600 && throCommand >= 1450){
         throttleCheckFlag = false;
-        throttleCommand = hoverCommand;
+        throttleCommand = propIdleCommand;
       }
     }
     if (flightMode == WP || flightMode == FOLLOW){
@@ -492,7 +492,7 @@ void MotorHandler(){
         throttleCheckFlag = false;
       }
     }
-    throttleCommand = hoverCommand;
+    throttleCommand = propIdleCommand;
     if ( (throttleAdjustment + throttleCommand) < (propIdleCommand) ){// &&  landDetected == false){
       CommandAllMotors((float)pwmLow);
       landDetected = false;

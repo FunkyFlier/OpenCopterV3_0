@@ -620,7 +620,7 @@ void LoadPWMLimits() {
   else {
     propIdleCommand = pwmLow * (1 + ((float)propIdlePercent / 100.0));
   }
-  hoverCommand = propIdleCommand;
+
 }
 void LoadRC() {
   uint16_t j = 0; //index for input buffers

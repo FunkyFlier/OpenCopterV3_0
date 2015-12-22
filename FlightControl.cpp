@@ -601,6 +601,8 @@ void WayPointLandTX(){
   throttleCheckFlag = false;
   yawSetPoint = yawInDegrees;
   LEDPatternSet(1,0,1,0);
+  
+  velSetPointZ = LAND_VEL;
   motorState = LANDING;
   ZLoiterState = LAND;
 }
