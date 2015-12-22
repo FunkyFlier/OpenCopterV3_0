@@ -519,41 +519,45 @@ void WayPointUpdate(float lat, float lon, float alt, float yaw){
   //called by radio.cpp
   //updates the wp from the ground station
   //sets the correct state
-  float tempX,tempY,tempDist,tempYaw;
-  wpLat = (int32_t)(lat * 10000000);
-  wpLon = (int32_t)(lon * 10000000);
-  wpZ = alt;
-  wpYaw = yaw;
-  DistBearing(&homeLat,&homeLon,&wpLat,&wpLon,&wpX,&wpY,&tempDist,&tempYaw);
-  if (lookAtFlag == true){
-    DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPoint);
-    if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+  if (wayPointState != WP_TAKE_OFF){
+    float tempX,tempY,tempDist,tempYaw;
+    wpLat = (int32_t)(lat * 10000000);
+    wpLon = (int32_t)(lon * 10000000);
+    wpZ = alt;
+    wpYaw = yaw;
+    DistBearing(&homeLat,&homeLon,&wpLat,&wpLon,&wpX,&wpY,&tempDist,&tempYaw);
+    if (lookAtFlag == true){
+      DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPoint);
+      if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+        yawSetPoint = wpYaw;
+      }
+    }
+    else{
       yawSetPoint = wpYaw;
     }
+    newWayPointFlag = true;
   }
-  else{
-    yawSetPoint = wpYaw;
-  }
-  newWayPointFlag = true;
 } 
 void WayPointLookAt(float lat, float lon, boolean lookAt ){
   //called by radio.cpp
   //if lookAt false or too close the craft use yaw from last wp
   float tempX,tempY,tempDist;
   //float yawSetPointWP;
-
-  lookAtLat = (int32_t)(lat * 10000000);
-  lookAtLon = (int32_t)(lon * 10000000);
-  lookAtFlag = lookAt;
-  if (lookAtFlag == true){
-    DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPoint);
-    if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+  if (wayPointState != WP_TAKE_OFF){
+    lookAtLat = (int32_t)(lat * 10000000);
+    lookAtLon = (int32_t)(lon * 10000000);
+    lookAtFlag = lookAt;
+    if (lookAtFlag == true){
+      DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPoint);
+      if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+        yawSetPoint = wpYaw;
+      } 
+    }
+    else{
       yawSetPoint = wpYaw;
-    } 
+    }
   }
-  else{
-    yawSetPoint = wpYaw;
-  }
+
 }
 void WayPointTakeOff(){
   //called by motors when operator takes throttle to mid stick
@@ -573,25 +577,31 @@ void WayPointStop(){
   //called by radio.cpp
   //called from ground station
   //sets loiter to current position
-  wayPointState = WP_LOITER;
-  xTarget = XEst;
-  yTarget = YEst;
+  if (wayPointState != WP_TAKE_OFF){
+    wayPointState = WP_LOITER;
+    xTarget = XEst;
+    yTarget = YEst;
 
-  zTarget = ZEstUp;
-  newWayPointFlag = false;
+    zTarget = ZEstUp;
+    newWayPointFlag = false;
+  }
+
 }
 
 void WayPointLandGS(){
   //called by radio.cpp
-  motorState = LANDING;
-  wayPointState = WP_LAND;
-  xTarget = XEst;
-  yTarget = YEst;
+  if (wayPointState != WP_TAKE_OFF){
+    motorState = LANDING;
+    wayPointState = WP_LAND;
+    xTarget = XEst;
+    yTarget = YEst;
 
-  zTarget = ZEstUp;
+    zTarget = ZEstUp;
 
-  velSetPointZ = LAND_VEL;
-  newWayPointFlag = false;
+    velSetPointZ = LAND_VEL;
+    newWayPointFlag = false;
+  }
+
 }
 void WayPointLandTX(){
   //called by motors.cpp when stick is lowered
@@ -617,31 +627,35 @@ void WayPointLandTX(){
 }
 void WayPointReturnToBase(){
   //called by radio.cpp
-  LEDPatternSet(1,0,7,0);
-  enterState = false;
-  //InitLoiter();
-  xTarget = XEst;
-  yTarget = YEst;
-  zTarget = ZEstUp + 1;
-  xFromTO = XEst - homeBaseXOffset;
-  yFromTO = YEst - homeBaseYOffset;
-  if (sqrt(xFromTO * xFromTO + yFromTO * yFromTO) < MIN_RTB_DIST || gpsFailSafe == true){
-    yawSetPoint = initialYaw;
-  }
-  else{
-    yawSetPoint = ToDeg(atan2(yFromTO , xFromTO));
-    if (yawSetPoint < 0.0){
-      yawSetPoint += 360.0;
+
+  if (wayPointState != WP_TAKE_OFF){
+    LEDPatternSet(1,0,7,0);
+    enterState = false;
+    //InitLoiter();
+    xTarget = XEst;
+    yTarget = YEst;
+    zTarget = ZEstUp + 1;
+    xFromTO = XEst - homeBaseXOffset;
+    yFromTO = YEst - homeBaseYOffset;
+    if (sqrt(xFromTO * xFromTO + yFromTO * yFromTO) < MIN_RTB_DIST || gpsFailSafe == true){
+      yawSetPoint = initialYaw;
     }
+    else{
+      yawSetPoint = ToDeg(atan2(yFromTO , xFromTO));
+      if (yawSetPoint < 0.0){
+        yawSetPoint += 360.0;
+      }
+    }
+    if (zTarget > ceilingLimit) {
+      zTarget = ceilingLimit;
+    }
+    if (zTarget < floorLimit) {
+      zTarget = floorLimit;
+    }
+    RTBState = RTB_CLIMB;
+    wayPointState = WP_RTB;
   }
-  if (zTarget > ceilingLimit) {
-    zTarget = ceilingLimit;
-  }
-  if (zTarget < floorLimit) {
-    zTarget = floorLimit;
-  }
-  RTBState = RTB_CLIMB;
-  wayPointState = WP_RTB;
+
 }
 
 void MotorShutDown(){
@@ -1998,6 +2012,11 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
+
 
 
 
