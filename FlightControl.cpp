@@ -39,13 +39,13 @@ uint32_t _100HzTimer,_400HzTimer,lowRateTimer;
 uint8_t lowRateCounter;
 boolean lowRateTasks = false;
 
-volatile uint32_t RCFailSafeCounter=0,watchDogFailSafeCounter=0,groundFSCount=0,baroFSCount=0;
+volatile uint32_t RCFailSafeCounter=0,watchDogFailSafeCounter=0,groundFSCount=0,baroFSCount=0,telemFSCount=0;
 float initialYaw;
 boolean integrate;
 uint8_t HHState;
 float landingThroAdjustment,throttleAdjustment,adjustmentX,adjustmentY,adjustmentZ;
 uint8_t XYLoiterState, ZLoiterState,RTBState,txLossRTB,previousFlightMode;
-boolean telemFailSafe,txFailSafe,tuningTrasnmitOK,baroFS;
+boolean GSCTRLFailSafe,txFailSafe,tuningTrasnmitOK,baroFS,telemFS;
 
 float homeBaseXOffset,homeBaseYOffset;
 float xTarget,yTarget,zTarget;
@@ -316,16 +316,16 @@ void _100HzTask(uint32_t loopTime){
         if (newGSRC == true) {
           groundFSCount = 0;
           newGSRC = false;
-          telemFailSafe = false;
+          GSCTRLFailSafe = false;
           if (gsCTRL == true){
             ProcessModes();
           }
         }
-        /*if (groundFSCount >= 6000) {
-          telemFailSafe = true;
-        }*/
+        if (telemFSCount >= 1200) {
+          telemFS = true;
+        }
         if (groundFSCount >= 200) {
-          telemFailSafe = true;
+          GSCTRLFailSafe = true;
         }
         _100HzState = HANDLE_FAILSAFES;
         break;
@@ -708,7 +708,7 @@ void FailSafeHandler(){
   }
 
   if (gsCTRL == true){
-    if (telemFailSafe == true){
+    if (GSCTRLFailSafe == true){
       gsCTRL = false;
       if (rcDetected == false || RCFailSafe == true){
         LEDPatternSet(0,3,0,1);
@@ -1838,7 +1838,7 @@ void ProcessModes() {
     flightModeControl = ATT;
   }
 
-  if (telemFailSafe == true && (flightModeControl == FOLLOW || flightModeControl == WP )){
+  if (telemFS == true && (flightModeControl == FOLLOW || flightModeControl == WP )){
     flightModeControl = L0;
   }
   if (gsCTRL == true && flightModeControl > L2){

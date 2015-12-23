@@ -320,7 +320,7 @@ void AssignPointerArray() {
 
     bytePointerArray[RTB_STATE] = &RTBState;//flight control
   bytePointerArray[MOTOR_STATE] = &motorState;//motors
-  bytePointerArray[TELEM_FS] = &telemFailSafe;//flight control
+  bytePointerArray[TELEM_FS] = &GSCTRLFailSafe;//flight control
   bytePointerArray[GPS_FS] = &gpsFailSafe;//gps
 
   bytePointerArray[SWITCH_POS] = &switchPositions;//&switchPositions;//&wayPointState;//RC

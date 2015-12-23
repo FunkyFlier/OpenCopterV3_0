@@ -26,6 +26,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
     groundFSCount++;
     GPSFailSafeCounter++;
     baroFSCount++;
+    telemFSCount++;
   }
   else{
     if (handShake == true && calibrationMode == false && getFlashMode == false){
