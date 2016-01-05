@@ -24,6 +24,7 @@
 
 #define AUX3_RTB
 
+//#define AUX3_FS_TESTS
 //#define AUX3_RATEX
 //#define AUX3_ROLL
 //#define AUX3_VEL

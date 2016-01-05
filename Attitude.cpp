@@ -29,7 +29,6 @@ float initialAccMagnitude;
 
 float kpAcc,kiAcc,kpMag,kiMag,feedbackLimit;
 float exa,eya,eza;
-boolean startReset = false,resetTriggered = false;
 
 void SetInitialAccelerometerMagnitude(){
   float accSumX = 0,accSumY = 0,accSumZ = 0;
@@ -119,39 +118,7 @@ void AHRSupdate(float dt) {
     exa = (acc_y * vz - acc_z * vy);
     eya = (acc_z * vx - acc_x * vz);
     eza = (acc_x * vy - acc_y * vx);
-    /*if (startReset == true){
-      startReset = false;
-      exa += (ATT_ERR_MAX + 1);
-    }
-    if (fabs(exa) > ATT_ERR_MAX || fabs(eya) > ATT_ERR_MAX || fabs(eza) > ATT_ERR_MAX){
-      float pitchBy2,yawBy2,rollBy2;
-      pitchInRadians = atan2(-acc_x,sqrt(acc_y * acc_y + acc_z * acc_z));
-      rollInRadians = atan2(acc_y,acc_z);
-      if (magDetected == true){
-        float bx = mag_x * cos(pitchInRadians) + mag_y * sin(pitchInRadians) * sin(rollInRadians) + mag_z * sin(pitchInRadians) * cos(rollInRadians);
-        float by = mag_z * sin(rollInRadians) - mag_y * cos(rollInRadians);
-        yawInRadians = atan2(by, bx);
-      }
-      else{
-        yawInRadians = 0;
-      }
-      pitchBy2 = pitchInRadians/2.0;
-      rollBy2 = rollInRadians/2.0;
-      yawBy2 = yawInRadians/2.0;
-      q0 = cos(yawBy2)*cos(pitchBy2)*cos(rollBy2) + sin(yawBy2)*sin(pitchBy2)*sin(rollBy2); 
-      q1 = cos(yawBy2)*cos(pitchBy2)*sin(rollBy2) - sin(yawBy2)*sin(pitchBy2)*cos(rollBy2); 
-      q2 = cos(yawBy2)*sin(pitchBy2)*cos(rollBy2) + sin(yawBy2)*cos(pitchBy2)*sin(rollBy2); 
-      q3 = sin(yawBy2)*cos(pitchBy2)*cos(rollBy2) - cos(yawBy2)*sin(pitchBy2)*sin(rollBy2);
-      magnitude = sqrt(q0 *  q0 + q1 *  q1 + q2 *  q2 + q3 *  q3); 
-      q0 = q0 / magnitude;
-      q1 = q1 / magnitude;
-      q2 = q2 / magnitude;
-      q3 = q3 / magnitude;
-      yawSetPoint = ToDeg(yawInRadians);
-      return;
-      
-    }*/
-
+   
     kiDTAcc = kiAcc * dt;
     kiDTMag = kiMag * dt;
     if (kiAcc > 0){

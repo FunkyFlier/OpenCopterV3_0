@@ -1569,6 +1569,9 @@ void ProcessModes() {
    return;
    
    }*/
+#ifdef AUX3_FS_TESTS
+
+#endif
 #ifdef AUX3_WP_DEBUG
   static boolean functionCallFlag = false;
   static uint8_t WPDebugState = 0;
