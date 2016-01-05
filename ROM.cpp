@@ -326,9 +326,9 @@ void AssignPointerArray() {
   bytePointerArray[SWITCH_POS] = &wayPointState;//&switchPositions;//&switchPositions;//&wayPointState;//RC
 
 
-  bytePointerArray[IDLE_PERCENT] = &wayPointState;//rom
+  bytePointerArray[IDLE_PERCENT] = &GSCTRLFailSafe ;//rom
   bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
-  bytePointerArray[TX_LOSS_RTB] = &logEnabled;//flight control
+  bytePointerArray[TX_LOSS_RTB] = &baroFS;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
 

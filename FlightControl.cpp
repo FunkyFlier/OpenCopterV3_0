@@ -1570,7 +1570,40 @@ void ProcessModes() {
    
    }*/
 #ifdef AUX3_FS_TESTS
+  static boolean functionCallFlag = false;
+  static uint8_t FSDebugState = 0;
+  if (RCValue[AUX3] > 1750) {
+    if (functionCallFlag == false){
+      functionCallFlag = true;
 
+
+      switch (FSDebugState){
+      case 0:
+        magDetected = false;
+        FSDebugState = 1;
+        break;
+
+      case 1:
+
+        FSDebugState = 2;
+        break;
+      case 2:
+
+        FSDebugState = 3;
+        break;
+      case 3:
+
+        FSDebugState = 4;
+        break;
+      case 4:
+
+        FSDebugState = 0;
+        break;
+      }
+
+    }
+
+  }
 #endif
 #ifdef AUX3_WP_DEBUG
   static boolean functionCallFlag = false;
@@ -1584,39 +1617,39 @@ void ProcessModes() {
 
 
       /*switch (WPDebugState){
-      case 0:
-        //WayPointUpdate(32.935153,-96.774441,  50, 0);
-        WayPointLandGS();
-        Serial<<"WPDebugState = 0\r\n";
-        WPDebugState = 1;
-        break;
-
-      case 1:
-        WayPointUpdate(32.935153,-96.774441,  50, 0);
-        //WayPointLookAt(32.934577,-96.773636,true);
-
-        Serial<<"WPDebugState = 1\r\n";
-        WPDebugState = 2;
-        break;
-      case 2:
-        //WayPointLookAt(32.934577,-96.773636,false);
-        WayPointStop();
-        Serial<<"WPDebugState = 2\r\n";
-        WPDebugState = 3;
-        break;
-      case 3:
-        //WayPointLookAt(32.934577,-96.773636,false);
-        WayPointReturnToBase();
-        Serial<<"WPDebugState = 3\r\n";
-        WPDebugState = 4;
-        break;
-      case 4:
-        //WayPointLookAt(32.934577,-96.773636,false);
-        WayPointStop();
-        Serial<<"WPDebugState = 4\r\n";
-        WPDebugState = 0;
-        break;
-      }*/
+       case 0:
+       //WayPointUpdate(32.935153,-96.774441,  50, 0);
+       WayPointLandGS();
+       Serial<<"WPDebugState = 0\r\n";
+       WPDebugState = 1;
+       break;
+       
+       case 1:
+       WayPointUpdate(32.935153,-96.774441,  50, 0);
+       //WayPointLookAt(32.934577,-96.773636,true);
+       
+       Serial<<"WPDebugState = 1\r\n";
+       WPDebugState = 2;
+       break;
+       case 2:
+       //WayPointLookAt(32.934577,-96.773636,false);
+       WayPointStop();
+       Serial<<"WPDebugState = 2\r\n";
+       WPDebugState = 3;
+       break;
+       case 3:
+       //WayPointLookAt(32.934577,-96.773636,false);
+       WayPointReturnToBase();
+       Serial<<"WPDebugState = 3\r\n";
+       WPDebugState = 4;
+       break;
+       case 4:
+       //WayPointLookAt(32.934577,-96.773636,false);
+       WayPointStop();
+       Serial<<"WPDebugState = 4\r\n";
+       WPDebugState = 0;
+       break;
+       }*/
       /*void WayPointUpdate(float lat, float lon, float alt, float yaw);
        void WayPointLookAt(float lat, float lon, boolean lookAt );
        void WayPointStateMachine();
@@ -2058,6 +2091,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 
