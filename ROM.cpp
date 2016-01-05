@@ -317,10 +317,10 @@ void AssignPointerArray() {
   bytePointerArray[GPS_FIX] = &GPSData.vars.gpsFix;//GPS
   bytePointerArray[XY_LOIT_STATE] = &XYLoiterState;//flight control
   bytePointerArray[Z_LOIT_STATE] = &flightModeControl;//flight control
-
-    bytePointerArray[RTB_STATE] = &RTBState;//flight control
+  
+  bytePointerArray[RTB_STATE] = &RTBState;//flight control
   bytePointerArray[MOTOR_STATE] = &motorState;//motors
-  bytePointerArray[TELEM_FS] = &GSCTRLFailSafe;//flight control
+  bytePointerArray[TELEM_FS] = &telemFS;//flight control
   bytePointerArray[GPS_FS] = &gpsFailSafe;//gps
 
   bytePointerArray[SWITCH_POS] = &wayPointState;//&switchPositions;//&switchPositions;//&wayPointState;//RC
@@ -812,7 +812,7 @@ void LoadModes(){
   uint8_t j = 0;
   for(uint16_t i = MODE_START; i <= MODE_END; i++){
     modeArray[j++] = EEPROMRead(i);
- }
+  }
 }
 void LoadCeilingFloor(){
   int16_u outInt16;
@@ -861,6 +861,9 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
+
+
 
 
 

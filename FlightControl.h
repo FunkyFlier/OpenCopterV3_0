@@ -36,7 +36,7 @@ extern float velSetPointX,velSetPointY,velSetPointZ;
 extern float tiltAngleX,tiltAngleY;
 extern float distToWayPoint;
 extern float controlBearing;
-extern boolean GSCTRLFailSafe,txFailSafe,tuningTrasnmitOK,baroFS;
+extern boolean GSCTRLFailSafe,txFailSafe,tuningTrasnmitOK,baroFS,telemFS;
 
 extern uint8_t wayPointState;
 

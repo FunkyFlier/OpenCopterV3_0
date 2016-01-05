@@ -686,8 +686,8 @@ void FailSafeHandler(){
     GPSDetected = false;
     gpsFailSafe = true;
     batteryFSOverride = true;
-    if (flightMode > ATT){
-      flightMode = ATT;
+    if (flightMode > L0){
+      flightMode = L0;
       if (flightMode != previousFlightMode) {
         enterState = true;
         previousFlightMode = flightMode;
@@ -707,6 +707,8 @@ void FailSafeHandler(){
     }
   }
 
+
+  
   if (gsCTRL == true){
     if (GSCTRLFailSafe == true){
       gsCTRL = false;
@@ -1424,6 +1426,46 @@ void ProcessChannels() {
     }
   }
 
+#ifdef AUX3_FS_TESTS
+  static boolean functionCallFlag = false;
+  static uint8_t FSDebugState = 0;
+  if (RCValue[AUX3] > 1750) {
+    if (functionCallFlag == false){
+      functionCallFlag = true;
+      switch (FSDebugState){
+      case 0:
+        magDetected = false;
+        //batteryFSOverride = false;
+        //batteryFailSafe = true;
+        //RCFailSafe = true;
+        FSDebugState = 1;
+        break;
+      case 1:
+        //gpsFailSafe = true;
+        baroFS = true;
+        //gpsFailSafe = true;
+
+        FSDebugState = 2;
+        break;
+      case 2:
+        //gpsFailSafe = true;
+        //baroFS = true;
+        FSDebugState = 3;
+        break;
+      case 3:
+
+        FSDebugState = 4;
+        break;
+      case 4:
+        FSDebugState = 0;
+        break;
+      }
+    }
+  }
+  else{
+    functionCallFlag = false;
+  }
+#endif
 
   if (RCFailSafe == true) {
 
@@ -1569,42 +1611,7 @@ void ProcessModes() {
    return;
    
    }*/
-#ifdef AUX3_FS_TESTS
-  static boolean functionCallFlag = false;
-  static uint8_t FSDebugState = 0;
-  if (RCValue[AUX3] > 1750) {
-    if (functionCallFlag == false){
-      functionCallFlag = true;
 
-
-      switch (FSDebugState){
-      case 0:
-        magDetected = false;
-        FSDebugState = 1;
-        break;
-
-      case 1:
-
-        FSDebugState = 2;
-        break;
-      case 2:
-
-        FSDebugState = 3;
-        break;
-      case 3:
-
-        FSDebugState = 4;
-        break;
-      case 4:
-
-        FSDebugState = 0;
-        break;
-      }
-
-    }
-
-  }
-#endif
 #ifdef AUX3_WP_DEBUG
   static boolean functionCallFlag = false;
   static uint8_t WPDebugState = 0;
@@ -1869,14 +1876,11 @@ void ProcessModes() {
       flightModeControl = 2;
     }
   }  
-
-  if ( (magDetected == false || baroFS == true) && flightModeControl > ATT){
-    flightModeControl = ATT;
-  }
-
+  
   if (telemFS == true && (flightModeControl == FOLLOW || flightModeControl == WP )){
     flightModeControl = L0;
   }
+  
   if (gsCTRL == true && flightModeControl > L2){
     flightModeControl = L0;
   }
@@ -2091,6 +2095,10 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
 
 
 
