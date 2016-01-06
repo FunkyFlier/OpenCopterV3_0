@@ -93,7 +93,7 @@ enum TypeNums{
   RESET_PR_OFFSET,
   ERASE_ALL_LOGS,
   GET_ALL_LOGS
-  
+
 };
 enum HandShakeStates{
   START_BYTE,
@@ -324,7 +324,9 @@ enum Floats {
   Z_ERROR_VEL,
   ACC_ERROR_X,
   ACC_ERROR_Y,
-  ACC_ERROR_Z
+  ACC_ERROR_Z,
+  HOME_OFF_X,
+  HOME_OFF_Y
 };
 enum motorControlStates {
   HOLD,
@@ -370,8 +372,15 @@ enum Int16s {
   PWM_HIGH,
   PWM_LOW,
   CEILING_LIMIT,
-  FLOOR_LIMIT
-
+  FLOOR_LIMIT,
+  RC_THRO,
+  RC_AILE,
+  RC_ELEV,
+  RC_RUDD,
+  RC_GEAR,
+  RC_AUX1,
+  RC_AUX2,
+  RC_AUX3
 
 
 };
@@ -392,7 +401,10 @@ enum BYTES {
   MAG_DET,
   TX_FS_STATUS,
   GPS_START_STATE,
-  INIT_PROG
+  INIT_PROG,
+  GS_CRTL_FS,
+  WP_STATE,
+  BARO_FS
 };
 enum RTBStates {
   RTB_CLIMB,
@@ -416,6 +428,8 @@ enum RC_Types {
 enum RC_Chan {
   THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 #endif
+
+
 
 
 

@@ -28,11 +28,11 @@ void SetDefaultGains();
 void LoadMotorMix();
 void LoadEstimatorGains();
 
-float* floatPointerArray[197];
+float* floatPointerArray[199];
 
-int16_t* int16PointerArray[15];
+int16_t* int16PointerArray[22];
 
-uint8_t* bytePointerArray[17];
+uint8_t* bytePointerArray[19];
 
 uint8_t propIdlePercent,hoverPercent;
 
@@ -292,6 +292,9 @@ void AssignPointerArray() {
   floatPointerArray[ACC_ERROR_X] = &exa;
   floatPointerArray[ACC_ERROR_Y] = &eya;
   floatPointerArray[ACC_ERROR_Z] = &eza;
+  
+  floatPointerArray[HOME_OFF_X] = &homeBaseXOffset;
+  floatPointerArray[HOME_OFF_Y] = &homeBaseYOffset;
 
 
   int16PointerArray[GYRO_X] = &gyroX.val;//sensors
@@ -313,6 +316,16 @@ void AssignPointerArray() {
   int16PointerArray[FLOOR_LIMIT] = &floorLimit;
 
 
+  int16PointerArray[RC_THRO] = &RCValue[0];
+  int16PointerArray[RC_AILE] = &RCValue[1];
+  int16PointerArray[RC_ELEV] = &RCValue[2];
+  int16PointerArray[RC_RUDD] = &RCValue[3];
+  int16PointerArray[RC_GEAR] = &RCValue[4];
+  int16PointerArray[RC_AUX1] = &RCValue[5];
+  int16PointerArray[RC_AUX2] = &RCValue[6];
+  int16PointerArray[RC_AUX3] = &RCValue[7];
+
+
   bytePointerArray[F_MODE_] = &flightMode;//flight control
   bytePointerArray[GPS_FIX] = &GPSData.vars.gpsFix;//GPS
   bytePointerArray[XY_LOIT_STATE] = &XYLoiterState;//flight control
@@ -323,18 +336,22 @@ void AssignPointerArray() {
   bytePointerArray[TELEM_FS] = &telemFS;//flight control
   bytePointerArray[GPS_FS] = &gpsFailSafe;//gps
 
-  bytePointerArray[SWITCH_POS] = &wayPointState;//&switchPositions;//&switchPositions;//&wayPointState;//RC
+  bytePointerArray[SWITCH_POS] = &switchPositions;//&switchPositions;//&wayPointState;//RC
 
 
-  bytePointerArray[IDLE_PERCENT] = &GSCTRLFailSafe ;//rom
+  bytePointerArray[IDLE_PERCENT] = &propIdlePercent ;//rom
   bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
-  bytePointerArray[TX_LOSS_RTB] = &baroFS;//flight control
+  bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
 
   bytePointerArray[GPS_START_STATE] = &gpsStartState;//sensors
   bytePointerArray[INIT_PROG] = &initProgress;
 
+  bytePointerArray[GS_CRTL_FS] = &GSCTRLFailSafe;
+
+  bytePointerArray[WP_STATE] = &wayPointState;//sensors
+  bytePointerArray[BARO_FS] = &baroFS;
 
 } 
 
