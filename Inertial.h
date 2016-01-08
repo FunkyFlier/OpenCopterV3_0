@@ -15,7 +15,6 @@
 
 
 
-
 void GetInertial();
 void Predict(float);
 void InertialInit();

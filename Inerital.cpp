@@ -8,6 +8,8 @@
 #include "Motors.h"
 #include "Definitions.h"
 #include "Enums.h"
+
+
 float inertialX,inertialY,inertialZ;
 float velX,velY,velZ,velZUp;
 float XEst,YEst,ZEst,ZEstUp;
@@ -196,6 +198,7 @@ void GetBaroZ(){
 
 }
 
+
 void CorrectZ(){
   static float pressurePrevious;
   static uint8_t errorCorrectCount;
@@ -204,8 +207,7 @@ void CorrectZ(){
 
   zPosError = ZEstHist[lagIndex_z] + baroZ;
   zVelError = ZVelHist[lagIndex_zVel] + baroVel;
-
-  if (baroGlitchHandling == true || motorState == LAND){
+  if ( baroGlitchHandling == true || motorState == LANDING ){
     if (millis() - takeOffBaroGlitchTimer > BARO_GLITCH_TIME){
       baroGlitchHandling = false;
     }
