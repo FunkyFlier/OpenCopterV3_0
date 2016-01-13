@@ -178,10 +178,10 @@ PID_2 PitchAngle(&pitchSetPoint, &pitchInDegrees, &rateSetPointY, &integrate, &k
 PID_2 RollAngle(&rollSetPoint, &rollInDegrees, &rateSetPointX, &integrate, &kp_roll_attitude, &ki_roll_attitude, &kd_roll_attitude, &fc_roll_attitude, &_100HzDt, 360, 360);
 YAW_2 YawAngle(&yawSetPoint, &yawInDegrees, &rateSetPointZ, &integrate, &kp_yaw_attitude, &ki_yaw_attitude, &kd_yaw_attitude, &fc_yaw_attitude, &_100HzDt, 360, 360);
 
-PID_2 LoiterXPosition(&xTarget, &XEst, &velSetPointX, &integrate, &kp_loiter_pos_x, &ki_loiter_pos_x, &kd_loiter_pos_x, &fc_loiter_pos_x, &lowRateDT, 1, 1);
+PID_2 LoiterXPosition(&xTarget, &XEst, &velSetPointX, &integrate, &kp_loiter_pos_x, &ki_loiter_pos_x, &kd_loiter_pos_x, &fc_loiter_pos_x, &lowRateDT, 2, 2);
 PID_2 LoiterXVelocity(&velSetPointX, &velX, &tiltAngleX, &integrate, &kp_loiter_velocity_x, &ki_loiter_velocity_x, &kd_loiter_velocity_x, &fc_loiter_velocity_x, &lowRateDT, 30, 30);
 
-PID_2 LoiterYPosition(&yTarget, &YEst, &velSetPointY, &integrate, &kp_loiter_pos_y, &ki_loiter_pos_y, &kd_loiter_pos_y, &fc_loiter_pos_y, &lowRateDT, 1, 1);
+PID_2 LoiterYPosition(&yTarget, &YEst, &velSetPointY, &integrate, &kp_loiter_pos_y, &ki_loiter_pos_y, &kd_loiter_pos_y, &fc_loiter_pos_y, &lowRateDT, 2, 2);
 PID_2 LoiterYVelocity(&velSetPointY, &velY, &tiltAngleY, &integrate, &kp_loiter_velocity_y, &ki_loiter_velocity_y, &kd_loiter_velocity_y, &fc_loiter_velocity_y, &lowRateDT, 30, 30);
 
 PID_2 AltHoldPosition(&zTarget, &ZEstUp, &velSetPointZ, &integrate, &kp_altitude_position, &ki_altitude_position, &kd_altitude_position, &fc_altitude_position, &lowRateDT, 1.5, 1.5);
@@ -201,12 +201,12 @@ void highRateTasks() {
     _400HzTimer = _400HzTime;
     PollAcc();
     PollGro();
-    if (flightMode == RTB){
-      if (rateSetPointZ > 100.0){
-        rateSetPointZ = 100.0;
+    if (flightMode > L2){
+      if (rateSetPointZ > Z_RATE_LIMIT){
+        rateSetPointZ = Z_RATE_LIMIT;
       }
-      if (rateSetPointZ < -100.0){
-        rateSetPointZ = -100.0;
+      if (rateSetPointZ < (-1.0* Z_RATE_LIMIT) ){
+        rateSetPointZ = (-1.0* Z_RATE_LIMIT);
       }
     }
     PitchRate.calculate();
@@ -321,7 +321,7 @@ void _100HzTask(uint32_t loopTime){
             ProcessModes();
           }
         }
-        if (telemFSCount >= 1200) {
+        if (telemFSCount >= 6000) {
           telemFS = true;
         }
         if (groundFSCount >= 200) {
@@ -344,6 +344,14 @@ void _100HzTask(uint32_t loopTime){
         RollAngle.calculate();
         if (calcYaw == true) {
           YawAngle.calculate();
+        }
+        if (flightMode > L2){
+          if (rateSetPointZ > Z_RATE_LIMIT){
+            rateSetPointZ = Z_RATE_LIMIT;
+          }
+          if (rateSetPointZ < (-1.0* Z_RATE_LIMIT) ){
+            rateSetPointZ = (-1.0* Z_RATE_LIMIT);
+          }
         }
         _100HzState = READ_BATTERY;
         break;
@@ -388,6 +396,7 @@ void WayPointStateMachine(){
     return;
   }
   if (lowRateTasks == true){
+    HeadingHold();
     switch (wayPointState){
     case WP_TAKE_OFF:
       //loiter at 0,0,2 until 2 meters reached
@@ -398,7 +407,7 @@ void WayPointStateMachine(){
       Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
-      HeadingHold();
+      //HeadingHold();
       if (fabs(ZEstUp - zTarget) < 0.25){
         wayPointState = WP_LOITER;
       }
@@ -413,6 +422,7 @@ void WayPointStateMachine(){
       }
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
+      //HeadingHold();
       //within min radius switch to lioter 
       xDist = XEst - xTarget;
       yDist = YEst - yTarget;
@@ -459,6 +469,9 @@ void WayPointStateMachine(){
         break;
       }
       LoiterCalculations();
+      AltHoldPosition.calculate();
+      AltHoldVelocity.calculate();
+      //HeadingHold();
       Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
       break;
     case WP_LAND:
@@ -470,6 +483,7 @@ void WayPointStateMachine(){
       LoiterCalculations();
       Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
       AltHoldVelocity.calculate();
+      //HeadingHold();
       break;
     case WP_RTB:
       RTBStateMachine();
@@ -571,6 +585,12 @@ void WayPointTakeOff(){
   yTarget = YEst;
 
   zTarget = TAKE_OFF_ALT;
+  if (zTarget < floorLimit) {
+    zTarget = floorLimit;
+  }
+  if (zTarget > ceilingLimit) {
+    zTarget = ceilingLimit;
+  }
   wpX = xTarget;
   wpY = yTarget;
   wpZ = zTarget;
@@ -708,7 +728,7 @@ void FailSafeHandler(){
   }
 
 
-  
+
   if (gsCTRL == true){
     if (GSCTRLFailSafe == true){
       gsCTRL = false;
@@ -1876,11 +1896,11 @@ void ProcessModes() {
       flightModeControl = 2;
     }
   }  
-  
+
   if (telemFS == true && (flightModeControl == FOLLOW || flightModeControl == WP )){
     flightModeControl = L0;
   }
-  
+
   if (gsCTRL == true && flightModeControl > L2){
     flightModeControl = L0;
   }
@@ -2095,6 +2115,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 

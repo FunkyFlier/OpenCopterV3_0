@@ -5,6 +5,8 @@
 #define MED_RATE_INTERVAL 50
 #define LOW_RATE_INTERVAL 200
 
+#define Z_RATE_LIMIT 45.0
+
 #define SPEED_LIMIT
 
 #define RAW_PRES_FILT
@@ -22,9 +24,9 @@
 
 //#define AUX3_WP_DEBUG
 
-//#define AUX3_RTB
+#define AUX3_RTB
 
-#define AUX3_FS_TESTS
+//#define AUX3_FS_TESTS
 //#define AUX3_RATEX
 //#define AUX3_ROLL
 //#define AUX3_VEL
@@ -56,7 +58,7 @@
 #define RAMP_DOWN_VEL_RTB 1.0
 #define LOIT_RAMP_MIN 0.5
 
-#define LOW_SPEED_RADIUS 30
+#define LOW_SPEED_RADIUS 15
 #define MIN_RTB_DIST 1.5
 
 #define LOW_RATE_DIVIDER 3
@@ -93,7 +95,7 @@
 
 #define CEILING 6.0
 #define FLOOR 1.0
-#define TAKE_OFF_ALT 1.0
+#define TAKE_OFF_ALT 1.5
 
 
 
