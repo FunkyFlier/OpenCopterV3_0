@@ -83,13 +83,13 @@ void AssignPointerArray() {
   floatPointerArray[VEL_Y] = &velY;
   floatPointerArray[VEL_Z] = &velZUp;
 
-  floatPointerArray[ACC_BIAS_X] = &accelBiasX;//inerital
-  floatPointerArray[ACC_BIAS_Y] = &accelBiasY;
+  floatPointerArray[ACC_BIAS_X] = &wpTilX;//inerital
+  floatPointerArray[ACC_BIAS_Y] = &wpTiltY;
   floatPointerArray[ACC_BIAS_Z] = &accelBiasZ;
 
-  floatPointerArray[INERTIAL_X] = &inertialX;//inerital
-  floatPointerArray[INERTIAL_Y] = &inertialY;
-  floatPointerArray[INERTIAL_Z] = &inertialZ;
+  floatPointerArray[INERTIAL_X] = &wpVelSetPoint;//inerital
+  floatPointerArray[INERTIAL_Y] = &wpPathVelocity;
+  floatPointerArray[INERTIAL_Z] = &wpCrossTrackVelocity;
 
   floatPointerArray[INERTIAL_X_BIASED] = &inertialXBiased;//inerital
   floatPointerArray[INERTIAL_Y_BIASED] = &inertialYBiased;

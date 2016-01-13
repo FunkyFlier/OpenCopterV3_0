@@ -20,6 +20,7 @@ void WayPointReturnToBase();
 
 void WayPointTakeOff();
 void WayPointLandTX();
+extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
 
 extern uint8_t flightModeControl;
 extern uint8_t flightMode;

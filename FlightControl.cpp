@@ -188,9 +188,9 @@ PID_2 AltHoldPosition(&zTarget, &ZEstUp, &velSetPointZ, &integrate, &kp_altitude
 PID_2 AltHoldVelocity(&velSetPointZ, &velZUp, &throttleAdjustment, &integrate, &kp_altitude_velocity, &ki_altitude_velocity, &kd_altitude_velocity, &fc_altitude_velocity, &lowRateDT, 1000, 1000);
 
 PID_2 WPPosition(&zero, &distToWayPoint, &wpVelSetPoint, &integrate, &kp_waypoint_position, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 4,4);
-PID_2 WPVelocity(&wpVelSetPoint, &wpPathVelocity,&wpTilX, &integrate, &kp_waypoint_velocity, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 15,15);
+PID_2 WPVelocity(&wpVelSetPoint, &wpPathVelocity,&wpTilX, &integrate, &kp_waypoint_velocity, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 30,30);
 
-PID_2 WPCrossTrack(&zero, &wpCrossTrackVelocity, &wpTiltY, &integrate, &kp_cross_track ,&ki_cross_track, &kd_cross_track,&fc_cross_track , &lowRateDT, 15,15);
+PID_2 WPCrossTrack(&zero, &wpCrossTrackVelocity, &wpTiltY, &integrate, &kp_cross_track ,&ki_cross_track, &kd_cross_track,&fc_cross_track , &lowRateDT, 30,30);
 
 void highRateTasks() {
   uint32_t _400HzTime;
@@ -385,13 +385,13 @@ void _100HzTask(uint32_t loopTime){
   }
 
 }
-
+boolean startSlowingWP = false;
 
 void WayPointStateMachine(){
   //switches between traveling and loitering 
   static float initialWPVel,commandedWPVel;
   float xDist,yDist;
-  static boolean startSlowing = false;
+  
   if (motorState == HOLD || motorState == TO) {
     return;
   }
@@ -410,6 +410,7 @@ void WayPointStateMachine(){
       //HeadingHold();
       if (fabs(ZEstUp - zTarget) < 0.25){
         wayPointState = WP_LOITER;
+        startSlowingWP = false;
       }
       break;
     case WP_TRAVEL:
@@ -429,7 +430,7 @@ void WayPointStateMachine(){
       distToWayPoint = sqrt(xDist * xDist + yDist * yDist);
       if (distToWayPoint < MIN_RTB_DIST){
         wayPointState = WP_LOITER;
-        startSlowing = false;
+        startSlowingWP = false;
         break;
       }
       //calculate distance and heading to origin
@@ -444,12 +445,12 @@ void WayPointStateMachine(){
       WPPosition.calculate(); 
       wpVelSetPoint *= -1.0;
       //wp vel PID
-      if (distToWayPoint < LOW_SPEED_RADIUS && startSlowing == false){
-        startSlowing = true;
+      if (distToWayPoint < LOW_SPEED_RADIUS && startSlowingWP == false){
+        startSlowingWP = true;
         initialWPVel = wpVelSetPoint;
         commandedWPVel = wpVelSetPoint;
       }
-      if (startSlowing == true){
+      if (startSlowingWP == true){
         commandedWPVel = commandedWPVel * RAMP_DOWN_ALPHA + (1 - RAMP_DOWN_ALPHA) * RAMP_DOWN_VEL_RTB;
         wpVelSetPoint = commandedWPVel;
       }
@@ -520,6 +521,7 @@ void UpdateWPTarget(){
   }
   else{
     wayPointState = WP_TRAVEL;
+    startSlowingWP = false;
   }
 }
 
