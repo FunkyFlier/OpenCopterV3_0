@@ -201,6 +201,16 @@ void highRateTasks() {
     _400HzTimer = _400HzTime;
     PollAcc();
     PollGro();
+#ifdef AUX3_YAW_SP
+    if (flightMode >= L0){
+      if (rateSetPointZ > Z_RATE_LIMIT){
+        rateSetPointZ = Z_RATE_LIMIT;
+      }
+      if (rateSetPointZ < (-1.0* Z_RATE_LIMIT) ){
+        rateSetPointZ = (-1.0* Z_RATE_LIMIT);
+      }
+    }
+#else
     if (flightMode > L2){
       if (rateSetPointZ > Z_RATE_LIMIT){
         rateSetPointZ = Z_RATE_LIMIT;
@@ -209,6 +219,8 @@ void highRateTasks() {
         rateSetPointZ = (-1.0* Z_RATE_LIMIT);
       }
     }
+#endif
+
     PitchRate.calculate();
     RollRate.calculate();
     YawRate.calculate();
@@ -1650,35 +1662,43 @@ void ProcessModes() {
    }*/
 #ifdef AUX3_YAW_SP
   //float yawOutput = 0;
-  uint8_t yawDebugState = 0;
-  boolean yawDebug = false;
+  static uint8_t yawDebugState = 0;
+  static boolean yawDebug = false;
   if (RCValue[AUX3] > 1750) {
     if (yawDebug == false){
       yawDebug = true;
       switch(yawDebugState){
       case 0:
         yawSetPoint = 0;
+        yawDebugState = 1;
         break;
       case 1:
         yawSetPoint = 90;
+        yawDebugState = 2;
         break;
       case 2:
         yawSetPoint = 180;
+        yawDebugState = 3;
         break;
       case 3:
         yawSetPoint = 270;
+        yawDebugState = 4;
         break;
       case 4:
         yawSetPoint = 45;
+        yawDebugState = 5;
         break;
       case 5:
         yawSetPoint = 315;
+        yawDebugState = 6;
         break;
       case 6:
         yawSetPoint = 45;
+        yawDebugState = 7;
         break;
       case 7:
         yawSetPoint = 0;
+        yawDebugState = 0;
         break;
       }
     }
@@ -2170,6 +2190,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
