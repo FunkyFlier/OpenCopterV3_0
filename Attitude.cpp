@@ -297,6 +297,9 @@ void GetYaw(){
   if (yawInDegrees < 0){
     yawInDegrees +=360;
   }
+  if (yawInDegrees > 360){
+    yawInDegrees -=360;
+  }
 }
 
 

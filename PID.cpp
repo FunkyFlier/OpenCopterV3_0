@@ -211,6 +211,7 @@ void YAW_2::calculate(){
   }
 
   actualDiff = *actual - prevActual;
+  
   if (actualDiff > 180.0){
     actualDiff -= 360.0;
   }

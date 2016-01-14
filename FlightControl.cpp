@@ -391,7 +391,7 @@ void WayPointStateMachine(){
   //switches between traveling and loitering 
   static float initialWPVel,commandedWPVel;
   float xDist,yDist;
-  
+
   if (motorState == HOLD || motorState == TO) {
     return;
   }
@@ -546,6 +546,12 @@ void WayPointUpdate(float lat, float lon, float alt, float yaw){
     wpLon = (int32_t)(lon * 10000000);
     wpZ = alt;
     wpYaw = yaw;
+    if (wpYaw < 0.0){
+      wpYaw += 360.0;
+    }
+    if (wpYaw > 360.0){
+      wpYaw -= 360.0;
+    }
     DistBearing(&homeLat,&homeLon,&wpLat,&wpLon,&wpX,&wpY,&tempDist,&tempYaw);
     if (lookAtFlag == true){
       DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPoint);
@@ -671,6 +677,9 @@ void WayPointReturnToBase(){
       yawSetPoint = ToDeg(atan2(yFromTO , xFromTO));
       if (yawSetPoint < 0.0){
         yawSetPoint += 360.0;
+      }
+      if (yawSetPoint > 360.0){
+        yawSetPoint -= 360.0;
       }
     }
     if (zTarget > ceilingLimit) {
@@ -887,6 +896,9 @@ void FlightSM() {
         if (yawSetPoint < 0.0){
           yawSetPoint += 360.0;
         }
+        if (yawSetPoint > 360.0){
+          yawSetPoint -= 360.0;
+        }
       }
       if (zTarget > ceilingLimit) {
         zTarget = ceilingLimit;
@@ -1008,8 +1020,11 @@ void RTBStateMachine() {
         headingToWayPoint += 360.0;
       }
       yawSetPoint = headingToWayPoint - 180.0;
-      if(yawSetPoint < 0){
-        yawSetPoint +=360;
+      if (yawSetPoint < 0.0){
+        yawSetPoint += 360.0;
+      }
+      if (yawSetPoint > 360.0){
+        yawSetPoint -= 360.0;
       }
       //rotate EF velocity to path frame
       Rotate2dVector(&zero,&headingToWayPoint,&velX,&velY,&wpPathVelocity,&wpCrossTrackVelocity);
@@ -1633,7 +1648,45 @@ void ProcessModes() {
    return;
    
    }*/
-
+#ifdef AUX3_YAW_SP
+  //float yawOutput = 0;
+  uint8_t yawDebugState = 0;
+  boolean yawDebug = false;
+  if (RCValue[AUX3] > 1750) {
+    if (yawDebug == false){
+      yawDebug = true;
+      switch(yawDebugState){
+      case 0:
+        yawSetPoint = 0;
+        break;
+      case 1:
+        yawSetPoint = 90;
+        break;
+      case 2:
+        yawSetPoint = 180;
+        break;
+      case 3:
+        yawSetPoint = 270;
+        break;
+      case 4:
+        yawSetPoint = 45;
+        break;
+      case 5:
+        yawSetPoint = 315;
+        break;
+      case 6:
+        yawSetPoint = 45;
+        break;
+      case 7:
+        yawSetPoint = 0;
+        break;
+      }
+    }
+  }
+  else{
+    yawDebug = false;
+  }
+#endif
 #ifdef AUX3_WP_DEBUG
   static boolean functionCallFlag = false;
   static uint8_t WPDebugState = 0;
@@ -2117,6 +2170,12 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
+
+
 
 
 
