@@ -134,20 +134,14 @@ YAW::YAW(float *set,float *act, float *adj,boolean *intToggle,float *p, float *i
 void YAW::calculate(){
   PIDAngle = *setPoint;
 
-  if (*setPoint >= 0.0 && *setPoint < 180.0){
-    //quadrant one and two handling
-    if (*actual < 360.0 && *actual >= (PIDAngle + 180.0)){
-      PIDAngle += 360;
-    }
-  }
-  if (*setPoint >= 180.0 && *setPoint < 360.0){
-    //quadrant three and four handling
-    if (*actual >= 0.0 && *actual < (PIDAngle - 180.0)){
-      PIDAngle -= 360.0;
-    }
-  }
-
   error = PIDAngle - *actual;
+
+  if (error < -180.0){
+    error += 360.0;
+  }
+  if (error > 180.0){
+    error -= 360.0;
+  }
 
   dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (error - prevError);
 
@@ -206,29 +200,24 @@ YAW_2::YAW_2(float *set,float *act, float *adj,boolean *intToggle,float *p, floa
 void YAW_2::calculate(){
   PIDAngle = *setPoint;
 
-  if (*setPoint >= 0.0 && *setPoint < 180.0){
-    //quadrant one and two handling
-    if (*actual < 360.0 && *actual >= (PIDAngle + 180.0)){
-      PIDAngle += 360;
-    }
-  }
-  if (*setPoint >= 180.0 && *setPoint < 360.0){
-    //quadrant three and four handling
-    if (*actual >= 0.0 && *actual < (PIDAngle - 180.0)){
-      PIDAngle -= 360.0;
-    }
-  }
+
   error = PIDAngle - *actual;
-  
-  //assume abs(delta) << 180
+
+  if (error < -180.0){
+    error += 360.0;
+  }
+  if (error > 180.0){
+    error -= 360.0;
+  }
+
   actualDiff = *actual - prevActual;
   if (actualDiff > 180.0){
-    actualDiff = *actual - ( prevActual - 360.0);
+    actualDiff -= 360.0;
   }
   if (actualDiff < -180.0){
-    actualDiff = *actual - ( prevActual + 360.0);
+    actualDiff += 360.0;
   }
-  
+
   dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (actualDiff);
 
   if (*integrate == true){
@@ -262,6 +251,8 @@ void YAW_2::reset(){
   prevActual = *actual;
   dErrorPrev = 0;
 }
+
+
 
 
 
