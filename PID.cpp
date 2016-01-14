@@ -14,14 +14,12 @@ PID::PID(float *set,float *act, float *adj,boolean *intToggle,float *p, float *i
   outputLimitHigh = lim;
   outputLimitLow = -1*lim;
   dt = delta;
-  prevActual = 0;
   dErrorPrev = 0;
 
 }
 
 void PID::calculate(){
   error = *setPoint - *actual;
-
 
   if (*integrate == true){
     iError += *ki * *dt * error;
@@ -52,7 +50,6 @@ void PID::reset(){
   iError = 0;
   dError = 0;
   *adjustment = 0;
-  prevActual = *actual;
   prevError =0;
   dErrorPrev = 0;
 }
@@ -91,7 +88,7 @@ void PID_2::calculate(){
     iError = integralLimitLow;
   }
 
-  dError = dErrorPrev - *fc * *dt * dErrorPrev - *kd * *fc * (*actual - previousActual);
+  dError = dErrorPrev - *fc * *dt * dErrorPrev - *kd * *fc * (*actual - prevActual);
   *adjustment = *kp * error  + iError +  dError;
 
   if (*adjustment > outputLimitHigh){
@@ -101,9 +98,8 @@ void PID_2::calculate(){
     *adjustment = outputLimitLow;
   }
 
-  prevError = error;
   dErrorPrev = dError;
-  previousActual = *actual;
+  prevActual = *actual;
 }
 
 void PID_2::reset(){
@@ -112,73 +108,9 @@ void PID_2::reset(){
   dError = 0;
   *adjustment = 0;
   prevActual = *actual;
-  prevError =0;
   dErrorPrev = 0;
 }
 
-ALT::ALT(float *set,float *act, float *adj,boolean *intToggle,float *p, float *i, float *d,float *n,float *delta,float iLim,float lim, float *mul){
-  setPoint = set;
-  actual = act;
-  adjustment = adj;
-  integrate = intToggle;
-  kp = p;
-  ki = i;
-  kd = d;
-  fc = n;
-  multiplier = mul;
-  integralLimitHigh = iLim;
-  integralLimitLow = -1*iLim;
-  outputLimitHigh = lim;
-  outputLimitLow = -1*lim;
-  dt = delta;
-  prevActual = 0;
-  dErrorPrev = 0;
-
-}
-
-void ALT::calculate(){
-  error = *setPoint - *actual;
-
-
-  if (*integrate == true){
-    iError += *ki * *dt * error;
-  }
-  if (iError > integralLimitHigh){
-    iError = integralLimitHigh;
-  }
-  if (iError < integralLimitLow){
-    iError = integralLimitLow;
-  }
-
-  dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (error - prevError);
-
-
-  if (error > 0){
-    *adjustment = *kp * error * *multiplier  + iError +  dError;
-  }
-  else{
-    *adjustment = *kp * error  + iError +  dError;
-  }
-  if (*adjustment > outputLimitHigh){
-    *adjustment  = outputLimitHigh;
-  }
-  if (*adjustment < outputLimitLow){
-    *adjustment = outputLimitLow;
-  }
-
-  prevError = error;
-  dErrorPrev = dError;
-}
-
-void ALT::reset(){
-  error = 0;
-  iError = 0;
-  dError = 0;
-  *adjustment = 0;
-  prevActual = *actual;
-  prevError =0;
-  dErrorPrev = 0;
-}
 
 YAW::YAW(float *set,float *act, float *adj,boolean *intToggle,float *p, float *i, float *d,float *n,float *delta,float iLim,float lim){
   setPoint = set;
@@ -194,27 +126,28 @@ YAW::YAW(float *set,float *act, float *adj,boolean *intToggle,float *p, float *i
   outputLimitHigh = lim;
   outputLimitLow = -1*lim;
   dt = delta;
-  prevActual = 0;
   prevError =0;
-  singularityState =0;
   dErrorPrev = 0;
 
 }
 
 void YAW::calculate(){
-  PIDAngle = *actual;
+  PIDAngle = *setPoint;
 
-  error = *setPoint - PIDAngle;
-  errorDiff = prevError - error;
+  if (*setPoint >= 0.0 && *setPoint < 180.0){
+    //quadrant one and two handling
+    if (*actual < 360.0 && *actual >= (PIDAngle + 180.0)){
+      PIDAngle += 360;
+    }
+  }
+  if (*setPoint >= 180.0 && *setPoint < 360.0){
+    //quadrant three and four handling
+    if (*actual >= 0.0 && *actual < (PIDAngle - 180.0)){
+      PIDAngle -= 360.0;
+    }
+  }
 
-  if (errorDiff > 180.0){
-    PIDAngle = *actual -360;
-    error = *setPoint - PIDAngle;
-  }
-  if (errorDiff < -180.0){
-    PIDAngle = *actual  +360;
-    error = *setPoint - PIDAngle;
-  }
+  error = PIDAngle - *actual;
 
   dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (error - prevError);
 
@@ -237,7 +170,6 @@ void YAW::calculate(){
   if (*adjustment < outputLimitLow){
     *adjustment = outputLimitLow;
   }
-  prevActual = *actual;
   prevError = error;
   dErrorPrev = dError;
 
@@ -249,7 +181,6 @@ void YAW::reset(){
   iError = 0;
   dError = 0;
   *adjustment = 0;
-  prevActual = *actual;
   dErrorPrev = 0;
 }
 
@@ -268,28 +199,37 @@ YAW_2::YAW_2(float *set,float *act, float *adj,boolean *intToggle,float *p, floa
   outputLimitLow = -1*lim;
   dt = delta;
   prevActual = 0;
-  prevError =0;
-  singularityState =0;
   dErrorPrev = 0;
 
 }
 
 void YAW_2::calculate(){
-  PIDAngle = *actual;
+  PIDAngle = *setPoint;
 
-  error = *setPoint - PIDAngle;
-  errorDiff = prevError - error;
-
-  if (errorDiff > 180.0){
-    PIDAngle = *actual -360;
-    error = *setPoint - PIDAngle;
+  if (*setPoint >= 0.0 && *setPoint < 180.0){
+    //quadrant one and two handling
+    if (*actual < 360.0 && *actual >= (PIDAngle + 180.0)){
+      PIDAngle += 360;
+    }
   }
-  if (errorDiff < -180.0){
-    PIDAngle = *actual  +360;
-    error = *setPoint - PIDAngle;
+  if (*setPoint >= 180.0 && *setPoint < 360.0){
+    //quadrant three and four handling
+    if (*actual >= 0.0 && *actual < (PIDAngle - 180.0)){
+      PIDAngle -= 360.0;
+    }
   }
-
-  dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (*actual - previousActual);
+  error = PIDAngle - *actual;
+  
+  //assume abs(delta) << 180
+  actualDiff = *actual - prevActual;
+  if (actualDiff > 180.0){
+    actualDiff = *actual - ( prevActual - 360.0);
+  }
+  if (actualDiff < -180.0){
+    actualDiff = *actual - ( prevActual + 360.0);
+  }
+  
+  dError = dErrorPrev - *fc * *dt * dErrorPrev + *kd * *fc * (actualDiff);
 
   if (*integrate == true){
     iError += *ki * *dt * error;
@@ -311,20 +251,18 @@ void YAW_2::calculate(){
     *adjustment = outputLimitLow;
   }
   prevActual = *actual;
-  prevError = error;
   dErrorPrev = dError;
-  previousActual = *actual;
 }
 
 void YAW_2::reset(){
   error = 0;
-  prevError=0;
   iError = 0;
   dError = 0;
   *adjustment = 0;
   prevActual = *actual;
   dErrorPrev = 0;
 }
+
 
 
 
