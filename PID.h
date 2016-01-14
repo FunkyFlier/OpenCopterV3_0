@@ -114,7 +114,7 @@ private:
   float dErrorPrev;
   float PIDAngle;
   float errorDiff;
-
+  float actualDiff;
 };
 
 
