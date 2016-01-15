@@ -326,7 +326,12 @@ enum Floats {
   ACC_ERROR_Y,
   ACC_ERROR_Z,
   HOME_OFF_X,
-  HOME_OFF_Y
+  HOME_OFF_Y,
+  WP_TILT_X,
+  WP_TILT_Y,
+  WP_VEL_SP,
+  WP_PATH_VEL,
+  WP_CT_VEL
 };
 enum motorControlStates {
   HOLD,
@@ -428,6 +433,8 @@ enum RC_Types {
 enum RC_Chan {
   THRO, AILE, ELEV, RUDD, GEAR, AUX1, AUX2, AUX3};
 #endif
+
+
 
 
 

@@ -159,7 +159,7 @@ float rateSetPointX;
 float rateSetPointY;
 float rateSetPointZ;
 
-float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
+float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTiltX,wpTiltY,headingToWayPoint;
 float xFromTO,yFromTO;
 float alhpaForPressure;
 
@@ -188,7 +188,7 @@ PID_2 AltHoldPosition(&zTarget, &ZEstUp, &velSetPointZ, &integrate, &kp_altitude
 PID_2 AltHoldVelocity(&velSetPointZ, &velZUp, &throttleAdjustment, &integrate, &kp_altitude_velocity, &ki_altitude_velocity, &kd_altitude_velocity, &fc_altitude_velocity, &lowRateDT, 1000, 1000);
 
 PID_2 WPPosition(&zero, &distToWayPoint, &wpVelSetPoint, &integrate, &kp_waypoint_position, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 4,4);
-PID_2 WPVelocity(&wpVelSetPoint, &wpPathVelocity,&wpTilX, &integrate, &kp_waypoint_velocity, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 30,30);
+PID_2 WPVelocity(&wpVelSetPoint, &wpPathVelocity,&wpTiltX, &integrate, &kp_waypoint_velocity, &ki_waypoint_velocity, &kd_waypoint_velocity, &fc_waypoint_velocity, &lowRateDT, 30,30);
 
 PID_2 WPCrossTrack(&zero, &wpCrossTrackVelocity, &wpTiltY, &integrate, &kp_cross_track ,&ki_cross_track, &kd_cross_track,&fc_cross_track , &lowRateDT, 30,30);
 
@@ -467,11 +467,11 @@ void WayPointStateMachine(){
         wpVelSetPoint = commandedWPVel;
       }
       WPVelocity.calculate(); 
-      wpTilX *= -1.0;
+      wpTiltX *= -1.0;
       //cross track vel PID
       WPCrossTrack.calculate(); 
       //rotate wp tilx and tilty to body pitch and roll
-      Rotate2dVector(&yawInDegrees,&headingToWayPoint,&wpTilX,&wpTiltY,&pitchSetPoint,&rollSetPoint);
+      Rotate2dVector(&yawInDegrees,&headingToWayPoint,&wpTiltX,&wpTiltY,&pitchSetPoint,&rollSetPoint);
       break;
     case WP_LOITER:
       if (motorState == LAND){
@@ -1054,11 +1054,11 @@ void RTBStateMachine() {
         wpVelSetPoint = commandedRTBVel;
       }
       WPVelocity.calculate(); 
-      wpTilX *= -1.0;
+      wpTiltX *= -1.0;
       //cross track vel PID
       WPCrossTrack.calculate(); 
       //rotate wp tilx and tilty to body pitch and roll
-      Rotate2dVector(&yawInDegrees,&headingToWayPoint,&wpTilX,&wpTiltY,&pitchSetPoint,&rollSetPoint);
+      Rotate2dVector(&yawInDegrees,&headingToWayPoint,&wpTiltX,&wpTiltY,&pitchSetPoint,&rollSetPoint);
       if (gpsFailSafe == true) {
         velSetPointZ = LAND_VEL;
         RTBState = RTB_LAND;

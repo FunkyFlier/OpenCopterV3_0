@@ -20,7 +20,7 @@ void WayPointReturnToBase();
 
 void WayPointTakeOff();
 void WayPointLandTX();
-extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
+extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTiltX,wpTiltY,headingToWayPoint;
 
 extern uint8_t flightModeControl;
 extern uint8_t flightMode;
@@ -138,7 +138,7 @@ extern float adjustmentX;
 extern float adjustmentY;
 extern float adjustmentZ;
 
-extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTilX,wpTiltY,headingToWayPoint;
+extern float wpVelSetPoint,wpPathVelocity,wpCrossTrackVelocity,wpTiltX,wpTiltY,headingToWayPoint;
 extern float alhpaForPressure;
 extern float debugVariable;
 

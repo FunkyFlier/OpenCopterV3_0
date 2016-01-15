@@ -28,7 +28,7 @@ void SetDefaultGains();
 void LoadMotorMix();
 void LoadEstimatorGains();
 
-float* floatPointerArray[199];
+float* floatPointerArray[204];
 
 int16_t* int16PointerArray[22];
 
@@ -83,13 +83,13 @@ void AssignPointerArray() {
   floatPointerArray[VEL_Y] = &velY;
   floatPointerArray[VEL_Z] = &velZUp;
 
-  floatPointerArray[ACC_BIAS_X] = &wpTilX;//inerital
-  floatPointerArray[ACC_BIAS_Y] = &wpTiltY;
+  floatPointerArray[ACC_BIAS_X] = &accelBiasX;//inerital
+  floatPointerArray[ACC_BIAS_Y] = &accelBiasY;
   floatPointerArray[ACC_BIAS_Z] = &accelBiasZ;
 
-  floatPointerArray[INERTIAL_X] = &wpVelSetPoint;//inerital
-  floatPointerArray[INERTIAL_Y] = &wpPathVelocity;
-  floatPointerArray[INERTIAL_Z] = &wpCrossTrackVelocity;
+  floatPointerArray[INERTIAL_X] = &inertialX;//inerital
+  floatPointerArray[INERTIAL_Y] = &inertialY;
+  floatPointerArray[INERTIAL_Z] = &inertialZ;
 
   floatPointerArray[INERTIAL_X_BIASED] = &inertialXBiased;//inerital
   floatPointerArray[INERTIAL_Y_BIASED] = &inertialYBiased;
@@ -295,6 +295,12 @@ void AssignPointerArray() {
   
   floatPointerArray[HOME_OFF_X] = &homeBaseXOffset;
   floatPointerArray[HOME_OFF_Y] = &homeBaseYOffset;
+  
+  floatPointerArray[WP_TILT_X] = &wpTiltX;
+  floatPointerArray[WP_TILT_Y] = &wpTiltY;
+  floatPointerArray[WP_VEL_SP] = &wpVelSetPoint;
+  floatPointerArray[WP_PATH_VEL] = &wpPathVelocity;
+  floatPointerArray[WP_CT_VEL] = &wpCrossTrackVelocity;
 
 
   int16PointerArray[GYRO_X] = &gyroX.val;//sensors
