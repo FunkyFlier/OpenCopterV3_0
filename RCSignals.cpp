@@ -338,6 +338,9 @@ void DetectRC(){
     return;
   }
   PWMPPMCheck();
+  if (rcDetected == false){
+    RCFailSafe = true;
+  }
 }
 
 
