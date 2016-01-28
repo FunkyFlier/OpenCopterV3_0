@@ -28,7 +28,7 @@ void ProcessModes();
 void WayPointTasks();
 void UpdateWPTarget();
 void UpdateLookAtHeading();
-
+boolean inControl = true;
 float zero = 0;
 boolean batteryFSOverride = false;
 
@@ -725,37 +725,12 @@ void MotorShutDown(){
 }
 void FailSafeHandler(){
 
-  if (magDetected == false){
-    GPSDetected = false;
-    gpsFailSafe = true;
-    batteryFSOverride = true;
-    if (flightMode > L0){
-      flightMode = L0;
-      if (flightMode != previousFlightMode) {
-        enterState = true;
-        previousFlightMode = flightMode;
-      }
-    }
-  }
-  if (baroFS == true){
-    GPSDetected = false;
-    gpsFailSafe = true;
-    batteryFSOverride = true;
-    if (flightMode > ATT){
-      flightMode = ATT;
-      if (flightMode != previousFlightMode) {
-        enterState = true;
-        previousFlightMode = flightMode;
-      }
-    }
-  }
-
-
 
   if (gsCTRL == true){
     if (GSCTRLFailSafe == true){
       gsCTRL = false;
       if (rcDetected == false || RCFailSafe == true){
+        inControl = false;
         LEDPatternSet(0,3,0,1);
         if (txLossRTB == 0){
           LEDPatternSet(0,3,0,1);
@@ -773,18 +748,15 @@ void FailSafeHandler(){
           if (flightMode != RTB) {
             enterState = true;
             flightMode = RTB;
+            previousFlightMode = flightMode;
           }
         }
-
       }
-
-
     }
-
   }
   else{
     if (RCFailSafe == true){
-      LEDPatternSet(0,2,0,1);
+      inControl = false;
       if (txLossRTB == 0) {
         LEDPatternSet(0,2,0,1);
         MotorShutDown();
@@ -792,15 +764,21 @@ void FailSafeHandler(){
       else{
         if (magDetected == false){
           LEDPatternSet(0,4,0,1);
-          MotorShutDown();
+          if (baroFS == true){
+            LEDPatternSet(0,5,0,1);
+            MotorShutDown();
+          }
         }
-        if (baroFS == true){
-          LEDPatternSet(0,5,0,1);
-          MotorShutDown();
+        else{
+          if (baroFS == true ){
+            LEDPatternSet(0,5,0,1);
+            MotorShutDown();
+          }
         }
         if (flightMode != RTB) {
           enterState = true;
           flightMode = RTB;
+          previousFlightMode = flightMode;
         }
       }
     }
@@ -811,10 +789,48 @@ void FailSafeHandler(){
       if (flightMode != RTB) {
         enterState = true;
         flightMode = RTB;
+        previousFlightMode = flightMode;
       }
     }
   }
-
+  if (magDetected == false){
+    GPSDetected = false;
+    gpsFailSafe = true;
+    batteryFSOverride = true;
+    if (flightMode > L0 && flightMode != RTB){
+      flightMode = L0;
+      if (flightMode != previousFlightMode) {
+        enterState = true;
+        previousFlightMode = flightMode;
+      }
+    }
+  }
+  if (baroFS == true ){
+    GPSDetected = false;
+    gpsFailSafe = true;
+    batteryFSOverride = true;
+    if (flightMode > ATT && inControl == true){
+      flightMode = ATT;
+      setTrim = false;
+      trimComplete = false;
+      MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
+      MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
+      MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
+      if (rollSetPoint < 1 && rollSetPoint > -1) {
+        rollSetPoint = 0;
+      }
+      if (pitchSetPoint < 1 && pitchSetPoint > -1) {
+        pitchSetPoint = 0;
+      }
+      if (yawInput < 5 && yawInput > -5) {
+        yawInput = 0;
+      }
+      if (flightMode != previousFlightMode) {
+        enterState = true;
+        previousFlightMode = flightMode;
+      }
+    }
+  }
 
 }
 void FlightSM() {
@@ -1483,7 +1499,7 @@ void ProcessChannels() {
       functionCallFlag = true;
       switch (FSDebugState){
       case 0:
-        magDetected = false;
+        baroFS = true;
         //batteryFSOverride = false;
         //batteryFailSafe = true;
         //RCFailSafe = true;
@@ -1491,9 +1507,9 @@ void ProcessChannels() {
         break;
       case 1:
         //gpsFailSafe = true;
-        baroFS = true;
+        
         //gpsFailSafe = true;
-
+        magDetected = false;
         FSDebugState = 2;
         break;
       case 2:
@@ -1529,6 +1545,7 @@ void ProcessChannels() {
 
     case 1:
       if (RCValue[GEAR] < 1150) {
+        inControl = true;
         RCFailSafe = false;
         RCFailSafeCounter = 0;
         clearTXRTB = 0;
@@ -1566,6 +1583,7 @@ void ProcessModes() {
     if (batteryFailSafe == true){
       batteryFSOverride = true;
     }
+    inControl = true;
     gsCTRL = false;
     setTrim = false;
     trimComplete = false;
@@ -1599,6 +1617,7 @@ void ProcessModes() {
     if (batteryFailSafe == true){
       batteryFSOverride = true;
     }
+    inControl = true;
     gsCTRL = false;
     setTrim = false;
     trimComplete = false;
@@ -1798,6 +1817,7 @@ void ProcessModes() {
     if (batteryFailSafe == true){
       batteryFSOverride = true;
     }
+    inControl = true;
     gsCTRL = false;
     setTrim = false;
     trimComplete = false;
@@ -2190,6 +2210,10 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
+
+
 
 
 

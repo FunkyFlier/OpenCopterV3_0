@@ -19,6 +19,7 @@ void BatteryInfoInit(){
   smoothAmpCount = ampCount;
   smoothVoltCount = voltCount;
   ReadBatteryInfo(&dt);
+  batteryFailSafe = false;
   if (batteryPercent < BATT_FS_PERCENT){
     batteryFSOverride = true;
   }

@@ -24,7 +24,7 @@
 
 //#define AUX3_WP_DEBUG
 
-//#define AUX3_RTB
+#define AUX3_RTB
 //#define AUX3_YAW_SP
 //#define AUX3_FS_TESTS
 //#define AUX3_RATEX
