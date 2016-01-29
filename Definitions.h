@@ -1,6 +1,10 @@
 #ifndef Definitions_h
 #define Definitions_h
 
+
+#define LAND_VEL_HS -5.0
+#define HS_LAND_LIMIT 4.0
+
 #define HIGH_RATE_INTERVAL 13
 #define MED_RATE_INTERVAL 50
 #define LOW_RATE_INTERVAL 200
@@ -94,7 +98,7 @@
 #define VOLT_COUNTS_TO_CELL_VOLTAGE 0.0041015625 //   4.2/1024
 
 #define CEILING 6.0
-#define FLOOR 1.0
+#define FLOOR 2.0
 #define TAKE_OFF_ALT 1.5
 
 
@@ -107,8 +111,8 @@
 
 
 
-#define MAX_Z_RATE 3.0f
-#define MIN_Z_RATE -3.0f
+#define MAX_Z_RATE 4.0f
+#define MIN_Z_RATE -4.0f
 //common defines
 
 

@@ -1018,7 +1018,13 @@ void RTBStateMachine() {
         startSlowing = false;
       }
       if (gpsFailSafe == true) {
-        velSetPointZ = LAND_VEL;
+        if (ZEstUp > HS_LAND_LIMIT){
+          velSetPointZ = LAND_VEL_HS;
+        }
+        else{
+          velSetPointZ = LAND_VEL;
+        }
+
         RTBState = RTB_LAND;
         motorState = LANDING;
       }
@@ -1039,10 +1045,7 @@ void RTBStateMachine() {
         startSlowing = false;
         break;
       }
-
-
       //calculate distance and heading to origin
-
       headingToWayPoint = ToDeg(atan2(-1.0 * yFromTO , -1.0 * xFromTO));
       if (headingToWayPoint < 0.0){
         headingToWayPoint += 360.0;
@@ -1076,26 +1079,52 @@ void RTBStateMachine() {
       //rotate wp tilx and tilty to body pitch and roll
       Rotate2dVector(&yawInDegrees,&headingToWayPoint,&wpTiltX,&wpTiltY,&pitchSetPoint,&rollSetPoint);
       if (gpsFailSafe == true) {
-        velSetPointZ = LAND_VEL;
+        if (ZEstUp > HS_LAND_LIMIT){
+          velSetPointZ = LAND_VEL_HS;
+        }
+        else{
+          velSetPointZ = LAND_VEL;
+        }
+
         RTBState = RTB_LAND;
         motorState = LANDING;
         startSlowing = false;
       }
       break;
     case RTB_LOITER:
-
       LoiterCalculations();
       Rotate2dVector(&yawInDegrees, &zero, &tiltAngleX, &tiltAngleY, &pitchSetPoint, &rollSetPoint);
       AltHoldPosition.calculate();
       AltHoldVelocity.calculate();
       if ( (fabs(XEst - xTarget) < 1.0 && fabs(YEst - yTarget) < 1.0) || gpsFailSafe == true) {
-        velSetPointZ = LAND_VEL;
+        if (ZEstUp > HS_LAND_LIMIT){
+          velSetPointZ = LAND_VEL_HS;
+        }
+        else{
+          velSetPointZ = LAND_VEL;
+        }
         RTBState = RTB_LAND;
         motorState = LANDING;
       }
-
+      if (gpsFailSafe == true) {
+        if (ZEstUp > HS_LAND_LIMIT){
+          velSetPointZ = LAND_VEL_HS;
+        }
+        else{
+          velSetPointZ = LAND_VEL;
+        }
+        RTBState = RTB_LAND;
+        motorState = LANDING;
+        startSlowing = false;
+      }
       break;
     case RTB_LAND:
+      if (ZEstUp > HS_LAND_LIMIT){
+        velSetPointZ = LAND_VEL_HS;
+      }
+      else{
+        velSetPointZ = LAND_VEL;
+      }
       if (gpsFailSafe == true) {
         pitchSetPoint = pitchSetPointTX;
         rollSetPoint = rollSetPointTX;
@@ -1507,7 +1536,7 @@ void ProcessChannels() {
         break;
       case 1:
         //gpsFailSafe = true;
-        
+
         //gpsFailSafe = true;
         magDetected = false;
         FSDebugState = 2;
@@ -2210,6 +2239,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 
