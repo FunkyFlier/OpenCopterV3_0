@@ -31,6 +31,7 @@ void SendHandShakeResponse();
 void SendCalData();
 void HandleGSRCData();
 void HandleWayPointCommands();
+void SendPageRq(uint8_t*, boolean ,uint16_t );
 
 uint8_t typeNum,cmdNum,itemBuffer[255],calibrationNumber,hsRequestNumber,lsRequestNumber,hsNumItems,lsNumItems, hsList[40], lsList[40];
 uint16_t localPacketNumberOrdered, remotePacketNumberOrdered, remotePacketNumberUn, packetTemp[2];
@@ -56,6 +57,7 @@ void Radio() {
   static uint8_t rxSum=0,rxDoubleSum=0,packetLength=0,numRXbytes=0,radioState = 0,itemIndex=0;
   uint8_t radioByte;
   float_u outFloat;
+  uint16_u outInt16;
   uint8_t j;
   while (RadioAvailable() > 0) { 
 
@@ -201,6 +203,10 @@ void Radio() {
         radioState = REL_SET_SUM1;
         break;
       }
+      if (typeNum == RQ_LOG){
+        itemIndex = 0;
+        radioState = REL_SET_BUFFER;
+      }
       radioState = REL_SET_CMD;
       break;
 
@@ -278,6 +284,11 @@ void Radio() {
           }
           if (typeNum == GET_ALL_LOGS){
             dumpLogs = true;
+          }
+          if (typeNum == RQ_LOG){
+            outInt16.buffer[0] = itemBuffer[0];
+            outInt16.buffer[1] = itemBuffer[1];
+            RequestedLogDump(outInt16.val);
           }
           if (typeNum == START_CAL_DATA) {
             sendCalibrationData = true;
@@ -415,6 +426,62 @@ void HandleWayPointCommands(){
     WayPointReturnToBase();
     break;
   }
+}
+void SendPageRq(uint8_t ouputBuffer[], boolean pageStart,uint16_t packetNumRqd){
+  uint8_t txSum = 0,txDoubleSum = 0;
+  
+  flashOutputPacketNumber.val = packetNumRqd;
+  
+  if (pageStart == true){
+    RadioWrite(0xAA);
+    RadioWrite(groundStationID);
+    RadioWrite(131);
+    RadioWrite(0xD1);
+    txSum += 0xD1;
+    txDoubleSum += txSum;
+    RadioWrite(flashOutputPacketNumber.buffer[0]);
+    txSum += flashOutputPacketNumber.buffer[0];
+    txDoubleSum += txSum;
+    RadioWrite(flashOutputPacketNumber.buffer[1]);
+    txSum += flashOutputPacketNumber.buffer[1];
+    txDoubleSum += txSum;
+    for(uint16_t i = 0; i < 128; i++){
+      RadioWrite(ouputBuffer[i]);
+      txSum += ouputBuffer[i];
+      txDoubleSum += txSum;
+    }
+    RadioWrite(txSum);
+    RadioWrite(txDoubleSum);
+
+    txSum = 0;
+    txDoubleSum = 0;
+  }
+  else{
+    RadioWrite(0xAA);
+    RadioWrite(groundStationID);
+    RadioWrite(131);
+    RadioWrite(0xD1);
+    txSum += 0xD1;
+    txDoubleSum += txSum;
+    RadioWrite(flashOutputPacketNumber.buffer[0]);
+    txSum += flashOutputPacketNumber.buffer[0];
+    txDoubleSum += txSum;
+    RadioWrite(flashOutputPacketNumber.buffer[1]);
+    txSum += flashOutputPacketNumber.buffer[1];
+    txDoubleSum += txSum;
+    for(uint16_t i = 128; i < 256; i++){
+      RadioWrite(ouputBuffer[i]);
+      txSum += ouputBuffer[i];
+      txDoubleSum += txSum;
+    }
+    RadioWrite(txSum);
+    RadioWrite(txDoubleSum);
+
+  }
+
+
+
+
 }
 
 void SendPage(uint8_t ouputBuffer[]){
@@ -1623,6 +1690,7 @@ void SendCalData() {
     break;
   }
 }
+
 
 
 

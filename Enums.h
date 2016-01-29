@@ -92,7 +92,8 @@ enum TypeNums{
   GS_PING,
   RESET_PR_OFFSET,
   ERASE_ALL_LOGS,
-  GET_ALL_LOGS
+  GET_ALL_LOGS,
+  RQ_LOG
 
 };
 enum HandShakeStates{

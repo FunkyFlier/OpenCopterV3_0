@@ -9,6 +9,8 @@ void TuningTransmitter();
 void TryHandShake();
 void CalibrateSensors();
 
+
+void SendPageRq(uint8_t*, boolean ,uint16_t );
 void SendPage(uint8_t*);
 void SendEraseComplete();
 void SendDumpComplete();

@@ -179,7 +179,7 @@ void CorrectXY(){
 
 void GetBaroZ(){
   static uint32_t baroTimer = 0;
-  static float filteredPressure = 0;
+  //static float filteredPressure = 0;
   
 
   baroDT = (millis() - baroTimer) * 0.001;

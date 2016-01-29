@@ -33,6 +33,7 @@ void LogDump();
 void OutputRecord(uint16_t ,uint16_t);
 void GainsToFlash();
 void MotorMixToFlash();
+void RequestedLogDump(uint16_t);
 
 void LogOutput(){
   while(1){
@@ -58,12 +59,59 @@ void LogOutput(){
     }
   }
 }
+void RequestedLogDump(uint16_t rqPktNum){
+  uint16_t pageLocation;
+  uint16_t pageCount = 0;
+  uint32_u fullAddress;
+  uint8_t  firstByte;
+  //uint16_t recordNumber,lastPageAddress;
+  uint8_t pageBuffer[256];
+  //boolean validRecord,recordComplete;
+  boolean bufferStart = true;
+  
+  pageLocation = rqPktNum / 2;
+  
+  if ((rqPktNum % 2) == 0){
+    bufferStart = true;  
+  }else{
+    bufferStart = false;
+  }
+  
+  for(uint16_t i = 0; i <= 0x3FFF; i++){
+    Radio();
+    fullAddress.val = (uint32_t)i << 8;
+    FlashSSLow();
+    SPI.transfer(READ_ARRAY);
+    SPI.transfer(fullAddress.buffer[2]);
+    SPI.transfer(fullAddress.buffer[1]);
+    SPI.transfer(fullAddress.buffer[0]);
+    firstByte = SPI.transfer(0);
+    FlashSSHigh();
+
+    if (firstByte == WRITE_COMPLETE_REC_START || firstByte == WRITE_COMPLETE_REC_START_END || firstByte == WRITE_COMPLETE_REC_END || firstByte == WRITE_COMPLETE){
+      if (pageCount == pageLocation){
+        FlashGetPage(i,pageBuffer);
+        SendPageRq(pageBuffer,bufferStart,rqPktNum);
+        return;
+      }
+      pageCount++;
+      
+      /*GetRecordNumber(i,&recordNumber,&lastPageAddress,&recordComplete);
+       if (recordComplete == false){
+       CompleteRecord(i,&recordNumber,&lastPageAddress);
+       }
+       OutputRecord(i,lastPageAddress);*/
+
+    }
+
+  }  
+}
 void LogDump(){
   uint32_u fullAddress;
   uint8_t  firstByte;
-  uint16_t recordNumber,lastPageAddress;
+  //uint16_t recordNumber,lastPageAddress;
   uint8_t pageBuffer[256];
-  boolean validRecord,recordComplete;
+  //boolean validRecord,recordComplete;
 
   for(uint16_t i = 0; i <= 0x3FFF; i++){
     Radio();
@@ -255,7 +303,7 @@ void LoggingStateMachine(){
 
 void LogHandler(){
   uint32_t logTime;
-  static uint8_t startOfRecordOutputState = 0;
+  //static uint8_t startOfRecordOutputState = 0;
   static uint32_t previousHighRate,previousMedRate,previousLowRate;
   if (logEnabled == true){
     if (loggingReady == true){
@@ -719,7 +767,8 @@ void SearchForLastRecord(){
   boolean firstRecord = true;
   uint8_t  firstByte;
   uint16_t recordNumber,lastPageAddress;
-  boolean validRecord,recordComplete;
+  boolean recordComplete;
+  //boolean validRecord,recordComplete;
   uint32_u fullAddress;
   for(uint16_t i = 0; i <= 0x3FFF; i++){
     //for(uint16_t i = 0; i <= 0x00FF; i++){
@@ -1257,6 +1306,7 @@ boolean VerifyWriteReady(){
     break;
   }
 }
+
 
 
 

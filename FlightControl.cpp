@@ -1149,10 +1149,11 @@ void RTBStateMachine() {
 }
 
 void LoiterCalculations() {
-  static boolean resetPositionFlag = false;
+  
   LoiterXPosition.calculate();
   LoiterYPosition.calculate();
 #ifdef AUX3_VEL
+  static boolean resetPositionFlag = false;
   if (RCValue[AUX3] > 1750) {
     velSetPointY = STEP_VEL;
     resetPositionFlag = true;
@@ -1206,11 +1207,11 @@ void StartCalibration(){
 }
 
 void LoiterSM(){
-  float absVelX,absVelY;
-  float limitedPitch,limitedRoll;
+  //float absVelX,absVelY;
+  //float limitedPitch,limitedRoll;
   float maxPitch,maxRoll;
   int16_t rcDifference;
-  static boolean limitX = false,limitY = false;
+  //static boolean limitX = false,limitY = false;
   if (lowRateTasks == true){
     switch(ZLoiterState){
     case LOITERING:
@@ -1814,9 +1815,10 @@ void ProcessModes() {
     functionCallFlag = false;
   }
 #endif
-  static uint32_t stepTimer;
-  static boolean resetBias = false;
+  
 #ifdef AUX3_RESET_BIAS  
+  static uint32_t stepTimer;
+  static boolean resetBias = false;  
   if (RCValue[AUX3] > 1750) {
     if (resetBias == false){
       resetBias = true;
