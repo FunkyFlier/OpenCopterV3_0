@@ -380,16 +380,16 @@ void ROMFlagsCheck() {
     kiAcc = 0;
     kpMag = 1.5;
     kiMag = 0;
-    feedbackLimit = 0.25;
+    feedbackLimit = 0.20;
 
     kPosGPS = 0.1;
     kVelGPS = 0.35;
     kBiasGPS = 0.001;
-    kPosBaro = 0.07;
-    kVelBaro = 0.08;
-    kBiasBaro = 0.001;
-    kPosVelBaro = 0;
-    kPosBiasBaro = 0;    
+    kPosBaro = 0.1;
+    kVelBaro = 0.1;
+    kBiasBaro = 0.0001;
+    kPosVelBaro = 0.05;
+    kPosBiasBaro = 0.0001;    
     j = EST_GAIN_START;
     for(uint16_t i = KP_ACC; i <= K_P_B_BARO; i++){
       outFloat.val = *floatPointerArray[i];
@@ -523,29 +523,29 @@ void SetDefaultGains() {
   uint16_t j;
   float_u outFloat;
 
-  kp_pitch_rate = 0.7;
-  ki_pitch_rate = 6.0;
-  kd_pitch_rate = 0.055;
-  fc_pitch_rate = 30.0;
+  kp_pitch_rate = 0.85;
+  ki_pitch_rate = 7.0;
+  kd_pitch_rate = 0.08;
+  fc_pitch_rate = 70.0;
 
-  kp_roll_rate = 0.7;
-  ki_roll_rate = 6.0;
-  kd_roll_rate = 0.05;
-  fc_roll_rate = 30.0;
+  kp_roll_rate = 0.85;
+  ki_roll_rate = 7.0;
+  kd_roll_rate = 0.08;
+  fc_roll_rate = 70.0;
 
   kp_yaw_rate = 5.0;
   ki_yaw_rate = 0.85;
   kd_yaw_rate = 0.03;
   fc_yaw_rate = 30.0;
 
-  kp_pitch_attitude = 3.0;
+  kp_pitch_attitude = 3.5
   ki_pitch_attitude = 0;
-  kd_pitch_attitude = 0.05;
+  kd_pitch_attitude = 0.0;
   fc_pitch_attitude = 30.0;
 
-  kp_roll_attitude = 3.0;
+  kp_roll_attitude = 3.5;
   ki_roll_attitude = 0;
-  kd_roll_attitude = 0.05;
+  kd_roll_attitude = 0.0;
   fc_roll_attitude = 30;
 
   kp_yaw_attitude = 5;
@@ -553,49 +553,49 @@ void SetDefaultGains() {
   kd_yaw_attitude = 0.01;
   fc_yaw_attitude = 30.0;
 
-  kp_altitude_position = 0.75;
+  kp_altitude_position = 0.5;
   ki_altitude_position = 0;
-  kd_altitude_position = -0.002;
+  kd_altitude_position = -0.001;
   fc_altitude_position = 30;
 
-  kp_altitude_velocity = 140;
-  ki_altitude_velocity = 210;
-  kd_altitude_velocity = 25;
+  kp_altitude_velocity = 150;
+  ki_altitude_velocity = 250;
+  kd_altitude_velocity = 10;
   fc_altitude_velocity = 30;
 
-  kp_loiter_pos_x = 0.75;
+  kp_loiter_pos_x = 0.5;
   ki_loiter_pos_x = 0;
-  kd_loiter_pos_x = -0.001;
+  kd_loiter_pos_x = 0;
   fc_loiter_pos_x = 30;
 
-  kp_loiter_velocity_x = 7.5;
-  ki_loiter_velocity_x = 0.5;
-  kd_loiter_velocity_x = 0.1;
+  kp_loiter_velocity_x = 7.0;
+  ki_loiter_velocity_x = 1.0;
+  kd_loiter_velocity_x = 0;
   fc_loiter_velocity_x = 30;
 
-  kp_loiter_pos_y = 0.75;
-  ki_loiter_pos_y = 0.0;
-  kd_loiter_pos_y = -0.001;
+  kp_loiter_pos_y = 0.5;
+  ki_loiter_pos_y = 0;
+  kd_loiter_pos_y = 0;
   fc_loiter_pos_y = 30;
 
-  kp_loiter_velocity_y = 7.5;
-  ki_loiter_velocity_y = 0.5;
-  kd_loiter_velocity_y = 0.1;
+  kp_loiter_velocity_y = 7.0;
+  ki_loiter_velocity_y = 1.0;
+  kd_loiter_velocity_y = 0;
   fc_loiter_velocity_y = 30;
 
-  kp_waypoint_position = 0.75;
+  kp_waypoint_position = 0.5;
   ki_waypoint_position = 0;
-  kd_waypoint_position = -0.001;
+  kd_waypoint_position = 0;
   fc_waypoint_position = 0;
 
-  kp_waypoint_velocity = 7.5;
-  ki_waypoint_velocity = 0.5;
-  kd_waypoint_velocity = 0.1;
+  kp_waypoint_velocity = 7.0;
+  ki_waypoint_velocity = 1;
+  kd_waypoint_velocity = 0;
   fc_waypoint_velocity = 30;
 
-  kp_cross_track = 7.5;
-  ki_cross_track = 0.5;
-  kd_cross_track = 0.1;
+  kp_cross_track = 7.0;
+  ki_cross_track = 1.0;
+  kd_cross_track = 0;
   fc_cross_track = 30;
 
   declination = ToRad(3.3);
