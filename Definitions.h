@@ -2,9 +2,9 @@
 #define Definitions_h
 
 
-#define LAND_VEL_HS -5.0
-#define HS_LAND_LIMIT 4.0
-#define LAND_VEL -1.0
+#define LAND_VEL_HS -2.75
+#define HS_LAND_LIMIT 5.0
+#define LAND_VEL -0.65
 
 #define MIN_RTB_DIST 4.0
 #define MIN_WP_DIST 1.5

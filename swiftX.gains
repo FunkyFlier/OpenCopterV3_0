@@ -1,0 +1,20 @@
+Pitch Rate, kp, 0.85, ki, 7.0, kd, 0.08, fc, 70.0
+Roll Rate, kp, 0.85, ki, 7.0, kd, 0.08, fc, 70.0
+Yaw Rate, kp, 5.0, ki, 0.85, kd, 0.03, fc, 30.0
+Pitch Attitude, kp, 3.5, ki, 0.0, kd, 0.0, fc, 30.0
+Roll Attitude, kp, 3.5, ki, 0.0, kd, 0.0, fc, 30.0
+Yaw Attitude, kp, 5.0, ki, 0.0, kd, 0.01, fc, 30.0
+Altitude Position, kp, 0.5, ki, 0.0, kd, -0.001, fc, 30.0
+Altitude Velocity, kp, 125.0, ki, 250.0, kd, 7.0, fc, 30.0
+Loiter Pos X, kp, 0.5, ki, 0.0, kd, 0.0, fc, 30.0
+Loiter Vel X, kp, 7.0, ki, 1.0, kd, 0.0, fc, 30.0
+Loiter Pos Y, kp, 0.5, ki, 0.0, kd, 0.0, fc, 30.0
+Loiter Vel Y, kp, 7.0, ki, 1.0, kd, 0.0, fc, 30.0
+Waypoint Position, kp, 0.5, ki, 0.0, kd, 0.0, fc, 0.0
+Waypoint Velocity, kp, 7.0, ki, 1.0, kd, 0.0, fc, 30.0
+Cross Track, kp, 7.0, ki, 1.0, kd, 0.0, fc, 30.0
+Declination, val, 0.057595864
+Attitude, kpAcc, 1.5, kiAcc, 0.0, kpMag, 1.5, kiMag, 0.0, fbckLim, 0.2
+Interial GPS, GPSPos, 0.1, GPSVel, 0.35, GPSBias, 0.001
+Inertial Baro, Pos, 0.1, Vel, 0.1, Bias, 1.0E-4, PosVel, 0.05, PosBias, 1.0E-4
+Loiter Bounds, Floor, 1, Ceiling, 20

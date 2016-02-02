@@ -558,7 +558,7 @@ void SetDefaultGains() {
   kd_altitude_position = -0.001;
   fc_altitude_position = 30;
 
-  kp_altitude_velocity = 150;
+  kp_altitude_velocity = 125;
   ki_altitude_velocity = 250;
   kd_altitude_velocity = 10;
   fc_altitude_velocity = 30;
