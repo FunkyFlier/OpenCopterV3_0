@@ -538,7 +538,7 @@ void SetDefaultGains() {
   kd_yaw_rate = 0.03;
   fc_yaw_rate = 30.0;
 
-  kp_pitch_attitude = 3.5
+  kp_pitch_attitude = 3.5;
   ki_pitch_attitude = 0;
   kd_pitch_attitude = 0.0;
   fc_pitch_attitude = 30.0;
