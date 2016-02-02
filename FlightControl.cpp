@@ -440,7 +440,7 @@ void WayPointStateMachine(){
       xDist = XEst - xTarget;
       yDist = YEst - yTarget;
       distToWayPoint = sqrt(xDist * xDist + yDist * yDist);
-      if (distToWayPoint < MIN_RTB_DIST){
+      if (distToWayPoint < MIN_WP_DIST){
         wayPointState = WP_LOITER;
         startSlowingWP = false;
         break;
@@ -528,7 +528,7 @@ void UpdateWPTarget(){
 
   xDist = XEst - xTarget;
   yDist = YEst - yTarget;
-  if (sqrt(xDist * xDist +  yDist * yDist) <  MIN_RTB_DIST){
+  if (sqrt(xDist * xDist +  yDist * yDist) <  MIN_WP_DIST){
     wayPointState = WP_LOITER;
   }
   else{
@@ -543,7 +543,7 @@ void UpdateLookAtHeading(){
   if (millis() - lookAtTimer >= 1000){
     lookAtTimer = millis();
     DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPoint);
-    if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+    if (sqrt(tempX * tempX + tempY * tempY) < MIN_WP_DIST){
       yawSetPoint = wpYaw;
     } 
   }
@@ -567,7 +567,7 @@ void WayPointUpdate(float lat, float lon, float alt, float yaw){
     DistBearing(&homeLat,&homeLon,&wpLat,&wpLon,&wpX,&wpY,&tempDist,&tempYaw);
     if (lookAtFlag == true){
       DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPoint);
-      if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+      if (sqrt(tempX * tempX + tempY * tempY) < MIN_WP_DIST){
         yawSetPoint = wpYaw;
       }
     }
@@ -588,7 +588,7 @@ void WayPointLookAt(float lat, float lon, boolean lookAt ){
     lookAtFlag = lookAt;
     if (lookAtFlag == true){
       DistBearing(&GPSData.vars.lat,&GPSData.vars.lon,&lookAtLat,&lookAtLon,&tempX,&tempY,&tempDist,&yawSetPoint);
-      if (sqrt(tempX * tempX + tempY * tempY) < MIN_RTB_DIST){
+      if (sqrt(tempX * tempX + tempY * tempY) < MIN_WP_DIST){
         yawSetPoint = wpYaw;
       } 
     }
@@ -682,7 +682,7 @@ void WayPointReturnToBase(){
     zTarget = ZEstUp + 1;
     xFromTO = XEst - homeBaseXOffset;
     yFromTO = YEst - homeBaseYOffset;
-    if (sqrt(xFromTO * xFromTO + yFromTO * yFromTO) < MIN_RTB_DIST || gpsFailSafe == true){
+    if (sqrt(xFromTO * xFromTO + yFromTO * yFromTO) < MIN_WP_DIST || gpsFailSafe == true){
       yawSetPoint = initialYaw;
     }
     else{
@@ -999,6 +999,7 @@ void InitLoiter() {
 
 void RTBStateMachine() {
   static boolean startSlowing = false;
+  static float commandedLandVel = 0.0;
   static float initialRTBVel,commandedRTBVel;
   if (motorState == HOLD || motorState == TO) {
     return;
@@ -1019,7 +1020,8 @@ void RTBStateMachine() {
       }
       if (gpsFailSafe == true) {
         if (ZEstUp > HS_LAND_LIMIT){
-          velSetPointZ = LAND_VEL_HS;
+          velSetPointZ = 0.0;
+          commandedLandVel = 0.0;
         }
         else{
           velSetPointZ = LAND_VEL;
@@ -1027,6 +1029,7 @@ void RTBStateMachine() {
 
         RTBState = RTB_LAND;
         motorState = LANDING;
+        yawSetPoint = initialYaw;
       }
 
       break;
@@ -1040,6 +1043,7 @@ void RTBStateMachine() {
       distToWayPoint = sqrt(xFromTO * xFromTO + yFromTO * yFromTO);
       if (distToWayPoint < MIN_RTB_DIST){
         RTBState = RTB_LOITER;
+        yawSetPoint = initialYaw;
         xTarget = homeBaseXOffset;
         yTarget = homeBaseYOffset;
         startSlowing = false;
@@ -1080,7 +1084,8 @@ void RTBStateMachine() {
       Rotate2dVector(&yawInDegrees,&headingToWayPoint,&wpTiltX,&wpTiltY,&pitchSetPoint,&rollSetPoint);
       if (gpsFailSafe == true) {
         if (ZEstUp > HS_LAND_LIMIT){
-          velSetPointZ = LAND_VEL_HS;
+          velSetPointZ = 0.0;
+          commandedLandVel = 0.0;
         }
         else{
           velSetPointZ = LAND_VEL;
@@ -1088,6 +1093,7 @@ void RTBStateMachine() {
 
         RTBState = RTB_LAND;
         motorState = LANDING;
+        yawSetPoint = initialYaw;
         startSlowing = false;
       }
       break;
@@ -1098,32 +1104,38 @@ void RTBStateMachine() {
       AltHoldVelocity.calculate();
       if ( (fabs(XEst - xTarget) < 1.0 && fabs(YEst - yTarget) < 1.0) || gpsFailSafe == true) {
         if (ZEstUp > HS_LAND_LIMIT){
-          velSetPointZ = LAND_VEL_HS;
+          velSetPointZ = 0.0;
+          commandedLandVel = 0.0;
         }
         else{
           velSetPointZ = LAND_VEL;
         }
         RTBState = RTB_LAND;
+        yawSetPoint = initialYaw;
         motorState = LANDING;
       }
       if (gpsFailSafe == true) {
         if (ZEstUp > HS_LAND_LIMIT){
-          velSetPointZ = LAND_VEL_HS;
+          velSetPointZ = 0.0;
+          commandedLandVel = 0.0;
         }
         else{
           velSetPointZ = LAND_VEL;
         }
         RTBState = RTB_LAND;
         motorState = LANDING;
+        yawSetPoint = initialYaw;
         startSlowing = false;
       }
       break;
     case RTB_LAND:
       if (ZEstUp > HS_LAND_LIMIT){
-        velSetPointZ = LAND_VEL_HS;
+        commandedLandVel = commandedLandVel * RAMP_DOWN_ALPHA + (1 - RAMP_DOWN_ALPHA) * LAND_VEL_HS;
+        velSetPointZ = commandedLandVel;
       }
       else{
         velSetPointZ = LAND_VEL;
+        commandedLandVel = velSetPointZ;
       }
       if (gpsFailSafe == true) {
         pitchSetPoint = pitchSetPointTX;

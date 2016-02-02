@@ -501,11 +501,13 @@ void MotorHandler(){
     }
     throttleCommand = propIdleCommand;
     if ( (throttleAdjustment + throttleCommand) < (propIdleCommand) ){// &&  landDetected == false){
-      CommandAllMotors((float)pwmLow);
-      landDetected = false;
-      motorState = HOLD;
-      endCurrentLog = true;
-      break;
+      if (!(flightMode == RTB && ZEstUp > HS_LAND_LIMIT)){
+        CommandAllMotors((float)pwmLow);
+        landDetected = false;
+        motorState = HOLD;
+        endCurrentLog = true;
+        break;
+      }
     }
     if (cmdRudd > 1700){
       CommandAllMotors((float)pwmLow);
@@ -579,6 +581,7 @@ void WriteMotorPWM(){
   Motor8WriteMicros(motorCommand8);
 
 }
+
 
 
 

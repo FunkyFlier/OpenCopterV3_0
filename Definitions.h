@@ -4,6 +4,10 @@
 
 #define LAND_VEL_HS -5.0
 #define HS_LAND_LIMIT 4.0
+#define LAND_VEL -1.0
+
+#define MIN_RTB_DIST 4.0
+#define MIN_WP_DIST 1.5
 
 #define HIGH_RATE_INTERVAL 13
 #define MED_RATE_INTERVAL 50
@@ -63,7 +67,7 @@
 #define LOIT_RAMP_MIN 0.5
 
 #define LOW_SPEED_RADIUS 15
-#define MIN_RTB_DIST 1.5
+
 
 #define LOW_RATE_DIVIDER 3
 
@@ -101,10 +105,6 @@
 #define FLOOR 2.0
 #define TAKE_OFF_ALT 1.5
 
-
-
-#define LAND_VEL -0.5
-#define RTB_VEL 1
 
 #define HH_ON 0
 #define HH_OFF 1
