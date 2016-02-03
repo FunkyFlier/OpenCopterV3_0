@@ -32,6 +32,7 @@ void SendCalData();
 void HandleGSRCData();
 void HandleWayPointCommands();
 void SendPageRq(uint8_t*, boolean ,uint16_t );
+void SendRqNotFound();
 
 uint8_t typeNum,cmdNum,itemBuffer[255],calibrationNumber,hsRequestNumber,lsRequestNumber,hsNumItems,lsNumItems, hsList[40], lsList[40];
 uint16_t localPacketNumberOrdered, remotePacketNumberOrdered, remotePacketNumberUn, packetTemp[2];
@@ -60,7 +61,6 @@ void Radio() {
   uint16_u outInt16;
   uint8_t j;
   while (RadioAvailable() > 0) { 
-
     radioByte = RadioRead();
     switch (radioState) { 
     case SB_CHECK:
@@ -101,8 +101,6 @@ void Radio() {
         radioState = GS_RC_CMD_NUM;
         break;
       }
-
-
       if (packetLength == 2) { //length for unrelaible will always be 2
         radioState = UNREL_START;//unrelaible data
       }
@@ -110,7 +108,6 @@ void Radio() {
         radioState = SB_CHECK;
       }
       break;
-
     case UNREL_START://unrelaible
       cmdNum = radioByte;
       rxSum += radioByte;
@@ -174,9 +171,7 @@ void Radio() {
         SendUnAck();
       }
       radioState = SB_CHECK;
-
       break;
-
     case REL_SET_PKT_LSB://reliable set get packet num lsb
       rxSum += radioByte;
       rxDoubleSum += rxSum;
@@ -184,7 +179,6 @@ void Radio() {
       packetTemp[0] = radioByte;
       radioState = REL_SET_PKT_MSB;
       break;
-
     case REL_SET_PKT_MSB://get packet num msb and verify
       rxSum += radioByte;
       rxDoubleSum += rxSum;
@@ -206,6 +200,7 @@ void Radio() {
       if (typeNum == RQ_LOG){
         itemIndex = 0;
         radioState = REL_SET_BUFFER;
+        break;
       }
       radioState = REL_SET_CMD;
       break;
@@ -227,7 +222,6 @@ void Radio() {
         radioState = REL_SET_SUM1;
       }
       break;
-
     case REL_SET_BUFFER://buffer in data
       itemBuffer[itemIndex++] = radioByte;
       rxSum += radioByte;
@@ -245,6 +239,7 @@ void Radio() {
         radioState = SB_CHECK;
         break;
       }
+
       radioState = REL_SET_SUM2;
       break;
     case REL_SET_SUM2:
@@ -254,13 +249,6 @@ void Radio() {
           radioState = SB_CHECK;
           break;
         }
-        /*if (typeNum == ERASE_ALL_LOGS){
-         eraseLogs = true;
-         }
-         if (typeNum == GET_ALL_LOGS){
-         dumpLogs = true;
-         }*/
-
         if (typeNum == RESET_PR_OFFSET){
           pitchOffset = 0;
           rollOffset = 0;
@@ -276,8 +264,6 @@ void Radio() {
           }
           EEPROMWrite(PR_FLAG, 0xAA);
         }
-
-
         if (calibrationMode == true || getFlashMode == true) {
           if (typeNum == ERASE_ALL_LOGS){
             eraseLogs = true;
@@ -342,6 +328,7 @@ void Radio() {
         }
         SendOrdAck();
         telemFSCount = 0;
+
       }
       radioState = SB_CHECK;
       break;
@@ -427,11 +414,20 @@ void HandleWayPointCommands(){
     break;
   }
 }
+
+void SendRqNotFound(){
+  RadioWrite(0xAA);
+  RadioWrite(groundStationID);
+  RadioWrite(0x01);
+  RadioWrite(0xD3);
+  RadioWrite(0xD3);
+  RadioWrite(0xD3);
+}
 void SendPageRq(uint8_t ouputBuffer[], boolean pageStart,uint16_t packetNumRqd){
   uint8_t txSum = 0,txDoubleSum = 0;
-  
+
   flashOutputPacketNumber.val = packetNumRqd;
-  
+
   if (pageStart == true){
     RadioWrite(0xAA);
     RadioWrite(groundStationID);
@@ -1690,6 +1686,9 @@ void SendCalData() {
     break;
   }
 }
+
+
+
 
 
 

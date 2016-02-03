@@ -57,6 +57,11 @@ void LogOutput(){
       SendDumpComplete();
       dumpLogs = false;
     }
+    /*if (logRequested == true){
+      logRequested = false;
+      RequestedLogDump(requestedNumber);
+    }*/
+
   }
 }
 void RequestedLogDump(uint16_t rqPktNum){
@@ -68,17 +73,19 @@ void RequestedLogDump(uint16_t rqPktNum){
   uint8_t pageBuffer[256];
   //boolean validRecord,recordComplete;
   boolean bufferStart = true;
-  
+
   pageLocation = rqPktNum / 2;
-  
+
   if ((rqPktNum % 2) == 0){
     bufferStart = true;  
-  }else{
+  }
+  else{
     bufferStart = false;
   }
-  
+
   for(uint16_t i = 0; i <= 0x3FFF; i++){
-    Radio();
+    //Serial<<"checking radio\r\n";
+    //Radio();
     fullAddress.val = (uint32_t)i << 8;
     FlashSSLow();
     SPI.transfer(READ_ARRAY);
@@ -95,27 +102,23 @@ void RequestedLogDump(uint16_t rqPktNum){
         return;
       }
       pageCount++;
-      
-      /*GetRecordNumber(i,&recordNumber,&lastPageAddress,&recordComplete);
-       if (recordComplete == false){
-       CompleteRecord(i,&recordNumber,&lastPageAddress);
-       }
-       OutputRecord(i,lastPageAddress);*/
-
     }
-
   }
-    
+  
+  SendRqNotFound();
+
 }
 void LogDump(){
   uint32_u fullAddress;
   uint8_t  firstByte;
   //uint16_t recordNumber,lastPageAddress;
   uint8_t pageBuffer[256];
+  uint32_t waitTimer;
   //boolean validRecord,recordComplete;
 
   for(uint16_t i = 0; i <= 0x3FFF; i++){
-    Radio();
+    //Serial<<"checking radio\r\n";
+    //Radio();
     fullAddress.val = (uint32_t)i << 8;
     FlashSSLow();
     SPI.transfer(READ_ARRAY);
@@ -124,10 +127,13 @@ void LogDump(){
     SPI.transfer(fullAddress.buffer[0]);
     firstByte = SPI.transfer(0);
     FlashSSHigh();
-
+    //Radio();
     if (firstByte == WRITE_COMPLETE_REC_START || firstByte == WRITE_COMPLETE_REC_START_END || firstByte == WRITE_COMPLETE_REC_END || firstByte == WRITE_COMPLETE){
       FlashGetPage(i,pageBuffer);
+      //Radio();
       SendPage(pageBuffer);
+      delay(5);
+      //Radio();
       /*GetRecordNumber(i,&recordNumber,&lastPageAddress,&recordComplete);
        if (recordComplete == false){
        CompleteRecord(i,&recordNumber,&lastPageAddress);
@@ -135,6 +141,13 @@ void LogDump(){
        OutputRecord(i,lastPageAddress);*/
 
     }
+    /*while(RadioBytesOutWaiting() > 0){
+    }*/
+    /*waitTimer = millis();
+    while (millis() - waitTimer < 1){
+      Radio();
+    }*/
+
 
   }
 
@@ -1075,6 +1088,7 @@ void FlashGetPage(uint16_t pageAddress,uint8_t readBuffer[]){
   SPITransfer(addressOutput.buffer[0]);
   for(uint16_t i = 0; i < 256; i++){
     readBuffer[i] = SPITransfer(0x00);
+    //Radio();
   }
   FlashSSHigh();
 
@@ -1307,6 +1321,7 @@ boolean VerifyWriteReady(){
     break;
   }
 }
+
 
 
 

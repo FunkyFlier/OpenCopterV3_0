@@ -14,6 +14,7 @@ void SendPageRq(uint8_t*, boolean ,uint16_t );
 void SendPage(uint8_t*);
 void SendEraseComplete();
 void SendDumpComplete();
+void SendRqNotFound();
 
 extern boolean USBFlag,handShake,calibrationMode,newGSRC,gsCTRL;
 extern int16_t GSRCValue[8];

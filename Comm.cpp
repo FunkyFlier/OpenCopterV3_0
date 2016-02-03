@@ -19,7 +19,6 @@ void AssignRadioUART(){
 
 }
 
-
 uint8_t RadioAvailable(){
   return radioStream->available();
 }
