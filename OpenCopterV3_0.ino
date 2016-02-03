@@ -72,7 +72,7 @@ void setup() {
     }
   }
   StartCalibration();
-  if (RCValue[GEAR] > 1700 && RCValue[AUX1] > 1700 && RCValue[AUX2] > 1700 && RCValue[AUX3] > 1700){
+  if (RCValue[GEAR] > 1700 && RCValue[AUX1] > 1700){// && RCValue[AUX2] > 1700 && RCValue[AUX3] > 1700){
     GPSDetected = false;
   }
   else{
