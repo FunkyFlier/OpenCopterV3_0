@@ -328,18 +328,22 @@ void DetectRC(){
   RC_SSHigh();
   SBus();
   if(rcDetected == true){
+    RCFailSafe = false;
     readState = 0;
     return;
   }
   RC_SSLow();
   DSMSerial();
   if (rcDetected == true){
+    RCFailSafe = false;
     readState = 0;
     return;
   }
   PWMPPMCheck();
   if (rcDetected == false){
     RCFailSafe = true;
+  }else{
+    RCFailSafe = false;
   }
 }
 
