@@ -104,7 +104,8 @@ void RequestedLogDump(uint16_t rqPktNum){
 
     }
 
-  }  
+  }
+    
 }
 void LogDump(){
   uint32_u fullAddress;

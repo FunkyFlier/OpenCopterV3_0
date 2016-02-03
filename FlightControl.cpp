@@ -1161,7 +1161,7 @@ void RTBStateMachine() {
 }
 
 void LoiterCalculations() {
-  
+
   LoiterXPosition.calculate();
   LoiterYPosition.calculate();
 #ifdef AUX3_VEL
@@ -1827,7 +1827,7 @@ void ProcessModes() {
     functionCallFlag = false;
   }
 #endif
-  
+
 #ifdef AUX3_RESET_BIAS  
   static uint32_t stepTimer;
   static boolean resetBias = false;  
@@ -2027,6 +2027,9 @@ void ProcessModes() {
     cmdRudd = GSRCValue[RUDD];
     throCommand = GSRCValue[THRO];
     flightModeControl = GSRCValue[GEAR];
+    if (RCValue[GEAR] > 1500){
+      gsCTRL = false;
+    }
     if (flightModeControl < 0){
       flightModeControl = 0;
     }
@@ -2253,6 +2256,8 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
+
 
 
 
