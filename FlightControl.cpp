@@ -1190,6 +1190,7 @@ void StartCalibration(){
   LEDPatternSet(0,7,0,0);
   newRC = false;
   newGSRC = false;
+  boolean okToCont = false;
   if(gsCTRL == false){
     while (newRC == false){
     }
@@ -1201,20 +1202,37 @@ void StartCalibration(){
   }
   newRC = false;
 
-  if (gsCTRL == true){
-    while (GSRCValue[RUDD] < 1750){
-      Radio();
-    } 
-  }
-  else{
-    while (RCValue[RUDD] < 1750){
-      if (newRC == true){
-        ProcessChannels();
-        newRC = false;
+  while(okToCont == false){
+    if (newRC == true){
+      ProcessChannels();
+      newRC = false;
+    }
+    if (gsCTRL == true){
+      if (GSRCValue[RUDD] > 1750){
+        okToCont = true;
       }
-    } 
+    }
+    else{
+      if (RCValue[RUDD] > 1750){
+        okToCont = true;
+      }
+    }
   }
 
+  /*  if (gsCTRL == true){
+   while (GSRCValue[RUDD] < 1750){
+   Radio();
+   } 
+   }
+   else{
+   while (RCValue[RUDD] < 1750){
+   if (newRC == true){
+   ProcessChannels();
+   newRC = false;
+   }
+   } 
+   }
+   */
 
 }
 
@@ -1541,7 +1559,7 @@ void ProcessChannels() {
       functionCallFlag = true;
       switch (FSDebugState){
       case 0:
-        baroFS = true;
+        batteryFailSafe = true;
         //batteryFSOverride = false;
         //batteryFailSafe = true;
         //RCFailSafe = true;
@@ -1608,6 +1626,11 @@ void ProcessChannels() {
     GetSwitchPositions();
     if (gsCTRL == false){
       ProcessModes();
+    }else{
+      if (RCValue[GEAR] > 1850){
+        gsCTRL = false;
+        ProcessModes();
+      }
     }
   }
 
@@ -1618,7 +1641,6 @@ void ProcessChannels() {
 
 void ProcessModes() {
   static uint8_t clearBATTRTB=0;
-  //uint8_t flightModeControl=0;
   previousFlightMode = flightMode;
 
   if (RCValue[AUX2] > 1750) {
@@ -1773,7 +1795,8 @@ void ProcessModes() {
   static uint8_t WPDebugState = 0;
   if (RCValue[AUX3] > 1750) {
     if (functionCallFlag == false){
-      functionCallFlag = true;
+      
+      //functionCallFlag = true;
       //WayPointStop();
       //WayPointLandGS();
       //WayPointReturnToBase();
@@ -2256,6 +2279,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 

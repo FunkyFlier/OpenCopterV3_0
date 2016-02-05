@@ -30,13 +30,10 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
   }
   else{
     if (handShake == true && calibrationMode == false && getFlashMode == false){
-    //if (handShake == true && calibrationMode == false){
       Radio();
       TuningTransmitter(); 
     }
-    /*if (handShake == true && getFlashMode == true){
-      Radio();
-    }*/
+
     LEDPatternHandler(micros());
   }
   if (rcType != RC){
