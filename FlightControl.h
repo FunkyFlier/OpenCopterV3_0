@@ -30,7 +30,7 @@ extern float initialYaw;
 extern boolean integrate;
 extern uint8_t HHState;
 extern float landingThroAdjustment,throttleAdjustment,adjustmentX,adjustmentY,adjustmentZ;
-extern uint8_t XYLoiterState,ZLoiterState,flightMode,RTBState,txLossRTB;
+extern uint8_t XYLoiterState,ZLoiterState,flightMode,RTBState,txLossRTB,battLowRTB;
 extern float homeBaseXOffset,homeBaseYOffset;
 extern float xTarget,yTarget,zTarget;
 extern float velSetPointX,velSetPointY,velSetPointZ;

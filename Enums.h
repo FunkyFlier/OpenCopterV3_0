@@ -332,7 +332,8 @@ enum Floats {
   WP_TILT_Y,
   WP_VEL_SP,
   WP_PATH_VEL,
-  WP_CT_VEL
+  WP_CT_VEL,
+  END_FLOATS
 };
 enum motorControlStates {
   HOLD,
@@ -386,7 +387,8 @@ enum Int16s {
   RC_GEAR,
   RC_AUX1,
   RC_AUX2,
-  RC_AUX3
+  RC_AUX3,
+  END_INT_16S
 
 
 };
@@ -402,7 +404,7 @@ enum BYTES {
   GPS_FS,
   SWITCH_POS,
   IDLE_PERCENT,
-  HOVER_PERCENT,
+  BATTERY_FS,
   TX_LOSS_RTB,
   MAG_DET,
   TX_FS_STATUS,
@@ -410,7 +412,9 @@ enum BYTES {
   INIT_PROG,
   GS_CRTL_FS,
   WP_STATE,
-  BARO_FS
+  BARO_FS,
+  BATTERY_FS_RTB_FLAG,
+  END_BYTES
 };
 enum RTBStates {
   RTB_CLIMB,

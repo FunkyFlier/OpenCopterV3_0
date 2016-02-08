@@ -44,7 +44,7 @@ float initialYaw;
 boolean integrate;
 uint8_t HHState;
 float landingThroAdjustment,throttleAdjustment,adjustmentX,adjustmentY,adjustmentZ;
-uint8_t XYLoiterState, ZLoiterState,RTBState,txLossRTB,previousFlightMode;
+uint8_t XYLoiterState, ZLoiterState,RTBState,txLossRTB,battLowRTB,previousFlightMode;
 boolean GSCTRLFailSafe,txFailSafe,tuningTrasnmitOK,baroFS,telemFS;
 
 float homeBaseXOffset,homeBaseYOffset;
@@ -785,7 +785,7 @@ void FailSafeHandler(){
   }
 
   if (batteryFailSafe == true && batteryFSOverride == false){
-    if (txLossRTB == 1){
+    if (battLowRTB == 1){
       if (flightMode != RTB) {
         enterState = true;
         flightMode = RTB;
@@ -2001,17 +2001,15 @@ void ProcessModes() {
   }
 
 #endif
-  if (txLossRTB == 1 && batteryFailSafe == true && batteryFSOverride == false){
+  if (battLowRTB == 1 && batteryFailSafe == true && batteryFSOverride == false){
     if (gsCTRL == false){
       switch (clearBATTRTB) {
-
       case 0:
         if (RCValue[GEAR] > 1850) {
           clearBATTRTB = 1;
         }
         return;
         break;
-
       case 1:
         if (RCValue[GEAR] < 1150) {
           batteryFSOverride = true;
@@ -2024,7 +2022,6 @@ void ProcessModes() {
         clearBATTRTB = 0;
         return;
         break;
-
       }
     }
     else{

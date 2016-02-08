@@ -14,6 +14,7 @@
 #include "RCSignals.h"
 #include "Types.h"
 #include "Flash.h"
+#include "Enums.h"
 
 #include <EEPROM.h>
 
@@ -28,13 +29,13 @@ void SetDefaultGains();
 void LoadMotorMix();
 void LoadEstimatorGains();
 
-float* floatPointerArray[204];
+float* floatPointerArray[END_FLOATS];
 
-int16_t* int16PointerArray[22];
+int16_t* int16PointerArray[END_INT_16S];
 
-uint8_t* bytePointerArray[19];
+uint8_t* bytePointerArray[END_BYTES];
 
-uint8_t propIdlePercent,hoverPercent;
+uint8_t propIdlePercent;
 
 void AssignPointerArray() {
   floatPointerArray[GYRO_X_DEG] = &degreeGyroX;//calibartion 
@@ -292,10 +293,10 @@ void AssignPointerArray() {
   floatPointerArray[ACC_ERROR_X] = &exa;
   floatPointerArray[ACC_ERROR_Y] = &eya;
   floatPointerArray[ACC_ERROR_Z] = &eza;
-  
+
   floatPointerArray[HOME_OFF_X] = &homeBaseXOffset;
   floatPointerArray[HOME_OFF_Y] = &homeBaseYOffset;
-  
+
   floatPointerArray[WP_TILT_X] = &wpTiltX;
   floatPointerArray[WP_TILT_Y] = &wpTiltY;
   floatPointerArray[WP_VEL_SP] = &wpVelSetPoint;
@@ -336,7 +337,6 @@ void AssignPointerArray() {
   bytePointerArray[GPS_FIX] = &GPSData.vars.gpsFix;//GPS
   bytePointerArray[XY_LOIT_STATE] = &XYLoiterState;//flight control
   bytePointerArray[Z_LOIT_STATE] = &flightModeControl;//flight control
-  
   bytePointerArray[RTB_STATE] = &RTBState;//flight control
   bytePointerArray[MOTOR_STATE] = &motorState;//motors
   bytePointerArray[TELEM_FS] = &telemFS;//flight control
@@ -346,7 +346,7 @@ void AssignPointerArray() {
 
 
   bytePointerArray[IDLE_PERCENT] = &propIdlePercent ;//rom
-  bytePointerArray[HOVER_PERCENT] = &hoverPercent;//rom
+  bytePointerArray[BATTERY_FS] = &batteryFailSafe;//rom
   bytePointerArray[TX_LOSS_RTB] = &txLossRTB;//flight control
   bytePointerArray[MAG_DET] = &magDetected;//sensors
   bytePointerArray[TX_FS_STATUS] = &txFailSafe;
@@ -358,7 +358,7 @@ void AssignPointerArray() {
 
   bytePointerArray[WP_STATE] = &wayPointState;//sensors
   bytePointerArray[BARO_FS] = &baroFS;
-
+  bytePointerArray[BATTERY_FS_RTB_FLAG] = &battLowRTB;
 } 
 
 void ROMFlagsCheck() {
@@ -431,6 +431,10 @@ void ROMFlagsCheck() {
       EEPROMWrite(j++, outFloat.buffer[3]);
     }
   }
+  if (EEPROMRead(BATT_FS_FLAG) != 0xAB) {
+    EEPROMWrite(BATT_FS, 0);
+    EEPROMWrite(BATT_FS_FLAG, 0xAB);
+  }
   if (EEPROMRead(TX_FS_FLAG) != 0xAA) {
     EEPROMWrite(TX_FS, 0);
     EEPROMWrite(TX_FS_FLAG, 0xAA);
@@ -464,11 +468,7 @@ void ROMFlagsCheck() {
     EEPROMWrite(PROP_IDLE_FLAG, 0xAA);
     EEPROMWrite(PROP_IDLE, 12);
   }
-  if (EEPROMRead(HOVER_THRO_FLAG) != 0xAA) {
-    EEPROMWrite(HOVER_THRO_FLAG, 0xAA);
-    EEPROMWrite(HOVER_THRO, 55);
 
-  }
 
   if (EEPROMRead(MODE_FLAG) != 0xAA){
     EEPROMWrite(MODE_FLAG,0xAA);
@@ -693,6 +693,10 @@ void LoadRC() {
   if (txLossRTB > 1) {
     txLossRTB = 0;
   }
+  battLowRTB = EEPROMRead(BATT_FS);
+  if (battLowRTB > 1) {
+    battLowRTB = 0;
+  }
 
 }
 void LoadACC() {
@@ -884,6 +888,8 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
+
 
 
 

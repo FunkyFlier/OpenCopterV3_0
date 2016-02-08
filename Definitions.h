@@ -420,8 +420,8 @@
 #define PROP_IDLE 435
 #define PROP_IDLE_FLAG 436
 
-#define HOVER_THRO 437
-#define HOVER_THRO_FLAG 438
+#define BATT_FS_FLAG 437
+#define BATT_FS 438
 
 #define TX_FS_FLAG 439
 #define TX_FS 440

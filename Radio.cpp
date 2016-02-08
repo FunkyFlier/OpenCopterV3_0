@@ -917,11 +917,10 @@ void WriteCalibrationDataToRom() {
 
     EEPROMWrite(TX_FS_FLAG, 0xAA);
     EEPROMWrite(TX_FS, txLossRTB);
-    txLossRTB = EEPROMRead(TX_FS);
     break;//--------------------------------------------
   case 5://pwms
-    EEPROMWrite(HOVER_THRO, itemBuffer[itemIndex++]);
-    EEPROMWrite(HOVER_THRO_FLAG, 0xAA);
+    //EEPROMWrite(HOVER_THRO, itemBuffer[itemIndex++]);
+    //EEPROMWrite(HOVER_THRO_FLAG, 0xAA);
     EEPROMWrite(PROP_IDLE, itemBuffer[itemIndex++]);
     EEPROMWrite(PROP_IDLE_FLAG, 0xAA);
     EEPROMWrite(PWM_LIM_HIGH_START, itemBuffer[itemIndex++]);
@@ -954,6 +953,14 @@ void WriteCalibrationDataToRom() {
     else{
       rotateSensor45Deg = false;
     }
+    break;
+  case 10://battery failsafe
+    battLowRTB = itemBuffer[0];
+    if (battLowRTB < 0 ||battLowRTB > 1){
+      battLowRTB = 0;
+    }
+    EEPROMWrite(BATT_FS_FLAG, 0xAB);
+    EEPROMWrite(BATT_FS, battLowRTB);
     break;
   }
 }
@@ -1686,6 +1693,8 @@ void SendCalData() {
     break;
   }
 }
+
+
 
 
 

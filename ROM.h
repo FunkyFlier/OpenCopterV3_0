@@ -1,15 +1,16 @@
 #ifndef ROM_H
 #define ROM_H
 
+#include "Enums.h"
 #include <Arduino.h>
 
 void AssignPointerArray();
 void ROMFlagsCheck();
 void LoadROM();
 
-extern float* floatPointerArray[204];
-extern int16_t* int16PointerArray[22];
-extern uint8_t* bytePointerArray[19];
+extern float* floatPointerArray[END_FLOATS];
+extern int16_t* int16PointerArray[END_INT_16S];
+extern uint8_t* bytePointerArray[END_BYTES];
 
 #endif
 
