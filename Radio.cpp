@@ -881,6 +881,8 @@ void WriteCalibrationDataToRom() {
     calibrationFlags = EEPROMRead(CAL_FLAGS);
     calibrationFlags &= ~(1 << RC_FLAG);
     EEPROMWrite(CAL_FLAGS, calibrationFlags);
+    EEPROMWrite(CAL_RC_TYPE,(uint8_t)rcType);
+    
     break;//--------------------------------------------
   case 3://command to end calibration and reset controller
     //save the packet numbers
@@ -959,7 +961,7 @@ void WriteCalibrationDataToRom() {
     if (battLowRTB < 0 ||battLowRTB > 1){
       battLowRTB = 0;
     }
-    EEPROMWrite(BATT_FS_FLAG, 0xAB);
+    EEPROMWrite(BATT_FS_FLAG, 0xAA);
     EEPROMWrite(BATT_FS, battLowRTB);
     break;
   }

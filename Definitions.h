@@ -449,6 +449,8 @@
 #define SWIFT_X_FLAG 607
 #define ROT_45 608
 
+#define CAL_RC_TYPE 609
+
 #define PWM_HIGH_MAX 2000
 #define PWM_LOW_MIN 1000
 
@@ -461,7 +463,7 @@
 #define PROTOCOL_VER_SUB_NUM 1
 
 #define VER_NUM_1 0x01
-#define VER_NUM_2 0x03
+#define VER_NUM_2 0x04
 
 #define FREQ 400
 #define PRESCALE 8

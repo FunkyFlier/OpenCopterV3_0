@@ -431,9 +431,9 @@ void ROMFlagsCheck() {
       EEPROMWrite(j++, outFloat.buffer[3]);
     }
   }
-  if (EEPROMRead(BATT_FS_FLAG) != 0xAB) {
+  if (EEPROMRead(BATT_FS_FLAG) != 0xAA) {
     EEPROMWrite(BATT_FS, 0);
-    EEPROMWrite(BATT_FS_FLAG, 0xAB);
+    EEPROMWrite(BATT_FS_FLAG, 0xAA);
   }
   if (EEPROMRead(TX_FS_FLAG) != 0xAA) {
     EEPROMWrite(TX_FS, 0);
@@ -485,6 +485,14 @@ void ROMFlagsCheck() {
   }
   calibrationFlags = EEPROMRead(CAL_FLAGS);
   VerifyMag();
+  if ( (((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x00 && rcDetected == true) ){
+    if ((uint8_t)rcType != EEPROMRead(CAL_RC_TYPE) ){
+      calibrationFlags = EEPROMRead(CAL_FLAGS);
+      calibrationFlags |= (1 << RC_FLAG);
+      EEPROMWrite(CAL_FLAGS, calibrationFlags);
+    }
+  }
+
   if ( (((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 && rcDetected == true && RCFailSafe == false)|| ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 || ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 && magDetected ) ) {
     TryHandShake();
     if (calibrationMode == true) {
@@ -888,6 +896,7 @@ void LoadROM() {
   LoadMotorMix();
   LoadEstimatorGains();
 }
+
 
 
 
