@@ -111,14 +111,10 @@ void RequestedLogDump(uint16_t rqPktNum){
 void LogDump(){
   uint32_u fullAddress;
   uint8_t  firstByte;
-  //uint16_t recordNumber,lastPageAddress;
   uint8_t pageBuffer[256];
   uint32_t waitTimer;
-  //boolean validRecord,recordComplete;
 
   for(uint16_t i = 0; i <= 0x3FFF; i++){
-    //Serial<<"checking radio\r\n";
-    //Radio();
     fullAddress.val = (uint32_t)i << 8;
     FlashSSLow();
     SPI.transfer(READ_ARRAY);
@@ -127,55 +123,14 @@ void LogDump(){
     SPI.transfer(fullAddress.buffer[0]);
     firstByte = SPI.transfer(0);
     FlashSSHigh();
-    //Radio();
     if (firstByte == WRITE_COMPLETE_REC_START || firstByte == WRITE_COMPLETE_REC_START_END || firstByte == WRITE_COMPLETE_REC_END || firstByte == WRITE_COMPLETE){
       FlashGetPage(i,pageBuffer);
-      //Radio();
       SendPage(pageBuffer);
-      delay(5);
-      //Radio();
-      /*GetRecordNumber(i,&recordNumber,&lastPageAddress,&recordComplete);
-       if (recordComplete == false){
-       CompleteRecord(i,&recordNumber,&lastPageAddress);
-       }
-       OutputRecord(i,lastPageAddress);*/
-
+      //delay(5);
     }
-    /*while(RadioBytesOutWaiting() > 0){
-    }*/
-    /*waitTimer = millis();
-    while (millis() - waitTimer < 1){
-      Radio();
-    }*/
-
-
   }
 
 }
-
-/*void OutputRecord(uint16_t startAddress,uint16_t endAddress){
- uint8_t pageBuffer[256];
- uint16_t numPagesToOutput,currentOutputAddress;
- currentOutputAddress = startAddress;
- if (endAddress < startAddress){
- numPagesToOutput = (endAddress + 0x4001) - startAddress;
- }
- else{
- numPagesToOutput = endAddress - startAddress + 1;
- }
- 
- for(uint16_t i = 0; i < numPagesToOutput; i++){
- while(VerifyWriteReady() == false){
- }
- FlashGetPage(currentOutputAddress,pageBuffer);
- SendPage(pageBuffer);
- currentOutputAddress++;
- if (currentOutputAddress > 0x3FFF){
- currentOutputAddress = 0;
- }
- }
- 
- }*/
 
 void LoggingStateMachine(){
 
@@ -317,7 +272,6 @@ void LoggingStateMachine(){
 
 void LogHandler(){
   uint32_t logTime;
-  //static uint8_t startOfRecordOutputState = 0;
   static uint32_t previousHighRate,previousMedRate,previousLowRate;
   if (logEnabled == true){
     if (loggingReady == true){

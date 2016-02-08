@@ -275,8 +275,14 @@ uint8_t badTxBufSize(void)
  * \class SerialPort
  * \brief class for avr hardware USART ports
  */
+class Stream2 : public Stream{
+  public:
+    Stream2(){}
+    virtual int availableForWrite() = 0;
+  
+};
 template<uint8_t PortNumber, size_t RxBufSize, size_t TxBufSize>
-class SerialPort : public Stream {
+class SerialPort : public Stream2 {
  public:
   //----------------------------------------------------------------------------
   SerialPort() {
@@ -298,6 +304,13 @@ class SerialPort : public Stream {
       return *usart[PortNumber].ucsra & M_RXC ? 1 : 0;
     } else {
       return rxRingBuf[PortNumber].available();
+    }
+  }
+  int availableForWrite(void){
+    if (!TxBufSize) {
+      return *usart[PortNumber].ucsra & M_TXC ? 1 : 0;
+    } else {
+      return txRingBuf[PortNumber].available();
     }
   }
   //----------------------------------------------------------------------------

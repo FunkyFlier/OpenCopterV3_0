@@ -13,26 +13,23 @@ SerialPort<3, 255, 255>  gpsPort;
 
 Print* radioPrint;
 Stream* radioStream;
-
-/*
-#define Port0 Serial
-#define RC_SERIAL_PORT Serial1
-#define Port2 Serial2
-#define gpsPort Serial3*/
-
-
+Stream2* radioAvail;
 
 void AssignRadioUSB(){
   radioStream = &Port0;
   radioPrint = &Port0;
+  radioAvail = &Port0;
 }
 
 void AssignRadioUART(){
   radioStream = &Port2;
   radioPrint = &Port2;
-
+  radioAvail = &Port2;
 }
 
+uint8_t RadioAvailableForWrite(){
+  return radioAvail->availableForWrite();
+}
 uint8_t RadioAvailable(){
   return radioStream->available();
 }

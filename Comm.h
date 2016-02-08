@@ -7,9 +7,9 @@ extern SerialPort<1, 255, 255>  RC_SERIAL_PORT;
 extern SerialPort<2, 255, 255>  Port2;
 extern SerialPort<3, 255, 255>  gpsPort;
 
-
 void AssignRadioUSB();
 void AssignRadioUART();
+uint8_t RadioAvailableForWrite();
 uint8_t RadioAvailable();
 uint8_t RadioRead();
 void RadioWrite(uint8_t);
