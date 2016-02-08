@@ -28,6 +28,7 @@ void LoadCeilingFloor();
 void SetDefaultGains();
 void LoadMotorMix();
 void LoadEstimatorGains();
+void VerifyRcType();
 
 float* floatPointerArray[END_FLOATS];
 
@@ -360,7 +361,20 @@ void AssignPointerArray() {
   bytePointerArray[BARO_FS] = &baroFS;
   bytePointerArray[BATTERY_FS_RTB_FLAG] = &battLowRTB;
 } 
+void VerifyRcType(){
+  uint8_t calibrationFlags;
+  if ( (((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x00 ) ){
+    if ((uint8_t)rcType != EEPROMRead(CAL_RC_TYPE) ){
+      LEDPatternSet(5,1,3,2);
+      while(1){
+        LEDPatternHandler(micros());
+      }
 
+    }else{
+      RCFailSafe = false;
+    }
+  }
+}
 void ROMFlagsCheck() {
   uint16_t j;
   float_u outFloat;
@@ -469,7 +483,6 @@ void ROMFlagsCheck() {
     EEPROMWrite(PROP_IDLE, 12);
   }
 
-
   if (EEPROMRead(MODE_FLAG) != 0xAA){
     EEPROMWrite(MODE_FLAG,0xAA);
     j = MODE_START;
@@ -485,13 +498,6 @@ void ROMFlagsCheck() {
   }
   calibrationFlags = EEPROMRead(CAL_FLAGS);
   VerifyMag();
-  if ( (((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x00 && rcDetected == true) ){
-    if ((uint8_t)rcType != EEPROMRead(CAL_RC_TYPE) ){
-      calibrationFlags = EEPROMRead(CAL_FLAGS);
-      calibrationFlags |= (1 << RC_FLAG);
-      EEPROMWrite(CAL_FLAGS, calibrationFlags);
-    }
-  }
 
   if ( (((calibrationFlags & (1 << RC_FLAG)) >> RC_FLAG) == 0x01 && rcDetected == true && RCFailSafe == false)|| ((calibrationFlags & (1 << ACC_FLAG)) >> ACC_FLAG) == 0x01 || ( ((calibrationFlags & (1 << MAG_FLAG)) >> MAG_FLAG) == 0x01 && magDetected ) ) {
     TryHandShake();
@@ -518,12 +524,10 @@ void ROMFlagsCheck() {
       delay(500);
     }
   }
-
   if ( ((calibrationFlags & (1 << GAINS_FLAG)) >> GAINS_FLAG) == 0x01 ) {
     SetDefaultGains();
   }
   LoadROM();
-
 
 }
 void SetDefaultGains() {

@@ -47,13 +47,12 @@ void setup() {
   CheckESCFlag();
   if (rcDetected == true){
     SetRCControlESCCalFlag();
+    VerifyRcType();
   }
   MotorInit();
-
   if (handShake == false) {
     TryHandShake();
   }
-
   AccInit();
   MagInit();
   BaroInit();
@@ -67,6 +66,7 @@ void setup() {
   if (calibrationMode == true){
     CalibrateSensors();
   }
+
   if (gsCTRL == false && (rcDetected == false || RCFailSafe == true)){
     LEDPatternSet(0,1,0,2);
     while(1){
@@ -137,6 +137,7 @@ void SetPinModes(){
   LEDInit();
 
 }
+
 
 
 

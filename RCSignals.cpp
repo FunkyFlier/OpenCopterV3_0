@@ -7,7 +7,7 @@
 #include "LED.h"
 #include "FlightControl.h"
 #include "SerialPort_.h"
-
+#include "Streaming_.h"
 RC_t rcData[8];
 int16_t RCValue[8];
 volatile boolean rcDetected = false;
@@ -140,6 +140,7 @@ ISR(PCINT2_vect){
           if (900 < timeDifference && timeDifference < 2200){//check to see if it is a valid length
             rcData[i].rcvd = timeDifference;
             if (rcData[i].chan == THRO && ((timeDifference ) < ((uint16_t)rcData[i].min - 50) )){  
+              //Port0<<timeDifference<<","<<rcData[i].min<<"\r\n";
               RCFailSafe = true;
             }
             newRC = true;

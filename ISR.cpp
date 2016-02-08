@@ -51,7 +51,7 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
     Motor8WriteMicros(0);
     LEDPatternSet(0,1,0,1);
     while(1){
-      LEDPatternHandler(millis());
+      LEDPatternHandler(micros());
     }
   }
 }
