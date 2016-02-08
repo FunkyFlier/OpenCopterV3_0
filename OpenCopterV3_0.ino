@@ -20,6 +20,7 @@
 #include "Radio.h"
 #include "ISR.h"
 #include "Flash.h"
+#include "SerialPort_.h"
 
 uint32_t loopTime;
 
@@ -88,7 +89,6 @@ void setup() {
   _400HzTimer = micros();
   _100HzTimer = _400HzTimer;
 
-
 }
 
 
@@ -99,7 +99,6 @@ void loop() {
   _100HzTask(loopTime);
   Telemetry();
   watchDogFailSafeCounter = 0;
-
 }
 
 void Telemetry(){

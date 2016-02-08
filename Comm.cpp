@@ -4,9 +4,23 @@
 #include <Arduino.h>
 #include "Definitions.h"
 #include "LED.h"
+#include "SerialPort_.h"
+
+SerialPort<0, 255, 255>  Port0;
+SerialPort<1, 255, 255>  RC_SERIAL_PORT;
+SerialPort<2, 255, 255>  Port2;
+SerialPort<3, 255, 255>  gpsPort;
 
 Print* radioPrint;
 Stream* radioStream;
+
+/*
+#define Port0 Serial
+#define RC_SERIAL_PORT Serial1
+#define Port2 Serial2
+#define gpsPort Serial3*/
+
+
 
 void AssignRadioUSB(){
   radioStream = &Port0;
@@ -29,6 +43,22 @@ uint8_t RadioRead(){
 
 void RadioWrite(uint8_t outByte){
   radioPrint->write(outByte);
+}
+
+void GPSSerialBegin(uint32_t buadRate){
+  gpsPort.begin(buadRate);
+}
+
+void  GPSSerialWrte(uint8_t outByte){
+  gpsPort.write(outByte);
+}
+
+uint8_t  GPSSerialRead(){
+  return gpsPort.read();
+}
+
+uint8_t  GPSSerialAvailable(){
+  return gpsPort.available();
 }
 
 

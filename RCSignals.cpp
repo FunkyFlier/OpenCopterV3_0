@@ -6,6 +6,7 @@
 #include "Radio.h"
 #include "LED.h"
 #include "FlightControl.h"
+#include "SerialPort_.h"
 
 RC_t rcData[8];
 int16_t RCValue[8];
@@ -379,7 +380,7 @@ void PWMPPMCheck(){//checks if serial RC was incorrectly detected
 void SBus(){
   uint32_t waitTimer;
   rcDetected = false;
-  RCSerialBegin(100000,SERIAL_8E2);
+  RCSerialBegin(100000,SP_8_BIT_CHAR | SP_EVEN_PARITY | SP_2_STOP_BIT);
   waitTimer = millis();
   while( RCSerialAvailable() > 0){
     RCSerialRead();

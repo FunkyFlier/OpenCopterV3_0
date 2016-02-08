@@ -3,6 +3,7 @@
 #include "Streaming_.h"
 #include "Enums.h"
 #include "FlightControl.h"
+#include "Comm.h"
 
 boolean newGPSData,GPSDetected;
 int32_t homeLat,homeLon;
@@ -29,7 +30,8 @@ float hAcc,sAcc;
 uint8_t gpsStartState = 0;
 
 void GPSInit(){
-  gpsPort.begin(38400);
+  GPSSerialBegin(38400);
+  //psPort.begin(38400);
   GPSState=0;
   newGPSData = false;
 }
@@ -129,16 +131,16 @@ void GPSStart() {
 
 void GPSMonitor(){
   uint8_t inByte;
-  while (gpsPort.available() > 0){
+  while (GPSSerialAvailable() > 0){
     switch (GPSState){
     case 0:
-      inByte = gpsPort.read();
+      inByte = GPSSerialRead();
       if (inByte == 0xB5){
         GPSState = 1;
       }
       break;
     case 1:
-      inByte = gpsPort.read();
+      inByte = GPSSerialRead();
       if (inByte == 0x62){
         GPSState = 2;
       }
@@ -147,7 +149,7 @@ void GPSMonitor(){
       }
       break;
     case 2:
-      inByte = gpsPort.read();
+      inByte = GPSSerialRead();
       localSumB = localSumA = inByte;
       if (inByte == 0x01){
         GPSState = 3;
@@ -157,20 +159,20 @@ void GPSMonitor(){
       }
       break;
     case 3://get message type
-      inByte = gpsPort.read();
+      inByte = GPSSerialRead();
       localSumB += (localSumA += inByte);
       msgType = inByte;
       GPSState = 4;
       break;
     case 4://get number of bytes in message LSB
-      inByte = gpsPort.read();
+      inByte = GPSSerialRead();
       localSumB += (localSumA += inByte);
       msgLengthLSB = inByte;
       index = 0;
       GPSState = 5;
       break;
     case 5://get number of bytes in message MSB
-      inByte = gpsPort.read();
+      inByte = GPSSerialRead();
       localSumB += (localSumA += inByte);
       msgLengthMSB = inByte;
       msgLength = (msgLengthMSB << 8) | msgLengthLSB;
@@ -181,7 +183,7 @@ void GPSMonitor(){
       GPSState = 6;
       break;
     case 6://buffer in data
-      inByte = gpsPort.read();
+      inByte = GPSSerialRead();
       localSumB += (localSumA += inByte);
       inBuffer[index++] = inByte;
       if (index >=49){
@@ -192,7 +194,7 @@ void GPSMonitor(){
       }
       break;
     case 7://get first sum and check
-      inByte = gpsPort.read();
+      inByte = GPSSerialRead();
       if (inByte == localSumA){
         GPSState = 8;
       }
@@ -201,7 +203,7 @@ void GPSMonitor(){
       }
       break;
     case 8://get second sum and check
-      inByte = gpsPort.read();
+      inByte = GPSSerialRead();
       if (inByte == localSumB){
         GPSState = 9;
       }

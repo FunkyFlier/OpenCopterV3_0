@@ -210,11 +210,11 @@
 #define FlashSSLow() PORTL &= ~(1<<4)
 
 
-
+/*
 #define Port0 Serial
 #define RC_SERIAL_PORT Serial1
 #define Port2 Serial2
-#define gpsPort Serial3
+#define gpsPort Serial3*/
 
 #define RADIO_BUF_SIZE 256
 #define NUM_WAY_POINTS 0x14
