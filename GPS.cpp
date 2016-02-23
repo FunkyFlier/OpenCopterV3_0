@@ -4,6 +4,7 @@
 #include "Enums.h"
 #include "FlightControl.h"
 #include "Comm.h"
+#include "Radio.h"
 
 boolean newGPSData,GPSDetected;
 int32_t homeLat,homeLon;
@@ -31,7 +32,6 @@ uint8_t gpsStartState = 0;
 
 void GPSInit(){
   GPSSerialBegin(38400);
-  //psPort.begin(38400);
   GPSState=0;
   newGPSData = false;
 }
@@ -67,6 +67,8 @@ void GPSStart() {
   gpsStartTimer = millis();
 
   while ((millis() - gpsStartTimer < 1000) && (newGPSData== false)) {
+    Radio();
+    TuningTransmitter(); 
     GPSMonitor();
     if (newGPSData == true) {
       GPSDetected = true;
@@ -76,6 +78,8 @@ void GPSStart() {
   if (GPSDetected == true) {
 
     while(gpsStartComplete == false){
+      Radio();
+      TuningTransmitter(); 
       switch (gpsStartState){
       case GPS_START_FIX:
         LEDPatternSet(0,1,3,0);
@@ -251,6 +255,7 @@ void GPSMonitor(){
     GPSFailSafeCounter = 0;
   }
 }
+
 
 
 

@@ -78,7 +78,8 @@ void CheckTXPositions() {
   if (gsCTRL == false){
 
     while (positionOK == false){
-
+      Radio();
+      TuningTransmitter(); 
       if (newRC == true) {
         newRC = false;
         ProcessChannels();

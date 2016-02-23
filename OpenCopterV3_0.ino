@@ -47,7 +47,6 @@ void setup() {
   CheckESCFlag();
   if (rcDetected == true){
     SetRCControlESCCalFlag();
-    //VerifyRcType();
   }
   MotorInit();
   if (handShake == false) {

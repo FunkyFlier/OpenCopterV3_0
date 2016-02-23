@@ -1193,16 +1193,21 @@ void StartCalibration(){
   boolean okToCont = false;
   if(gsCTRL == false){
     while (newRC == false){
+      Radio();
+      TuningTransmitter(); 
     }
   }
   else{
     while (newGSRC == false){
       Radio();
+      TuningTransmitter(); 
     }
   }
   newRC = false;
 
   while(okToCont == false){
+    Radio();
+    TuningTransmitter(); 
     if (newRC == true){
       ProcessChannels();
       newRC = false;
@@ -1219,20 +1224,6 @@ void StartCalibration(){
     }
   }
 
-  /*  if (gsCTRL == true){
-   while (GSRCValue[RUDD] < 1750){
-   Radio();
-   } 
-   }
-   else{
-   while (RCValue[RUDD] < 1750){
-   if (newRC == true){
-   ProcessChannels();
-   newRC = false;
-   }
-   } 
-   }
-   */
 
 }
 

@@ -29,11 +29,6 @@ ISR(TIMER5_COMPA_vect, ISR_NOBLOCK){
     telemFSCount++;
   }
   else{
-    if (handShake == true && calibrationMode == false && getFlashMode == false){
-      Radio();
-      TuningTransmitter(); 
-    }
-
     LEDPatternHandler(micros());
   }
   if (rcType != RC){
