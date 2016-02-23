@@ -360,6 +360,7 @@ void AssignPointerArray() {
   bytePointerArray[WP_STATE] = &wayPointState;//sensors
   bytePointerArray[BARO_FS] = &baroFS;
   bytePointerArray[BATTERY_FS_RTB_FLAG] = &battLowRTB;
+  bytePointerArray[GS_CTRL_FLAG] = &gsCTRL;
 } 
 void VerifyRcType(){
   uint8_t calibrationFlags;

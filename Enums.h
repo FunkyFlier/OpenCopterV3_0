@@ -414,6 +414,7 @@ enum BYTES {
   WP_STATE,
   BARO_FS,
   BATTERY_FS_RTB_FLAG,
+  GS_CTRL_FLAG,
   END_BYTES
 };
 enum RTBStates {
