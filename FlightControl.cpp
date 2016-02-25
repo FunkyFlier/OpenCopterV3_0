@@ -738,12 +738,17 @@ void FailSafeHandler(){
         }
         else{
           if (magDetected == false){
-            LEDPatternSet(0,6,0,1);
-            MotorShutDown();
+            LEDPatternSet(0,4,0,1);
+            if (baroFS == true){
+              LEDPatternSet(0,5,0,1);
+              MotorShutDown();
+            }
           }
-          if (baroFS == true){
-            LEDPatternSet(0,7,0,1);
-            MotorShutDown();
+          else{
+            if (baroFS == true ){
+              LEDPatternSet(0,5,0,1);
+              MotorShutDown();
+            }
           }
           if (flightMode != RTB) {
             enterState = true;
@@ -1617,7 +1622,8 @@ void ProcessChannels() {
     GetSwitchPositions();
     if (gsCTRL == false){
       ProcessModes();
-    }else{
+    }
+    else{
       if (RCValue[GEAR] > 1850){
         gsCTRL = false;
         ProcessModes();
@@ -1786,7 +1792,7 @@ void ProcessModes() {
   static uint8_t WPDebugState = 0;
   if (RCValue[AUX3] > 1750) {
     if (functionCallFlag == false){
-      
+
       //functionCallFlag = true;
       //WayPointStop();
       //WayPointLandGS();
@@ -2267,6 +2273,7 @@ void ProcessModes() {
     enterState = true;
   }
 }
+
 
 
 
