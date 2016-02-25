@@ -143,6 +143,12 @@ void CheckESCFlag(){
       }
     }
     while(calibrateESCs == false){
+      if (millis() - timeOutTimer > 60000){
+        EEPROMWrite(ESC_CAL_FLAG,0xFF);
+        LEDPatternSet(3,3,3,1);
+        while(1){
+        }
+      }
       LEDPatternSet(6,1,1,1);
       Radio();
     }

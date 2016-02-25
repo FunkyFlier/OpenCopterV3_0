@@ -557,6 +557,14 @@ void SendDumpComplete(){
 void CalibrateSensors() {
   uint32_t generalPurposeTimer = millis();
   while (1) {
+    /*if (rcType != RC){
+      FeedLine();
+    }*/
+    if (newRC == true) {
+      newRC = false;
+      ProcessChannels();
+      RCFailSafeCounter = 0;
+    }
     if ( millis() - generalPurposeTimer >= 10) {
       generalPurposeTimer = millis();
       GetAcc();
@@ -882,7 +890,7 @@ void WriteCalibrationDataToRom() {
     calibrationFlags &= ~(1 << RC_FLAG);
     EEPROMWrite(CAL_FLAGS, calibrationFlags);
     EEPROMWrite(CAL_RC_TYPE,(uint8_t)rcType);
-    
+
     break;//--------------------------------------------
   case 3://command to end calibration and reset controller
     //save the packet numbers
@@ -1695,6 +1703,8 @@ void SendCalData() {
     break;
   }
 }
+
+
 
 
 
