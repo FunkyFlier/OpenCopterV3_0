@@ -78,12 +78,12 @@ void GPSStart() {
   if (GPSDetected == true) {
 
     while(gpsStartComplete == false){
-      Radio();
-      TuningTransmitter(); 
       switch (gpsStartState){
       case GPS_START_FIX:
         LEDPatternSet(0,1,3,0);
         while (GPSData.vars.gpsFix != 0x3) {
+          Radio();
+          TuningTransmitter(); 
           GPSMonitor();
         }
         gpsStartState = GPS_START_H_ACC;
@@ -92,6 +92,8 @@ void GPSStart() {
         LEDPatternSet(0,1,4,0);
         while (GPSData.vars.hAcc * 0.001 > HACC_MAX ) {
           GPSMonitor();
+          Radio();
+          TuningTransmitter(); 
         }
         gpsStartState = GPS_START_S_ACC;
         break;
@@ -99,6 +101,8 @@ void GPSStart() {
         LEDPatternSet(0,1,5,0);
         while (GPSData.vars.sAcc * 0.001 > SACC_MAX  ) {
           GPSMonitor();
+          Radio();
+          TuningTransmitter(); 
         }
         gpsStartState = GPS_START_WAIT;
         break;
@@ -107,6 +111,8 @@ void GPSStart() {
         gpsStartTimer = millis();
         while(millis() - gpsStartTimer < 30000){
           GPSMonitor();
+          Radio();
+          TuningTransmitter(); 
           if (GPSData.vars.sAcc * 0.001 > SACC_MAX || GPSData.vars.hAcc * 0.001 > HACC_MAX || GPSData.vars.gpsFix != 0x3){
             gpsStartState = GPS_START_FIX;
             break;
@@ -117,12 +123,11 @@ void GPSStart() {
         break;
       }
     }
-
-
-
     newGPSData = false;
     while (newGPSData == false) {
       GPSMonitor();
+      Radio();
+      TuningTransmitter(); 
     }
     homeLat = GPSData.vars.lat;
     homeLon = GPSData.vars.lon;
@@ -255,6 +260,7 @@ void GPSMonitor(){
     GPSFailSafeCounter = 0;
   }
 }
+
 
 
 
