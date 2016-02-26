@@ -540,12 +540,12 @@ void SetDefaultGains() {
   kp_pitch_rate = 0.85;
   ki_pitch_rate = 7.0;
   kd_pitch_rate = 0.08;
-  fc_pitch_rate = 70.0;
+  fc_pitch_rate = 30.0;
 
   kp_roll_rate = 0.85;
   ki_roll_rate = 7.0;
   kd_roll_rate = 0.08;
-  fc_roll_rate = 70.0;
+  fc_roll_rate = 30.0;
 
   kp_yaw_rate = 5.0;
   ki_yaw_rate = 0.85;

@@ -752,9 +752,9 @@ void VerifyMag() {
 
 void MagInit() {
   //continous conversion 220Hz
-  I2CWrite((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_CRA_REG, (uint8_t)0x9C);
+  I2CWrite((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_CRA_REG, (uint8_t)0xF8);
   I2CWrite((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_CRB_REG, (uint8_t)0x60);
-  I2CWrite((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_MR_REG, (uint8_t)0x80);
+  I2CWrite((uint8_t)MAG_ADDRESS, (uint8_t)HMC5983_MR_REG, (uint8_t)0x00);
 
   VerifyMag();
 
