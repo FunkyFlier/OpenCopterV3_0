@@ -7,6 +7,7 @@
 void AssignPointerArray();
 void ROMFlagsCheck();
 void LoadROM();
+void LoadRC();
 void VerifyRcType();
 
 extern float* floatPointerArray[END_FLOATS];

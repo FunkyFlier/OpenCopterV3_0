@@ -295,7 +295,7 @@ void Radio() {
           if (typeNum == HS_DATA || typeNum == LS_DATA) {
             SetTransmissionRate();
           }
-          if (typeNum == SET_PR_OFFSETS) {
+          if (typeNum == SET_PR_OFFSETS && flightMode <= ATT) {
 
             pitchOffset = rawPitch;
             rollOffset = rawRoll;
@@ -563,6 +563,8 @@ void CalibrateSensors() {
     if (newRC == true) {
       newRC = false;
       ProcessChannels();
+      //GetSwitchPositions();
+      //ProcessModes();
       RCFailSafeCounter = 0;
     }
     if ( millis() - generalPurposeTimer >= 10) {
@@ -890,7 +892,7 @@ void WriteCalibrationDataToRom() {
     calibrationFlags &= ~(1 << RC_FLAG);
     EEPROMWrite(CAL_FLAGS, calibrationFlags);
     EEPROMWrite(CAL_RC_TYPE,(uint8_t)rcType);
-
+    LoadRC();
     break;//--------------------------------------------
   case 3://command to end calibration and reset controller
     //save the packet numbers

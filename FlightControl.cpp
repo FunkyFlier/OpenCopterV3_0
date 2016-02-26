@@ -2062,6 +2062,9 @@ void ProcessModes() {
   if (gsCTRL == true && flightModeControl > L2){
     flightModeControl = L0;
   }
+  if (flightModeControl > ATT_TRIM){
+    trimComplete = true;
+  }
   switch(flightModeControl){
   case RATE:
     flightMode = RATE;
@@ -2081,7 +2084,9 @@ void ProcessModes() {
     }
     break;
   case RATE_TRIM:
-    setTrim = true;
+    if (previousFlightMode == RATE){
+      setTrim = true;
+    }
     flightMode = RATE;
     MapVar(&cmdElev, &rateSetPointY, 1000, 2000, -400, 400);
     MapVar(&cmdAile, &rateSetPointX, 1000, 2000, -400, 400);
@@ -2114,8 +2119,10 @@ void ProcessModes() {
     }
     break;
   case ATT_TRIM:
+    if (previousFlightMode == ATT){
+      setTrim = true;
+    }
     flightMode = ATT;
-    setTrim = true;
     MapVar(&cmdElev, &pitchSetPoint, 1000, 2000, -60, 60);
     MapVar(&cmdAile, &rollSetPoint, 1000, 2000, -60, 60);
     MapVar(&cmdRudd, &yawInput, 1000, 2000, -300, 300);
