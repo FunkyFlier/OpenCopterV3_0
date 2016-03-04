@@ -417,7 +417,7 @@ void MotorHandler(){
     }
 
     if (flightMode == RATE || flightMode == ATT){
-      if (throCommand > 1150 && throCommand < 1350){
+      if (throCommand > 1150){// && throCommand < 1350){
         baroGlitchHandling = true;
         takeOffBaroGlitchTimer = millis();
         motorState = FLIGHT;
