@@ -3,7 +3,9 @@
 #include <EEPROM.h>
 #include "Streaming_.h"
 #include "FlightControl.h"
-
+/*******************************
+The quaternion represents a rotation from the earth to the aircraft
+********************************/
 void SetInitialAccelerometerMagnitude();
 
 void SetVariables();
@@ -177,10 +179,10 @@ void SetInitialQuaternion(){
   rollInRadians = atan2(acc_y,acc_z);
 
   yawInRadians = 0;
-  q0 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*cos(rollInRadians/2.0) + sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*sin(rollInRadians/2.0); 
-  q1 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*sin(rollInRadians/2.0) - sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*cos(rollInRadians/2.0); 
-  q2 = cos(yawInRadians/2.0)*sin(pitchInRadians/2.0)*cos(rollInRadians/2.0) + sin(yawInRadians/2.0)*cos(pitchInRadians/2.0)*sin(rollInRadians/2.0); 
-  q3 = sin(yawInRadians/2.0)*cos(pitchInRadians/2.0)*cos(rollInRadians/2.0) - cos(yawInRadians/2.0)*sin(pitchInRadians/2.0)*sin(rollInRadians/2.0);
+  q0 = cos(rollInRadians/2.0)*cos(pitchInRadians/2.0)*cos(yawInRadians/2.0) - sin(rollInRadians/2.0)*sin(pitchInRadians/2.0)*sin(yawInRadians/2.0); 
+  q1 = sin(rollInRadians/2.0)*cos(pitchInRadians/2.0)*cos(yawInRadians/2.0) + cos(rollInRadians/2.0)*sin(pitchInRadians/2.0)*sin(yawInRadians/2.0); 
+  q2 = cos(rollInRadians/2.0)*sin(pitchInRadians/2.0)*cos(yawInRadians/2.0) - sin(rollInRadians/2.0)*cos(pitchInRadians/2.0)*sin(yawInRadians/2.0); 
+  q3 = cos(rollInRadians/2.0)*cos(pitchInRadians/2.0)*sin(yawInRadians/2.0) + sin(rollInRadians/2.0)*sin(pitchInRadians/2.0)*cos(yawInRadians/2.0);
   magnitude = sqrt(q0 *  q0 + q1 *  q1 + q2 *  q2 + q3 *  q3); 
   q0 = q0 / magnitude;
   q1 = q1 / magnitude;
@@ -199,11 +201,10 @@ void SetInitialQuaternion(){
   else{
     yawInRadians = 0;
   }
-
-  q0 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*cos(rollInRadians/2.0) + sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*sin(rollInRadians/2.0); 
-  q1 = cos(yawInRadians/2.0)*cos(pitchInRadians/2.0)*sin(rollInRadians/2.0) - sin(yawInRadians/2.0)*sin(pitchInRadians/2.0)*cos(rollInRadians/2.0); 
-  q2 = cos(yawInRadians/2.0)*sin(pitchInRadians/2.0)*cos(rollInRadians/2.0) + sin(yawInRadians/2.0)*cos(pitchInRadians/2.0)*sin(rollInRadians/2.0); 
-  q3 = sin(yawInRadians/2.0)*cos(pitchInRadians/2.0)*cos(rollInRadians/2.0) - cos(yawInRadians/2.0)*sin(pitchInRadians/2.0)*sin(rollInRadians/2.0);
+  q0 = cos(rollInRadians/2.0)*cos(pitchInRadians/2.0)*cos(yawInRadians/2.0) - sin(rollInRadians/2.0)*sin(pitchInRadians/2.0)*sin(yawInRadians/2.0); 
+  q1 = sin(rollInRadians/2.0)*cos(pitchInRadians/2.0)*cos(yawInRadians/2.0) + cos(rollInRadians/2.0)*sin(pitchInRadians/2.0)*sin(yawInRadians/2.0); 
+  q2 = cos(rollInRadians/2.0)*sin(pitchInRadians/2.0)*cos(yawInRadians/2.0) - sin(rollInRadians/2.0)*cos(pitchInRadians/2.0)*sin(yawInRadians/2.0); 
+  q3 = cos(rollInRadians/2.0)*cos(pitchInRadians/2.0)*sin(yawInRadians/2.0) + sin(rollInRadians/2.0)*sin(pitchInRadians/2.0)*cos(yawInRadians/2.0);
   magnitude = sqrt(q0 *  q0 + q1 *  q1 + q2 *  q2 + q3 *  q3); 
   q0 = q0 / magnitude;
   q1 = q1 / magnitude;
@@ -234,7 +235,6 @@ void GenerateRotationMatrix(){
   q1q3 = q1*q3;
 
   q2q3 = q2*q3;
-  //generate rotation matrix
   R11 = 2.0*(q0q0-0.5+q1q1);
   R12 = 2.0*(q1q2+q0q3);
   R13 = 2.0*(q1q3-q0q2);
@@ -291,7 +291,7 @@ void GetRoll(){
 }
 
 void GetYaw(){
-  yawInRadians = atan2(2.0 * (q0 * q3 + q1 * q2) , 1 - 2.0* (q2 * q2 + q3 * q3)) - declination;
+  yawInRadians = atan2(2.0 * (q0 * q3 + q1 * q2) , 1 - 2.0* (q2 * q2 + q3 * q3));// - declination;
   yawInDegrees = ToDeg(yawInRadians);
 
   if (yawInDegrees < 0){
