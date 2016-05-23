@@ -791,13 +791,19 @@ void GetMag() {
   magZ.buffer[0] = I2CReceive();
   magY.buffer[1] = I2CReceive();//Y
   magY.buffer[0] = I2CReceive();
+  
 #ifdef V1
 #ifndef EXT_MAG
   magY.val *= -1;
   magZ.val *= -1;
 #endif
 #endif
-
+if (rotateSensor45Deg == true){ 
+    tempX = magX.val *  0.7071067 + magY.val * -0.7071067;
+    tempY = magX.val *  0.7071067 + magY.val * 0.7071067;
+    magX.val = tempX;
+    magY.val = tempY; 
+  }  
 
 
 }
